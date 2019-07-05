@@ -8,8 +8,9 @@ library("readxl")
 fileNm <- "orig_data/HenleyLake_Taxonomy.xlsx"
 
 ## Rows 523-527 contain summary data ("total bacteria", "total
-## unclassified", etc.), so we exclude this info.
-rawAllT <- read_excel(path=fileNm, sheet="TaxLevel 5-Family", n_max=521)
+## unclassified", etc.), so we exclude this info.  Row 522 is empty,
+## and row 1 is the header.  We should have 520 rows of data.
+rawAllT <- read_excel(path=fileNm, sheet="TaxLevel 5-Family", n_max=520)
 rm(fileNm)
 
 ## For all observations, the value of "taxlevel" is 5 (denoting
@@ -17,8 +18,26 @@ rm(fileNm)
 ## and "daughterlevels", since we aren't using them.
 rawAllT <- rawAllT %>% select(-taxlevel, -rankID, -daughterlevels)
 
-## WAS WORKING HERE!!!!
+## The "total" column should be the sum over the remainder of the
+## columns for that row.
+sumCols <- apply(rawAllT[,-c(1, 2)], 1, sum)
+sumMinusTotal <- sumCols - (rawAllT %>% pull(total)) 
+percDiff <- 100 * sumMinusTotal/(rawAllT %>% pull(total))
+whichDiffer <- which(abs(sumMinusTotal) >= 1)
+## There are 107 rows (out of 520) for which the totals in the "total"
+## column (column "E") do not match the sum of the all the
+## observations in that row.
+sum(abs(sumMinusTotal) > 0)
+## Some of these differences are quite big percentage differences, but
+## in all cases the calculated total is less than the total given in
+## column "E".
+summary(percDiff)
+
+rm(sumCols, sumMinusTotal, percDiff, whichDiffer)
 ## ##################################################
+
+## ############  WORKING HERE!
+
 
 
 
