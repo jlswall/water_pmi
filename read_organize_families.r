@@ -18,8 +18,13 @@ rm(fileNm)
 ## and "daughterlevels", since we aren't using them.
 rawAllT <- rawAllT %>% select(-taxlevel, -rankID, -daughterlevels)
 
-## The "total" column should be the sum over the remainder of the
-## columns for that row.
+## We also check the "total" column.  For most rows, the "total" is
+## the sum of all the subsequent columns.  However, for 107 of the
+## rows, the "total" is higher than the sum of the subsequent rows,
+## due to some control samples, etc. which were purposefully omitted.
+## In these cases, the "total" number should match the number for that
+## taxon given in the "Original" tab.  (I've spotchecked several of
+## these cases, and that seems to be true.)
 sumCols <- apply(rawAllT[,-c(1, 2)], 1, sum)
 sumMinusTotal <- sumCols - (rawAllT %>% pull(total)) 
 percDiff <- 100 * sumMinusTotal/(rawAllT %>% pull(total))
@@ -32,11 +37,11 @@ sum(abs(sumMinusTotal) > 0)
 ## in all cases the calculated total is less than the total given in
 ## column "E".
 summary(percDiff)
+## After these checks, we can remove the "total" column".
+rawAllT <- rawAllT %>% select(-total)
 
 rm(sumCols, sumMinusTotal, percDiff, whichDiffer)
 ## ##################################################
-
-## ############  WORKING HERE!
 
 
 
@@ -47,6 +52,8 @@ rm(sumCols, sumMinusTotal, percDiff, whichDiffer)
 ## columns whose names start with "T" are actually the sums I
 ## think they are, and I'll check that totals column and row seems
 ## correct.
+
+## ############  WORKING HERE!
 
 ## #######################
 ## Put individual counts and daily sums into different tables.
