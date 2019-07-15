@@ -53,7 +53,36 @@ rm(sumCols, sumMinusTotal, percDiff, whichDiffer)
 ## think they are, and I'll check that totals column and row seems
 ## correct.
 
+## #######################
+## Go from wide format to long format. 
+
+## Go from wide to long format.
+indivT <- rawAllT %>%
+  gather(origColNm, counts, -taxon)
+## Each column started with "HL" (abbrev. for location), so we "HL".
+indivT$reviseNm <- str_remove(indivT$origColNm, pattern="HL")
+## Each column ends with "CS", so we remove "CS". 
+indivT$reviseNm <- str_remove(indivT$reviseNm, pattern="CS")
+
+## We need to separate out the baseline samples. These are samples
+## that have never been exposed to the water.
 ## ############  WORKING HERE!
+
+
+## Look at the revised column names.  In the portion of each string
+## with the pattern "C#", the "#" denotes the number of the collection
+## day.
+indivT <- separate(indivT, reviseNm, sep="C", into=c("tmp", "day"))
+
+## first letter denotes water
+## ("W"), rib ("R"), or scapula ("S").  We save these letters as the site.
+  
+## separate(indiv_time, sep="T", into=c("subj", "days"), convert=T) %>%
+## separate(days, sep="S", into=c("days", "swab"), convert=T)
+
+
+
+
 
 ## #######################
 ## Put individual counts and daily sums into different tables.
