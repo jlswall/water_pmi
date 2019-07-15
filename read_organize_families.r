@@ -63,25 +63,55 @@ indivT <- rawAllT %>%
 indivT$reviseNm <- str_remove(indivT$origColNm, pattern="HL")
 ## Each column ends with "CS", so we remove "CS". 
 indivT$reviseNm <- str_remove(indivT$reviseNm, pattern="CS")
+## #######################
 
-## We need to separate out the baseline samples. These are samples
-## that have never been exposed to the water.
-## ############  WORKING HERE!
+## #######################
+## We need to separate out the baseline samples, which were taken
+## before the cadavers were ever placed in the water.  These are the
+## columns with names ending with "B".  They do include the pattern
+## "C#" (number of collection day).
+isBaseline <- str_detect(indivT$reviseNm, pattern="B$")
+baselineT <- indivT[isBaseline,]
+## Now, remove these from the rest of the tibble (which includes data
+## from each collection day).
+indivT <- indivT[!isBaseline,]
 
-
-## Look at the revised column names.  In the portion of each string
-## with the pattern "C#", the "#" denotes the number of the collection
-## day.
-indivT <- separate(indivT, reviseNm, sep="C", into=c("tmp", "day"))
-
-## first letter denotes water
-## ("W"), rib ("R"), or scapula ("S").  We save these letters as the site.
-  
-## separate(indiv_time, sep="T", into=c("subj", "days"), convert=T) %>%
-## separate(days, sep="S", into=c("days", "swab"), convert=T)
-
+rm(isBaseline)
+## #######################
 
 
+## #######################
+## Determine collection day.
+
+## For the non-baseline data, each column name contained the pattern
+## "C#", where the "#" denotes the number of the collection day.
+indivT <- separate(indivT, reviseNm, sep="C", into=c("siteindiv", "day"), convert=T)
+## #######################
+
+
+## #######################
+## Figure out site of each sample.
+
+## The first letter in the "siteindiv" column denotes the site of the
+## sample, either water ("W"), rib ("R"), or scapula ("S").
+
+## Separate water samples from submerged cadaver samples.  There is
+## only one water sample for each collection day.
+waterT <- indivT %>% filter(siteindiv=="W") %>% rename(site=siteindiv)
+
+## After separating the water samples, separate the "siteindiv" column
+## into a site column ("R" or "S") and a subj column (number of the
+## cadaver).
+mainT <- indivT %>%
+  filter(siteindiv!="W") %>%
+  separate(siteindiv, sep=1, into=c("site", "subj"), convert=T)
+
+rm(indivT)
+## #######################
+
+
+
+## ######### WORKING HERE!!!!!
 
 
 ## #######################
