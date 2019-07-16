@@ -47,11 +47,42 @@ rm(sumCols, sumMinusTotal, percDiff, whichDiffer)
 
 
 ## ##################################################
-## Concentrate on the counts for the individual pigs on the various
-## days.  Transfer from wide format to long format.  Check that the
-## columns whose names start with "T" are actually the sums I
-## think they are, and I'll check that totals column and row seems
-## correct.
+## Read information about collections, sample types, dates, etc. from
+## spreadsheet in "HenleyLake_SampleInformation.xlsx".
+
+## The first 3 rows of the spreadsheet are all part of the header, so
+## skip those.
+fileNm <- "orig_data/HenleyLake_SampleInformation.xlsx"
+samplingT <- read_excel(fileNm, skip=3,
+                        col_names=c("date", "degdays", "season",
+                                    "location", "type", "collection",
+                                    "extractMethod", "sampleName"))
+
+## Switch date to "Date" class.  Default is POSIX class, which is for
+## datetimes.  Here, we only have the dates, not a time of day.
+samplingT$date <- as.Date(samplingT$date)
+
+## All of these samples were taken at the same location (Henley Lake)
+## and using the sampe extraction method, so "location" and
+## "extractMethod" columns are not necessary.
+samplingT <- samplingT %>% select(-location, -extractMethod)
+
+## ############ WORKING HERE!
+## Some of the sample names associated with water samples have spaces
+## in them.  That is not true of these sample names in the taxonomy
+## file.  So, we need to be careful of this.
+
+
+rm(fileNm)
+## ##################################################
+
+
+
+
+## ##################################################
+## Concentrate on the taxa counts for the individual cadavers on the
+## various collection days.  Transfer from wide format to long format.
+## Parse out the column names to get collection day, sample type, etc.
 
 ## #######################
 ## Go from wide format to long format. 
