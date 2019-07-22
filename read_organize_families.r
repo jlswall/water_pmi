@@ -1,6 +1,6 @@
 library("tidyverse")
 library("readxl")
-## library("stringr")
+library("stringr")
 
 
 ## ##################################################
@@ -67,15 +67,19 @@ samplingT$date <- as.Date(samplingT$date)
 ## "extractMethod" columns are not necessary.
 samplingT <- samplingT %>% select(-location, -extractMethod)
 
-## ############ WORKING HERE!
-## Some of the sample names associated with water samples have spaces
-## in them.  That is not true of these sample names in the taxonomy
-## file.  So, we need to be careful of this.
 
+## Some of the sample names have spaces in them.  That is not true of
+## the corresonding sample names in the taxonomy file.  So, we take
+## the spaces out for consistency.
+## Take out spaces and store elsewhere.
+tmp <- str_replace_all(samplingT$sampleName, " ", "")
+## Check to see which sample names were changed, and make sure all looks ok.
+cbind(samplingT$sampleName, tmp)[samplingT$sampleName!=tmp,]
+## Replace sample name column with adjusted names.
+samplingT$sampleName <- tmp
 
-rm(fileNm)
+rm(fileNm, tmp)
 ## ##################################################
-
 
 
 
