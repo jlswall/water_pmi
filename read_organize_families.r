@@ -68,6 +68,11 @@ samplingT$date <- as.Date(samplingT$date)
 samplingT <- samplingT %>% select(-location, -extractMethod)
 
 
+## The type can be either scapula, rib, or water.  Simplify by using
+## just S, R, or W.
+samplingT$type <- substring(samplingT$type, first=1, last=1)
+
+
 ## Some of the sample names have spaces in them.  That is not true of
 ## the corresonding sample names in the taxonomy file.  So, we take
 ## the spaces out for consistency.
@@ -92,24 +97,29 @@ rm(fileNm, tmp)
 ## Go from wide format to long format. 
 
 ## Go from wide to long format.
-indivT <- rawAllT %>%
-  gather(origColNm, counts, -taxon)
-## Each column started with "HL" (abbrev. for location), so we "HL".
-indivT$reviseNm <- str_remove(indivT$origColNm, pattern="HL")
-## Each column ends with "CS", so we remove "CS". 
-indivT$reviseNm <- str_remove(indivT$reviseNm, pattern="CS")
+rawIndivT <- rawAllT %>%
+  gather(sampleName, counts, -taxon)
+
+
+## Join with sampling information tibble to get information about
+## accumulated degree days.  That tibble already has information about
+## sample type (R, S, or W) and collection number (baseline,
+## collection 1-19), so that we don't have to parse it out of the taxa
+## spreadsheet's column names.
+indivT <- rawIndivT %>% inner_join(samplingT)
 ## #######################
+
+
+## ######### WORKING HERE!
+
 
 ## #######################
 ## We need to separate out the baseline samples, which were taken
-## before the cadavers were ever placed in the water.  These are the
-## columns with names ending with "B".  They do include the pattern
-## "C#" (number of collection day).
-isBaseline <- str_detect(indivT$reviseNm, pattern="B$")
-baselineT <- indivT[isBaseline,]
+## before the cadavers were ever placed in the water.
+baselineT <- allT %>% filter(collection=="Baseline") 
 ## Now, remove these from the rest of the tibble (which includes data
 ## from each collection day).
-indivT <- indivT[!isBaseline,]
+indivT <- indivT %>% filter(collection!="Baseline")
 
 rm(isBaseline)
 ## #######################
