@@ -73,6 +73,13 @@ samplingT <- samplingT %>% select(-location, -extractMethod)
 samplingT$type <- substring(samplingT$type, first=1, last=1)
 
 
+## The "collection" column contains one of "Baseline", "Collection 1",
+## ..., "Collection 19".  We shorten these to "B", "1", ..., "19".
+tmp <- samplingT$collection
+tmp <- str_remove(tmp, pattern="Collection ")
+tmp[tmp=="Baseline"] <- "B"
+samplingT$collection <- tmp
+
 ## Some of the sample names have spaces in them.  That is not true of
 ## the corresonding sample names in the taxonomy file.  So, we take
 ## the spaces out for consistency.
@@ -107,10 +114,12 @@ rawIndivT <- rawAllT %>%
 ## collection 1-19), so that we don't have to parse it out of the taxa
 ## spreadsheet's column names.
 indivT <- rawIndivT %>% inner_join(samplingT)
+rm(rawIndivT)
 ## #######################
+## ##################################################
 
 
-## ######### WORKING HERE!
+## ########## WORKING HERE!
 
 
 ## #######################
@@ -125,39 +134,11 @@ rm(isBaseline)
 ## #######################
 
 
-## #######################
-## Determine collection day.
-
-## For the non-baseline data, each column name contained the pattern
-## "C#", where the "#" denotes the number of the collection day.
-indivT <- separate(indivT, reviseNm, sep="C", into=c("siteindiv", "day"), convert=T)
-## #######################
-
-
-## #######################
-## Figure out site of each sample.
-
-## The first letter in the "siteindiv" column denotes the site of the
-## sample, either water ("W"), rib ("R"), or scapula ("S").
-
-## Separate water samples from submerged cadaver samples.  There is
-## only one water sample for each collection day.
-waterT <- indivT %>% filter(siteindiv=="W") %>% rename(site=siteindiv)
-
-## After separating the water samples, separate the "siteindiv" column
-## into a site column ("R" or "S") and a subj column (number of the
-## cadaver).
-mainT <- indivT %>%
-  filter(siteindiv!="W") %>%
-  separate(siteindiv, sep=1, into=c("site", "subj"), convert=T)
-
-rm(indivT)
-## #######################
 
 
 
-## ######### WORKING HERE!!!!!
 
+## ############## OLD STUFF FOLLOWS ##############
 
 ## #######################
 ## Put individual counts and daily sums into different tables.
