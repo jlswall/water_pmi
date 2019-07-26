@@ -74,11 +74,16 @@ samplingT$type <- substring(samplingT$type, first=1, last=1)
 
 
 ## The "collection" column contains one of "Baseline", "Collection 1",
-## ..., "Collection 19".  We shorten these to "B", "1", ..., "19".
+## ..., "Collection 19".  We save space by refering to these as "B",
+## "1", ..., "19". 
 tmp <- samplingT$collection
 tmp <- str_remove(tmp, pattern="Collection ")
 tmp[tmp=="Baseline"] <- "B"
 samplingT$collection <- tmp
+## To keep the chronological order (and avoid ABC order), we specify
+## this as an ordered factor.
+samplingT$collection <- ordered(samplingT$collection, levels=c("B", as.character(1:19)))
+
 
 ## Some of the sample names have spaces in them.  That is not true of
 ## the corresonding sample names in the taxonomy file.  So, we take
@@ -114,12 +119,59 @@ rawIndivT <- rawAllT %>%
 ## collection 1-19), so that we don't have to parse it out of the taxa
 ## spreadsheet's column names.
 indivT <- rawIndivT %>% inner_join(samplingT)
-rm(rawIndivT)
+rm(rawIndivT, rawAllT, samplingT)
 ## #######################
 ## ##################################################
 
 
+
+## ##################################################
+## Consider level of classification for each taxa.  (Some could not be
+## classified down to the family level, but maybe the order could be
+## determined.)
+
+## Make new variable to indicate the most precise taxon which could be
+## identified.
+indivT$taxLvl <- NA
+indivT$taxLvl[str_detect(indivT$taxon, "f__")] <- "f"
+indivT$taxLvl[str_detect(indivT$taxon, "o__")] <- "o"
+indivT$taxLvl[str_detect(indivT$taxon, "c__")] <- "c"
+indivT$taxLvl[str_detect(indivT$taxon, "p__")] <- "p"
+indivT$taxLvl[str_detect(indivT$taxon, "k__")] <- "k"
+indivT$taxLvl <- ordered(indivT$taxLvl, levels=c("f", "o", "c", "p", "k"))
+
+## Find percentage of counts can be classified down to the family
+## level.  We see that about 88.5% of the counts can be attributed at
+## the family level.
+indivT %>% group_by(taxLvl) %>% summarize(sumCounts=sum(counts), percCounts=100*sum(counts)/sum(indivT$counts))
+
+
+## For each collection day, what percentage of counts can be
+## classified to the each level?
+percTaxLvlByDayT <- indivT %>%
+  group_by(degdays, collection, taxLvl) %>%
+  summarize(sumTaxLvlCts=sum(counts)) %>%
+  inner_join(indivT %>% group_by(collection) %>%
+             summarize(dayTotals=sum(counts))
+             ) %>%
+  mutate(percTaxLvlCts = 100*sumTaxLvlCts/dayTotals)
+
+
+ggplot(percTaxLvlByDayT) +
+  geom_point(aes(x=degdays, y=percTaxLvlCts)) +
+  facet_wrap(~taxLvl) +
+  labs(x="Accumulated degree days", y="Percentage taxa classified at this level")
+
+ggplot(percTaxLvlByDayT) +
+  geom_point(aes(x=degdays, y=percTaxLvlCts, color=taxLvl)) +
+  labs(x="Accumulated degree days", y="Percentage taxa classified each level")
+
 ## ########## WORKING HERE!
+
+
+## ##################################################
+
+
 
 
 ## #######################
@@ -139,94 +191,6 @@ rm(isBaseline)
 
 
 ## ############## OLD STUFF FOLLOWS ##############
-
-## #######################
-## Put individual counts and daily sums into different tables.
-
-## Identify column names starting with "A". Save these as the counts
-## for individual pigs on the various days.
-namesA <- colnames(rawAllT)[substring(first=1, last=1, colnames(rawAllT))=="A"]
-wideIndivT <- rawAllT[,c("taxon", namesA)]
-
-## Identify column names starting with "T".  The values in these
-## columns are the sums of the individual pigs at each time point.
-## The names of these columns contain the number of days since death
-## and the accumulated degree days.  The number of days since death
-## immediately follows the "T", and the number of accumulated degree
-## days follows the "_".
-namesT <- colnames(rawAllT)[substring(first=1, last=1, colnames(rawAllT))=="T"]
-## Separate the days from the accumulated degree days.
-timeDF <- separate(data.frame(x=substring(namesT, first=2),
-                              stringsAsFactors=F),
-                   x, sep=" - ", into=c("days", "degdays"), convert=T)
-## Note: number of days and accum. degree days are strongly correlated.
-with(timeDF, cor(degdays, days))
-
-
-## Extract the columns with the taxa names and the sums across pigs
-## for each time point and taxon.
-wideSumsT <- rawAllT[,c("taxon", namesT)]
-
-
-## The last few rows are special cases, so I exclude them from the
-## tables of counts for the taxa.  They are: "Eukaryota",
-## '"Unclassified"', "% Unclassified", "Total Classified"
-wideIndivT <- wideIndivT %>% filter(!(taxon %in% c('Eukaryota', '"Unclassified"', "% Unclassified", "Total Classified")))
-wideSumsT <- wideSumsT %>% filter(!(taxon %in% c('Eukaryota', '"Unclassified"', "% Unclassified", "Total Classified")))
-
-
-rm(namesA, namesT)
-## #######################
-
-
-## #######################
-## Go from wide format to long format.  Check the columns and rows
-## containing totals.
-
-## Go from wide to long format, separating column names into subject,
-## day, and swab number.
-indivT <- wideIndivT %>%
-  gather(indiv_time, counts, -taxon) %>%
-  separate(indiv_time, sep="T", into=c("subj", "days"), convert=T) %>%
-  separate(days, sep="S", into=c("days", "swab"), convert=T)
-
-
-## ######
-## Make sure the totals for each day and taxa (across subjects) match
-## those I get from doing the sums.
-mysumsT <- indivT %>% group_by(taxon, days) %>% summarize(counts=sum(counts))
-## Adjust the times so that they match up with the first few
-## characters of the original column names for comparison.
-mysumsT[,"compareDays"] <- paste0("T", as.vector(as.matrix(mysumsT[,"days"])), " - ")
-mysumsT <- mysumsT %>% select(-days) %>% spread(compareDays, counts)
-## Put column names of mysumsT into same order as those for
-## wideSums. It's sufficient to just check that the "T##" part
-## matches.
-match.order <- match(substring(colnames(wideSumsT), first=1, last=4), substring(colnames(mysumsT), first=1, last=4))
-mysumsT <- mysumsT[,match.order]
-## Put rows of mysumsT into same order as those for wideSums.
-match.order <- match(wideSumsT$taxon, mysumsT$taxon)
-mysumsT <- mysumsT[match.order,]
-unique(as.vector(as.matrix(wideSumsT[,-1]) - as.matrix(mysumsT[,-1])))
-
-rm(match.order, wideSumsT, mysumsT)
-## ######
-## #######################
-## ##################################################
-
-
-
-
-## ##################################################
-## Find the total percentage of counts which are unclassified.
-
-## About 32.76% are unclassified.
-pull(indivT %>%
-     filter(grepl("_unclassified|_uncultured|Incertae_Sedis", taxon)) %>%
-     summarize(total_uncl=sum(counts)), "total_uncl") / sum(indivT[,"counts"])
-## Unclassified: 0.3276325
-## ##################################################
-
 
 
 
