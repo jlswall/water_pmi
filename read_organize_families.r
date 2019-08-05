@@ -106,8 +106,6 @@ rm(fileNm, tmp)
 ## Parse out the column names to get collection day, sample type, etc.
 
 ## #######################
-## Go from wide format to long format. 
-
 ## Go from wide to long format.
 rawIndivT <- rawAllT %>%
   gather(sampleName, counts, -taxon)
@@ -132,13 +130,13 @@ rm(rawIndivT, rawAllT, samplingT)
 
 ## Make new variable to indicate the most precise taxon which could be
 ## identified.
-indivT$taxLvl <- NA
-indivT$taxLvl[str_detect(indivT$taxon, "f__")] <- "f"
-indivT$taxLvl[str_detect(indivT$taxon, "o__")] <- "o"
-indivT$taxLvl[str_detect(indivT$taxon, "c__")] <- "c"
-indivT$taxLvl[str_detect(indivT$taxon, "p__")] <- "p"
-indivT$taxLvl[str_detect(indivT$taxon, "k__")] <- "k"
-indivT$taxLvl <- ordered(indivT$taxLvl, levels=c("f", "o", "c", "p", "k"))
+indivT$taxLvl <- ""
+indivT$taxLvl[str_detect(indivT$taxon, "f__")] <- "family"
+indivT$taxLvl[str_detect(indivT$taxon, "o__")] <- "order"
+indivT$taxLvl[str_detect(indivT$taxon, "c__")] <- "class"
+indivT$taxLvl[str_detect(indivT$taxon, "p__")] <- "phylum"
+indivT$taxLvl[str_detect(indivT$taxon, "k__")] <- "kingdom"
+indivT$taxLvl <- ordered(indivT$taxLvl, levels=c("family", "order", "class", "phylum", "kingdom"))
 
 ## Find percentage of counts can be classified down to the family
 ## level.  We see that about 88.5% of the counts can be attributed at
