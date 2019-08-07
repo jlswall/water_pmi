@@ -155,18 +155,30 @@ percTaxLvlByDayT <- indivT %>%
   mutate(percTaxLvlCts = 100*sumTaxLvlCts/dayTotals)
 
 
-ggplot(percTaxLvlByDayT) +
-  geom_point(aes(x=degdays, y=percTaxLvlCts)) +
-  facet_wrap(~taxLvl) +
-  labs(x="Accumulated degree days", y="Percentage taxa classified at this level")
-
+## Plot percentage classified at each level (e.g. family, phylum,
+## etc.) by ADD.
 ggplot(percTaxLvlByDayT) +
   geom_point(aes(x=degdays, y=percTaxLvlCts, color=taxLvl)) +
   labs(x="Accumulated degree days", y="Percentage taxa classified each level")
+## ##################################################
+
+
+
+
+## ##################################################
+## For use in graphs and in calculating percentages later, we need
+## total counts (over all taxa, unclassified taxa excluded) for each
+## sample (sample is individual rib or scapula on a particular
+## collection time).
 
 ## ########## WORKING HERE!
+## May want to remove all taxa that couldn't be classified at family
+## level from these counts, or we may want to try it both ways.
 
-
+## Total taxa counts by sample.
+ctBySampleT <- indivT %>%
+  group_by(degdays, type, sampleName) %>%
+  summarize(totals=sum(counts))
 ## ##################################################
 
 
