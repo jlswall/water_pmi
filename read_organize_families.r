@@ -95,6 +95,41 @@ cbind(samplingT$sampleName, tmp)[samplingT$sampleName!=tmp,]
 ## Replace sample name column with adjusted names.
 samplingT$sampleName <- tmp
 
+## #######################
+## Ideally, we would have 5 rib samples, 5 scapula samples, and 1
+## water sample for each collection day.  That would 11 samples in
+## total for each of 20 collection days.  In reality, all samples are
+## not available for every collection day.
+
+## Count the number of such samples for each collection day.
+samplingT %>% group_by(collection, type) %>% summarize(nObs=n())
+
+## Identify collection days on which samples are missing.
+samplingT %>%
+  group_by(collection, type) %>%
+  summarize(nObs=n()) %>%
+  filter( ((type=="R" | type=="S") & nObs<5) | (type=="W" & nObs<1) )
+## This table shows which collections have missing scapula or rib
+## samples.  Water samples are not missing on any of the collection
+## days.
+##    collection type   nObs
+##    <ord>      <chr> <int>
+##  1 B          S         2
+##  2 3          R         4
+##  3 4          R         4
+##  4 6          R         4
+##  5 9          R         3
+##  6 10         R         4
+##  7 11         R         3
+##  8 12         R         4
+##  9 13         R         4
+## 10 14         R         3
+## 11 15         R         3
+## 12 16         R         4
+## 13 17         R         3
+## 14 19         R         4
+## #######################
+
 rm(fileNm, tmp)
 ## ##################################################
 
