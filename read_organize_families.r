@@ -241,7 +241,7 @@ data.frame(indivT %>%
   mutate(fracBySubjDay = counts/totals) %>%
   group_by(type, taxon) %>%
   summarize(maxFracBySubjDay = max(fracBySubjDay)) %>%
-  ## filter(maxFracBySubjDay >= freqCutoff) %>%
+  filter(maxFracBySubjDay >= freqCutoff) %>%
   arrange(type, desc(maxFracBySubjDay))
 )
 
