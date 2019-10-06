@@ -245,6 +245,20 @@ data.frame(indivT %>%
   arrange(type, desc(maxFracBySubjDay))
 )
 
+
+## Find taxa that meet cutoff for more than 1 sample.
+indivT %>%
+  select(-date, -season) %>%
+  filter(taxLvl=="family") %>%
+  left_join(ctBySampleT) %>%
+  mutate(fracBySubjDay = counts/totals) %>%
+  group_by(type, taxon) %>%
+  summarize(ctMeetCutoff = sum(fracBySubjDay >= freqCutoff),
+    maxFracBySubjDay = max(fracBySubjDay)) %>%
+  filter(ctMeetCutoff > 1) %>%
+  arrange(type, desc(ctMeetCutoff), desc(maxFracBySubjDay))
+
+
 ## ######## WORKING HERE!
 
 
