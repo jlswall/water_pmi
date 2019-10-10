@@ -87,3 +87,6 @@ tanglegram(wUF.dend, uwUF.dend)
 # install.packages("RAM")
 require(RAM)
 META.clust(meta = metareduced, type = "rectangle", group = "Collection", dist=wUF.dist, clust = "average")
+
+## Try using META.clust grouping to create hclust object.
+wUF.hclust = group.with.META.clust(wUF.nozero.dist.HLS, method = "average")
