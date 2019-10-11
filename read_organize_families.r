@@ -68,9 +68,9 @@ samplingT$date <- as.Date(samplingT$date)
 samplingT <- samplingT %>% select(-location, -extractMethod)
 
 
-## The type can be either scapula, rib, or water.  Simplify by using
-## just S, R, or W.
-samplingT$type <- substring(samplingT$type, first=1, last=1)
+## ## The type can be either scapula, rib, or water.  Simplify by using
+## ## just S, R, or W.
+## samplingT$type <- substring(samplingT$type, first=1, last=1)
 
 
 ## The "collection" column contains one of "Baseline", "Collection 1",
@@ -108,26 +108,26 @@ samplingT %>% group_by(collection, type) %>% summarize(nObs=n())
 samplingT %>%
   group_by(collection, type) %>%
   summarize(nObs=n()) %>%
-  filter( ((type=="R" | type=="S") & nObs<5) | (type=="W" & nObs<1) )
+  filter( ((type=="Rib" | type=="Scapula") & nObs<5) | (type=="Water" & nObs<1) )
 ## This table shows which collections have missing scapula or rib
 ## samples.  Water samples are not missing on any of the collection
 ## days.
-##    collection type   nObs
-##    <ord>      <chr> <int>
-##  1 B          S         2
-##  2 3          R         4
-##  3 4          R         4
-##  4 6          R         4
-##  5 9          R         3
-##  6 10         R         4
-##  7 11         R         3
-##  8 12         R         4
-##  9 13         R         4
-## 10 14         R         3
-## 11 15         R         3
-## 12 16         R         4
-## 13 17         R         3
-## 14 19         R         4
+##    collection type     nObs
+##    <ord>      <chr>   <int>
+##  1 B          Scapula     2
+##  2 3          Rib         4
+##  3 4          Rib         4
+##  4 6          Rib         4
+##  5 9          Rib         3
+##  6 10         Rib         4
+##  7 11         Rib         3
+##  8 12         Rib         4
+##  9 13         Rib         4
+## 10 14         Rib         3
+## 11 15         Rib         3
+## 12 16         Rib         4
+## 13 17         Rib         3
+## 14 19         Rib         4
 ## #######################
 
 rm(fileNm, tmp)
@@ -234,7 +234,7 @@ freqCutoff <- 0.05
 
 ## Get list of maximum taxa percentages for various types (rib,
 ## scapula, water) sorted in descending order:
-data.frame(indivT %>%
+indivT %>%
   select(-date, -season) %>%
   filter(taxLvl=="family") %>%
   left_join(ctBySampleT) %>%
@@ -242,8 +242,23 @@ data.frame(indivT %>%
   group_by(type, taxon) %>%
   summarize(maxFracBySubjDay = max(fracBySubjDay)) %>%
   filter(maxFracBySubjDay >= freqCutoff) %>%
-  arrange(type, desc(maxFracBySubjDay))
-)
+  arrange(type, desc(maxFracBySubjDay)) %>%
+  print(n = Inf)
+
+
+## Count how many times each taxa beats the cutoff (freqCutoff) within
+## each type.
+indivT %>%
+  select(-date, -season, -collection) %>%
+  filter(taxLvl=="family") %>%
+  left_join(ctBySampleT) %>%
+  mutate(fracBySubjDay = counts/totals,
+         isExceed=(fracBySubjDay>=freqCutoff)) %>%
+  group_by(type, taxon) %>%
+  summarize(numExceed = sum(isExceed)) %>%
+  filter(numExceed > 1) %>%
+  ## arrange(type, desc(maxFracBySubjDay)) %>%
+  print(n = Inf)
 
 
 ## Find taxa that meet cutoff for more than 1 sample.
