@@ -68,11 +68,6 @@ samplingT$date <- as.Date(samplingT$date)
 samplingT <- samplingT %>% select(-location, -extractMethod)
 
 
-## ## The type can be either scapula, rib, or water.  Simplify by using
-## ## just S, R, or W.
-## samplingT$type <- substring(samplingT$type, first=1, last=1)
-
-
 ## The "collection" column contains one of "Baseline", "Collection 1",
 ## ..., "Collection 19".  We save space by refering to these as "B",
 ## "1", ..., "19". 
@@ -149,8 +144,9 @@ rawIndivT <- rawAllT %>%
 ## accumulated degree days.  That tibble already has information about
 ## sample type (R, S, or W) and collection number (baseline,
 ## collection 1-19), so that we don't have to parse it out of the taxa
-## spreadsheet's column names.
-indivT <- rawIndivT %>% inner_join(samplingT)
+## spreadsheet's column names.  NOTE: We also take this opportunity to
+## get rid of observations which have 0 counts.
+indivT <- rawIndivT %>% inner_join(samplingT) %>% filter(counts > 0)
 rm(rawIndivT, rawAllT, samplingT)
 ## ##################################################
 
@@ -230,24 +226,25 @@ ctBySampleT <- indivT %>%
 ## to be included in the dataset, a specific family-level taxa must
 ## make up at least 5% of the total family-level counts for at least
 ## one sample.
-freqCutoff <- 0.05
+freqCutoff <- 0.01
 
 ## Get list of maximum taxa percentages for various types (rib,
 ## scapula, water) sorted in descending order:
-indivT %>%
-  select(-date, -season) %>%
-  filter(taxLvl=="family") %>%
-  left_join(ctBySampleT) %>%
-  mutate(fracBySubjDay = counts/totals) %>%
-  group_by(type, taxon) %>%
-  summarize(maxFracBySubjDay = max(fracBySubjDay)) %>%
-  filter(maxFracBySubjDay >= freqCutoff) %>%
-  arrange(type, desc(maxFracBySubjDay)) %>%
-  print(n = Inf)
+## indivT %>%
+##   select(-date, -season) %>%
+##   filter(taxLvl=="family") %>%
+##   left_join(ctBySampleT) %>%
+##   mutate(fracBySubjDay = counts/totals) %>%
+##   group_by(type, taxon) %>%
+##   summarize(maxFracBySubjDay = max(fracBySubjDay)) %>%
+##   filter(maxFracBySubjDay >= freqCutoff) %>%
+##   arrange(type, desc(maxFracBySubjDay)) %>%
+##   print(n = Inf)
 
 
 ## Count how many times each taxa beats the cutoff (freqCutoff) within
-## each type.
+## each type.  Then, show only those which meet cutoff for more than 1
+## sample.
 indivT %>%
   select(-date, -season, -collection) %>%
   filter(taxLvl=="family") %>%
@@ -257,36 +254,25 @@ indivT %>%
   group_by(type, taxon) %>%
   summarize(numExceed = sum(isExceed)) %>%
   filter(numExceed > 1) %>%
-  ## arrange(type, desc(maxFracBySubjDay)) %>%
+  arrange(type, desc(numExceed)) %>%
   print(n = Inf)
-
-
-## Find taxa that meet cutoff for more than 1 sample.
-indivT %>%
-  select(-date, -season) %>%
-  filter(taxLvl=="family") %>%
-  left_join(ctBySampleT) %>%
-  mutate(fracBySubjDay = counts/totals) %>%
-  group_by(type, taxon) %>%
-  summarize(ctMeetCutoff = sum(fracBySubjDay >= freqCutoff),
-    maxFracBySubjDay = max(fracBySubjDay)) %>%
-  filter(ctMeetCutoff > 1) %>%
-  arrange(type, desc(ctMeetCutoff), desc(maxFracBySubjDay))
-
-
-## ######## WORKING HERE!
 
 
 ## Save the taxa names (in a tibble) which satisfy the frequency
 ## cutoff.
 freqTaxaT <- indivT %>%
-  left_join(ctBySubjDayT) %>%
-  mutate(fracBySubjDay = counts/totals) %>%
-  group_by(taxon) %>%
-  summarize(maxFracBySubjDay = max(fracBySubjDay)) %>%
-  filter(maxFracBySubjDay >= freqCutoff) %>%
-  arrange(desc(maxFracBySubjDay)) %>%
-  select(taxon)
+  select(-date, -season, -collection) %>%
+  filter(taxLvl=="family") %>%
+  left_join(ctBySampleT) %>%
+  mutate(fracBySubjDay = counts/totals,
+         isExceed=(fracBySubjDay>=freqCutoff)) %>%
+  group_by(type, taxon) %>%
+  summarize(numExceed = sum(isExceed)) %>%
+  filter(numExceed > 1) %>%
+  select(type, taxon)
+
+
+## ######## WORKING HERE!
 
 
 ## Rename taxa that occur less than the frequency cutoff allows as
@@ -297,7 +283,7 @@ commontaxaT <- commontaxaT %>%
   group_by(days, degdays, subj, taxon) %>%
   summarize(counts = sum(counts))
 
-## Remove the list of taxa names that satisfied the frequence cutoff.
+## Remove the list of taxa names that satisfied the frequency cutoff.
 rm(freqTaxaT)
 ## ##################################################
 
