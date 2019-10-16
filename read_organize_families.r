@@ -144,8 +144,9 @@ rawIndivT <- rawAllT %>%
 ## accumulated degree days.  That tibble already has information about
 ## sample type (R, S, or W) and collection number (baseline,
 ## collection 1-19), so that we don't have to parse it out of the taxa
-## spreadsheet's column names.  NOTE: We also take this opportunity to
-## get rid of observations which have 0 counts.
+## spreadsheet's column names.
+## NOTE: We also take this opportunity to get rid of observations
+## which have 0 counts.
 indivT <- rawIndivT %>% inner_join(samplingT) %>% filter(counts > 0)
 rm(rawIndivT, rawAllT, samplingT)
 ## ##################################################
@@ -190,6 +191,18 @@ ggplot(percTaxLvlBySampleT) +
   geom_point(aes(x=degdays, y=percTaxLvlCts, color=taxLvl)) +
   facet_wrap(~type) +
   labs(x="Accumulated degree days", y="Percentage taxa classified each level")
+## ggsave("family_perc_classif_by_add_type.pdf", width=8.5, height=6, units="in")
+## dev.off()
+
+
+## Count the number of unique family-level taxa observed for the
+## various types (rib, scapula, water).
+indivT %>% filter(taxLvl=="family") %>% group_by(type) %>% distinct(taxon) %>% summarize(n=n())
+##   type        n
+##   <chr>   <int>
+## 1 Rib       154
+## 2 Scapula   210
+## 3 Water     216
 ## ##################################################
 
 
@@ -243,9 +256,9 @@ freqCutoff <- 0.01
 
 
 ## Count how many times each taxa beats the cutoff (freqCutoff) within
-## each type.  Then, show only those which meet cutoff for more than 1
-## sample.
-indivT %>%
+## each type.  Then, keep only those which meet cutoff for more than 1
+## sample.  Save those taxa names for each type.
+freqTaxaByTypeT <- indivT %>%
   select(-date, -season, -collection) %>%
   filter(taxLvl=="family") %>%
   left_join(ctBySampleT) %>%
@@ -254,29 +267,19 @@ indivT %>%
   group_by(type, taxon) %>%
   summarize(numExceed = sum(isExceed)) %>%
   filter(numExceed > 1) %>%
-  arrange(type, desc(numExceed)) %>%
-  print(n = Inf)
-
-
-## Save the taxa names (in a tibble) which satisfy the frequency
-## cutoff.
-freqTaxaT <- indivT %>%
-  select(-date, -season, -collection) %>%
-  filter(taxLvl=="family") %>%
-  left_join(ctBySampleT) %>%
-  mutate(fracBySubjDay = counts/totals,
-         isExceed=(fracBySubjDay>=freqCutoff)) %>%
-  group_by(type, taxon) %>%
-  summarize(numExceed = sum(isExceed)) %>%
-  filter(numExceed > 1) %>%
+  ## arrange(type, desc(numExceed)) %>%
   select(type, taxon)
+
+## For each type, how many taxa meet the cutoff?
+freqTaxaByTypeT %>% group_by(type) %>% summarize(n=n())
 
 
 ## ######## WORKING HERE!
 
-
+## CONSIDER USING match() BELOW!
 ## Rename taxa that occur less than the frequency cutoff allows as
-## "rare".  Then, sum all these "rare" taxa into one row.
+## "rare".  Then, sum all these "rare" taxa into one row for each
+## sample.
 commontaxaT <- indivT
 commontaxaT[!(commontaxaT$taxon %in% freqTaxaT$taxon), "taxon"] <- "Rare"
 commontaxaT <- commontaxaT %>%
