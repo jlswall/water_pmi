@@ -90,6 +90,7 @@ cbind(samplingT$sampleName, tmp)[samplingT$sampleName!=tmp,]
 ## Replace sample name column with adjusted names.
 samplingT$sampleName <- tmp
 
+
 ## #######################
 ## Ideally, we would have 5 rib samples, 5 scapula samples, and 1
 ## water sample for each collection day.  That would 11 samples in
@@ -125,6 +126,9 @@ samplingT %>%
 ## 14 19         Rib         4
 ## #######################
 
+## Write out the sample information into a CSV file.
+write.csv(samplingT, file="family_sampling_info.csv", row.names=F)
+
 rm(fileNm, tmp)
 ## ##################################################
 
@@ -147,7 +151,12 @@ rawIndivT <- rawAllT %>%
 ## spreadsheet's column names.
 ## NOTE: We also take this opportunity to get rid of observations
 ## which have 0 counts.
-indivT <- rawIndivT %>% inner_join(samplingT) %>% filter(counts > 0)
+## NOTE: We also remove date, season, and collection variables.  This
+## info is contained in the sampleName variable.
+indivT <- rawIndivT %>%
+  inner_join(samplingT) %>%
+  filter(counts > 0) %>%
+  select(-date, -season, -collection)
 rm(rawIndivT, rawAllT, samplingT)
 ## ##################################################
 
@@ -168,10 +177,17 @@ indivT$taxLvl[str_detect(indivT$taxon, "p__")] <- "phylum"
 indivT$taxLvl[str_detect(indivT$taxon, "k__")] <- "kingdom"
 indivT$taxLvl <- ordered(indivT$taxLvl, levels=c("family", "order", "class", "phylum", "kingdom"))
 
+
 ## Find percentage of counts can be classified down to the family
-## level.  We see that about 88.5% of the counts can be attributed at
-## the family level.
+## level, across all types.  We see that about 88.5% of the counts can
+## be attributed at the family level.
 indivT %>% group_by(taxLvl) %>% summarize(sumCounts=sum(counts), percCounts=100*sum(counts)/sum(indivT$counts))
+
+## Find percentage of counts which can be classified down to the
+## family level, type by type.
+indivT %>% group_by(type, taxLvl) %>% summarize(sumCountsByTypeTaxLvl=sum(counts)) %>% left_join(indivT %>% group_by(type) %>% summarize(sumCountsByType=sum(counts))) %>% mutate(perc=100*sumCountsByTypeTaxLvl/sumCountsByType)
+## Percentages classified to family level: 90.5% (ribs), 88.9%
+## (scapulae), 77.7% (water).
 
 
 ## For each sample, what percentage of counts can be classified to the
@@ -193,7 +209,15 @@ ggplot(percTaxLvlBySampleT) +
   labs(x="Accumulated degree days", y="Percentage taxa classified each level")
 ## ggsave("family_perc_classif_by_add_type.pdf", width=8.5, height=6, units="in")
 ## dev.off()
+## ##################################################
 
+
+
+## ##################################################
+## From this point forward, we consider only family-level taxa for our
+## model.  So, we remove all counts of non-family-level taxa.  This is
+## consistent with the anlaysis we did for Shane's and Luisa's data.
+indivT <- indivT %>% filter(taxLvl=="family")
 
 ## Count the number of unique family-level taxa observed for the
 ## various types (rib, scapula, water).
@@ -203,26 +227,11 @@ indivT %>% filter(taxLvl=="family") %>% group_by(type) %>% distinct(taxon) %>% s
 ## 1 Rib       154
 ## 2 Scapula   210
 ## 3 Water     216
-## ##################################################
 
 
-
-
-## ##################################################
 ## For use in graphs and in calculating percentages later, we need
 ## total counts for each sample.
-
-## Total taxa counts by sample name, including taxa that couldn't be
-## classified at the family level.
-## ctInclUnclBySampleT <- indivT %>%
-##   group_by(sampleName) %>%
-##   summarize(totals=sum(counts))
-
-
-## Excluding taxa that couldn't be classified at the family level,
-## find the total taxa counts by sample name.
 ctBySampleT <- indivT %>%
-  filter(taxLvl=="family") %>%
   group_by(sampleName) %>%
   summarize(totals=sum(counts))
 ## ##################################################
@@ -231,26 +240,24 @@ ctBySampleT <- indivT %>%
 
 ## ##################################################
 ## Some taxa don't occur frequently.  It's hard to make a hard cutoff
-## for what constitutes "frequently".  There are 247 family-level taxa
-## represented, and a lot of them appear in less than 0.1% of
+## for what constitutes "frequently".  There are 245 family-level taxa
+## represented, and a lot of them appear in less than 1% of
 ## samples.
 
-## I'm going to set the cutoff at 5% (0.05).  This means that in order
-## to be included in the dataset, a specific family-level taxa must
-## make up at least 5% of the total family-level counts for at least
-## one sample.
+## I'm going to set the frequency cutoff at 1% (0.01).  This means
+## that in order to meet the cutoff, a specific family-level taxa must
+## make up at least 1% of the total family-level counts for that
+## sample.
 freqCutoff <- 0.01
 
 ## Get list of maximum taxa percentages for various types (rib,
 ## scapula, water) sorted in descending order:
 ## indivT %>%
-##   select(-date, -season) %>%
-##   filter(taxLvl=="family") %>%
 ##   left_join(ctBySampleT) %>%
 ##   mutate(fracBySubjDay = counts/totals) %>%
 ##   group_by(type, taxon) %>%
 ##   summarize(maxFracBySubjDay = max(fracBySubjDay)) %>%
-##   filter(maxFracBySubjDay >= freqCutoff) %>%
+##   ## filter(maxFracBySubjDay >= freqCutoff) %>%
 ##   arrange(type, desc(maxFracBySubjDay)) %>%
 ##   print(n = Inf)
 
@@ -259,8 +266,6 @@ freqCutoff <- 0.01
 ## each type.  Then, keep only those which meet cutoff for more than 1
 ## sample.  Save those taxa names for each type.
 freqTaxaByTypeT <- indivT %>%
-  select(-date, -season, -collection) %>%
-  filter(taxLvl=="family") %>%
   left_join(ctBySampleT) %>%
   mutate(fracBySubjDay = counts/totals,
          isExceed=(fracBySubjDay>=freqCutoff)) %>%
@@ -272,157 +277,46 @@ freqTaxaByTypeT <- indivT %>%
 
 ## For each type, how many taxa meet the cutoff?
 freqTaxaByTypeT %>% group_by(type) %>% summarize(n=n())
+## Save list of frequent taxa by type to a CSV file.
+write.csv(freqTaxaByTypeT, file="family_freq_taxa_by_type.csv", row.names=F)
 
 
-## ######## WORKING HERE!
-
-## CONSIDER USING match() BELOW!
 ## Rename taxa that occur less than the frequency cutoff allows as
 ## "rare".  Then, sum all these "rare" taxa into one row for each
 ## sample.
 commontaxaT <- indivT
-commontaxaT[!(commontaxaT$taxon %in% freqTaxaT$taxon), "taxon"] <- "Rare"
+## Find rows which contain taxa which do not meet the frequency cutoff
+## for that type.
+indicRare <- !( with(commontaxaT, paste(taxon, type, sep=":")) %in% with(freqTaxaByTypeT, paste(taxon, type, sep=":")) )
+## For these "rare" taxa, we change taxon name to rare.
+commontaxaT[indicRare, "taxon"] <- "Rare"
+## Now, we add up the rare counts so that "Rare" appears only one for
+## each sample.
 commontaxaT <- commontaxaT %>%
-  group_by(days, degdays, subj, taxon) %>%
+  group_by(sampleName, taxon, type, degdays) %>%
   summarize(counts = sum(counts))
 
-## Remove the list of taxa names that satisfied the frequency cutoff.
-rm(freqTaxaT)
-## ##################################################
-
-
-
-
-## #######################
-## We need to separate out the baseline samples, which were taken
-## before the cadavers were ever placed in the water.
-baselineT <- allT %>% filter(collection=="Baseline") 
-## Now, remove these from the rest of the tibble (which includes data
-## from each collection day).
-indivT <- indivT %>% filter(collection!="Baseline")
-
-rm(isBaseline)
-## #######################
-
-
-
-
-
-
-## ############## OLD STUFF FOLLOWS ##############
-
-
-
-## ##################################################
-## Make other adjustments to the dataset so that it's easier to use.
-
-## Remove the counts associated with unclassifed taxa,
-## "Incertae_Sedis", and "uncultured" (*_unclassified, "_uncultured",
-## "Incertae_Sedis").  Also, include accum. degree days in the tibble.
-indivT <- indivT %>%
-  filter(!grepl("_unclassified|_uncultured|Incertae_Sedis", taxon)) %>%
-  left_join(timeDF, by="days")
-
-## Remove the counts associated with order "Mammalia" (which is
-## probably the pig's DNA), and with order "Aves" (birds, not sure why
-## that's in there).
-indivT <- indivT %>%
-  filter(!grepl("Mammalia|Aves", taxon))
-## ##################################################
-
-
-
-
-## ##################################################
-## For use in graphs and in calculating percentages later, we need
-## total counts (over all taxa, unclassified taxa excluded) by:
-##   Each pig and each day 
-##   Each day (all pigs combined)
-
-## Total taxa counts by day and subject (each pig separately).
-ctBySubjDayT <- indivT %>%
-  group_by(days, degdays, subj) %>%
-  summarize(totals=sum(counts))
-
-## Total taxa counts by day (all pigs combined).
-ctByDayT <- indivT %>%
-  group_by(days, degdays) %>%
-  summarize(totals = sum(counts))
-## ##################################################
-
-
-
-
-## ##################################################
-## Some taxa don't occur frequently.  It's hard to make a hard cutoff
-## for what constitutes "frequently".  There are 164 (classified) taxa
-## in the dataset, and a lot of them appear in less than 0.1% of
-## samples.
-
-## I'm going to set the cutoff at 1% (0.01).  This means that in order
-## to be included in the dataset, a specific taxa must make up at
-## least 1% of the total counts on at least 1 day for at least 1
-## cadaver.
-freqCutoff <- 0.01
-
-## Get list of maximum taxa percentages sorted in descending order:
-data.frame(indivT %>%
-  left_join(ctBySubjDayT) %>%
-  mutate(fracBySubjDay = counts/totals) %>%
-  group_by(taxon) %>%
-  summarize(maxFracBySubjDay = max(fracBySubjDay)) %>%
-  arrange(desc(maxFracBySubjDay))
-)
-
-
-## Save the taxa names (in a tibble) which satisfy the frequency
-## cutoff.
-freqTaxaT <- indivT %>%
-  left_join(ctBySubjDayT) %>%
-  mutate(fracBySubjDay = counts/totals) %>%
-  group_by(taxon) %>%
-  summarize(maxFracBySubjDay = max(fracBySubjDay)) %>%
-  filter(maxFracBySubjDay >= freqCutoff) %>%
-  arrange(desc(maxFracBySubjDay)) %>%
-  select(taxon)
-
-
-## Rename taxa that occur less than the frequency cutoff allows as
-## "rare".  Then, sum all these "rare" taxa into one row.
-commontaxaT <- indivT
-commontaxaT[!(commontaxaT$taxon %in% freqTaxaT$taxon), "taxon"] <- "Rare"
-commontaxaT <- commontaxaT %>%
-  group_by(days, degdays, subj, taxon) %>%
-  summarize(counts = sum(counts))
-
-## Remove the list of taxa names that satisfied the frequence cutoff.
-rm(freqTaxaT)
-## ##################################################
-
-
-
-
-## ##################################################
-## Add percentages by subj/day to the commontaxaT table.
 
 ## Use the table of total counts by subj/day to find the fraction
 ## represented by each taxa for each subj/day.
 commontaxaT <- commontaxaT %>%
-  left_join(ctBySubjDayT) %>%
-  mutate(fracBySubjDay=counts/totals) %>%
+  left_join(ctBySampleT) %>%
+  mutate(fracBySample=counts/totals) %>%
   select(-totals)
 
 
 ## Check that the fractions add up to 1, appropriately.
 unique(
-    unlist(commontaxaT %>%
-           group_by(days, subj) %>%
-           summarize(sumFracBySubjDay = sum(fracBySubjDay)) %>%
-           ungroup() %>%
-           select(sumFracBySubjDay))
+    commontaxaT %>%
+    group_by(sampleName) %>%
+    summarize(sumFracBySample = sum(fracBySample)) %>%
+    pull(sumFracBySample)
 )
-## ##################################################
 
+
+## Remove the list of taxa names that satisfied the frequency cutoff.
+rm(indicRare, freqCutoff, freqTaxaByTypeT)
+## ##################################################
 
 
 
@@ -430,8 +324,5 @@ unique(
 ## Save the tibble to a file for use in separate code
 ## for graphing and analysis.
 
-## I have to use the base R write.csv() routine, because write_csv
-## will write out scientific notation, which read_csv() doesn't read
-## in properly.
 write.csv(commontaxaT, file="families_massaged.csv", row.names=FALSE)
 ## ##################################################
