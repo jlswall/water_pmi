@@ -5,7 +5,7 @@ library("stringr")
 
 ## ##################################################
 ## Read in family-level taxonomic data from Excel sheet.
-fileNm <- "orig_data/HenleyLake_Taxonomy.xlsx"
+fileNm <- "orig_data_files/HenleyLake_Taxonomy.xlsx"
 
 ## Rows 523-527 contain summary data ("total bacteria", "total
 ## unclassified", etc.), so we exclude this info.  Row 522 is empty,
@@ -52,7 +52,7 @@ rm(sumCols, sumMinusTotal, percDiff, whichDiffer)
 
 ## The first 3 rows of the spreadsheet are all part of the header, so
 ## skip those.
-fileNm <- "orig_data/HenleyLake_SampleInformation.xlsx"
+fileNm <- "orig_data_files/HenleyLake_SampleInformation.xlsx"
 samplingT <- read_excel(fileNm, skip=3,
                         col_names=c("date", "degdays", "season",
                                     "location", "type", "collection",
@@ -149,13 +149,10 @@ rawIndivT <- rawAllT %>%
 ## sample type (R, S, or W) and collection number (baseline,
 ## collection 1-19), so that we don't have to parse it out of the taxa
 ## spreadsheet's column names.
-## NOTE: We also take this opportunity to get rid of observations
-## which have 0 counts.
 ## NOTE: We also remove date, season, and collection variables.  This
 ## info is contained in the sampleName variable.
 indivT <- rawIndivT %>%
   inner_join(samplingT) %>%
-  filter(counts > 0) %>%
   select(-date, -season, -collection)
 rm(rawIndivT, rawAllT, samplingT)
 ## ##################################################
@@ -221,7 +218,7 @@ indivT <- indivT %>% filter(taxLvl=="family")
 
 ## Count the number of unique family-level taxa observed for the
 ## various types (rib, scapula, water).
-indivT %>% filter(taxLvl=="family") %>% group_by(type) %>% distinct(taxon) %>% summarize(n=n())
+indivT %>% filter(taxLvl=="family") %>% filter(counts>0) %>% group_by(type) %>% distinct(taxon) %>% summarize(n=n())
 ##   type        n
 ##   <chr>   <int>
 ## 1 Rib       154
