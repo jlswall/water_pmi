@@ -216,6 +216,21 @@ ggplot(percTaxLvlBySampleT) +
 ## consistent with the anlaysis we did for Shane's and Luisa's data.
 indivT <- indivT %>% filter(taxLvl=="family")
 
+
+## Make a new, more readable taxon column.
+## Column names with open brackets (e.g. "f__[Tissierellaceae]") cause
+## problems for functions expecting traditional data frame column
+## names (like randomForest function).
+indivT$newtaxon <- gsub(indivT$taxon, pattern="\\[", replacement="")
+indivT$newtaxon <- gsub(indivT$newtaxon, pattern="]", replacement="")
+## Column names with dashes can likewise be a problem, so I replace
+## dashes with underscores.
+indivT$newtaxon <- gsub(indivT$newtaxon, pattern="-", replacement="_")
+## Remove the column of the original, less-R-friendly taxon names from
+## the tibble to avoid confusion.  Rename new column.
+indivT <- indivT %>% select(-taxon)
+indivT <- rename(indivT, taxon = newtaxon)
+
 ## Count the number of unique family-level taxa observed for the
 ## various types (rib, scapula, water).
 indivT %>% filter(taxLvl=="family") %>% filter(counts>0) %>% group_by(type) %>% distinct(taxon) %>% summarize(n=n())
