@@ -199,19 +199,80 @@
 
 
 
-\begin{frame}{Dealing with "rare" taxa}
+\begin{frame}{Which taxa were included?}
+
+  \noindent For each sample, we calculated the total counts of all classified,
+family-level taxa.  Then, for each sample, we calculated the fraction of counts
+associated with each family-level taxa.  (Raw counts were \textbf{not} used.)
+
+  \vspace{0.1in}
 
   \noindent To be included in the family-level analysis, we require that a taxon
-  be identified at the family level and that it make up more than 1\% of the
-  total counts for at least 2 samples.
+  makes up more than 1\% of the total counts for at least 2 samples.
 
+  \vspace{0.1in}
+
+  \noindent This is similar to the process we used when setting up for the
+analyses in the Forger et al.~ paper, but we may want to revisit it.  (Should we
+require more than 1\%?  For more than 2 samples?))
+
+  \vspace{0.1in}
+
+  \noindent Number of taxa utilized in random forest models:
   \begin{itemize}
     \item Ribs: 24 taxa
     \item Scapulae: 34 taxa
-    \item Water: 31 taxa
+    %% \item Water: 31 taxa
   \end{itemize}
+
+
+\end{frame}
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section[Ribs, family-level]{Family-level taxa for ribs}
+
+\begin{frame}{Which taxa are influential in the random forest model?}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=3.25in]{use_families/w_ribs/families_PercIncMSE_barchart}
+    \end{figure}
+  \end{center}
+  \vspace{-0.1in}
+  {\scriptsize
+  \begin{itemize}
+  \item The measure of importance is the mean percentage increase in the
+    mean-square error of model predictions when the variable is left out of the
+    model. 
+  \item I've shown 15 because they would fit, but 24 were used in the model.
+  \item The first four taxa are noticeably more influential than those that
+  follow.
+  \end{itemize}
+  }
 
 \end{frame}
 
+
+\begin{frame}{Scatterplots for influential taxa}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=4.75in]{use_families/w_ribs/infl_rib_family_scatter}
+    \end{figure}
+  \end{center}
+  \vspace{-0.25in}
+  {\scriptsize
+  \begin{itemize}
+  \item I've only shown top 6 because more than that is hard to fit.
+  \item Note that the y-axes have differing scales.
+  \item Fractions of f\_\_Comamonadaceae and f\_\_Rhodocyclaceae are very low.
+  \end{itemize}
+  }
+
+
+\end{frame}
 
 \end{document}
