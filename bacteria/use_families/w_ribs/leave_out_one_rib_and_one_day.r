@@ -182,17 +182,17 @@ sqrt(mean(myresids^2))
 
 ggplot(residDF %>%
        filter(dayOmit==yactual) %>%
-       filter(subjOmit==subjactual),
+       filter(ribnumOmit==ribnumactual),
        aes(x=yactual, y=resid)) +
   geom_point() +
-  ## geom_point(aes(col=subjOmit)) +
+  ## geom_point(aes(col=ribnumOmit)) +
   geom_hline(yintercept=0) +
   labs(x="Actual degree days", y="Error (actual - estimated)")
-ggsave(filename="leave_out_one_subj_and_one_day_residuals.pdf", height=3.5, width=3.5, units="in")
+ggsave(filename="leave_out_one_rib_and_one_day_residuals.pdf", height=3.5, width=3.5, units="in")
 
 ggplot(residDF, aes(x=yactual, y=resid)) +
-  facet_wrap(~subjOmit) +
-  geom_point(aes(col=subjOmit)) +
+  facet_wrap(~ribnumOmit) +
+  geom_point(aes(col=ribnumOmit)) +
   labs(x="Actual degree day", y="Residual")
 ## #########################################
 
