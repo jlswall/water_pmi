@@ -9,25 +9,33 @@ library("parallel")
 taxalevel <- "families"
 
 ## Read in cleaned-up phyla, orders, or families taxa.
-taxaT <- read_csv(paste0(taxalevel, "_hit_cutoff_twice_all_time_steps.csv"))
+allT <- read_csv(paste0("../../", taxalevel, "_massaged.csv"))
+## ##################################################
+
+
+## ##################################################
+## Are we dealing with ribs, scapulae, or water observations?
+obstype <- "Rib"
+
+## Filter the data to just that type.
+taxaT <- allT %>% filter(type==obstype)
+rm(allT)
 ## ##################################################
 
 
 
 ## ##################################################
-## Put the data in wide format; remove days, subj, and rare taxa.
+## Put the data in wide format; remove rare taxa.
 
-## Move back to wide format.  Unlike our other runs, here we leave
-## the subject identifier in the dataset, so that we can try predictions
-## with/without designated subjects.
+## Move back to wide format.  Leave sampleName in so that we can
+## distinguish data belonging to individual ribs.
 wideT <- taxaT %>%
   filter(taxon!="Rare") %>%
-  select(degdays, subj, taxon, fracBySubjDay) %>%
-  spread(taxon, fracBySubjDay)
+  select(degdays, sampleName, taxon, fracBySample) %>%
+  spread(taxon, fracBySample)
 
-## Just for reference later, keep the days and degree days, so we can
-## look at the time correspondence.
-timeT <- taxaT %>% distinct(days, degdays)
+## Make variable denoting individual ribs.
+wideT$ribnum <- substring(wideT$sampleName, first=3, last=4)
 
 rm(taxaT)
 ## ##################################################
@@ -43,9 +51,9 @@ numBtSamps <- 3000
 
 ## Repeated cross-validation runs (1000 of them), leaving out 20% of
 ## the observations at a time, indicated that the number of variables
-## to consider at each split is about 15 (also 14 is very close)
+## to consider at each split is about 14 (also 15 is very close)
 ## for the response variable in the original units.
-numVarSplit <- 15
+numVarSplit <- 14
 ## ##################################################
 
 
@@ -54,33 +62,28 @@ numVarSplit <- 15
 ## Set up these training and valiation datasets, plus matrices to hold
 ## cross-valiation results.
 
-## We exclude each combination of individual and degree day. This is
-## 16 degree days x 6 individuals = 96 combos.
-excludeCombos <- expand.grid(unique(wideT$subj), unique(wideT$degdays),
-                          stringsAsFactors=FALSE)
-colnames(excludeCombos) <- c("subj", "degdays")
-
-## With the bacterial data, we had some missing data for certain
-## subject-day combos, but we don't have that problem with the
-## eukaryotic data.  We do want to turn the matrix above into a tibble.
-excludeCombos <- as.tibble(excludeCombos)
-
+## We exclude in turn each combination of individual rib and degree
+## day. If there were no missing observations, this would be 20 degree
+## days x 5 individual ribs = 100 combos.  However, we have no
+## observations on 18 different combos of rib and degdays.
+excludeCombos <- wideT %>% select(degdays, ribnum) %>% distinct()
+                 
 ## How many times do we want to run each exclusion combo?
 numRunsEachCombo <- 1
 excludeT <- NULL
 for (i in 1:numRunsEachCombo)
     excludeT <- bind_rows(excludeT, excludeCombos)
 rm(excludeCombos)
-## Order by degdays and then subj.
-excludeT <- excludeT %>% arrange(degdays, subj)
+## Ensure ordering is by degdays and then ribnum.
+excludeT <- excludeT %>% arrange(degdays, ribnum)
 
 ## Set up the training and validation datasets corresponding to each
 ## combo.
 numCVs <- nrow(excludeT)
 crossvalidL <- vector("list", numCVs)
 for (i in 1:numCVs){
-  lvOut <- (wideT$subj==pull(excludeT[i,"subj"])) | (wideT$degdays==pull(excludeT[i,"degdays"]))
-  trainT <- wideT[!lvOut,] %>% select(-subj)
+  lvOut <- (wideT$ribnum==pull(excludeT[i,"ribnum"])) | (wideT$degdays==pull(excludeT[i,"degdays"]))
+  trainT <- wideT[!lvOut,] %>% select(-ribnum, -sampleName)
   validT <- wideT[lvOut,]
   crossvalidL[[i]] <- list(trainT=trainT, validT=validT)
 }
@@ -98,7 +101,7 @@ origUnitsF <- function(x, mtry, ntree){
 }
 
 ## Set random seed for reproducibility.
-set.seed(416965)
+set.seed(466267)
 
 ## Try using lapply to fit the random forests.
 origFitL <- mclapply(crossvalidL, mc.cores=6, origUnitsF, mtry=numVarSplit, ntree=numBtSamps)
@@ -139,8 +142,8 @@ for (i in 1:numCVs){
   ## Build a data frame with these residuals, along with the day and
   ## individual that were left out in this validation.
   iresidDF <- data.frame(dayOmit=pull(excludeT[i,"degdays"]),
-                         subjOmit=pull(excludeT[i,"subj"]),
-                         subjactual=validT$subj,
+                         ribnumOmit=pull(excludeT[i,"ribnum"]),
+                         ribnumactual=validT$ribnum,
                          yactual=validT$degdays,
                          yhat=origFitL[[i]],
                          resid=resid)
@@ -150,7 +153,7 @@ for (i in 1:numCVs){
 rm(i, validT, resid, iresidDF)
 
 ## Write this info out.
-write.csv(residDF, file="resids_leave_out_one_subj_and_one_day.csv", row.names=FALSE)
+write.csv(residDF, file="resids_leave_out_one_rib_and_one_day.csv", row.names=FALSE)
 ## #########################################
 
 
@@ -158,16 +161,16 @@ write.csv(residDF, file="resids_leave_out_one_subj_and_one_day.csv", row.names=F
 ## #########################################
 ## We're interested in the error we're likely to get with the model in
 ## "regular use".  That means that we are interested the prediction
-## the model makes for a subject and time slot that we're never
+## the model makes for a rib and time slot that we're never
 ## observed.  That's only ONE prediction of interest per model run.
 ## So, we look at the root of the mean squared errors for the n
 ## predictions of interest in these n runs.
 
 myresids <- residDF %>%
-  filter((subjactual==subjOmit) & (dayOmit==yactual)) %>%
+  filter((ribnumactual==ribnumOmit) & (dayOmit==yactual)) %>%
   pull(resid)
 sqrt(mean(myresids^2))
-## This is about 243-244, whether I use 1, 10, or 100 runs per
+## This is about 741-744, whether I use 1, 10, or 100 runs per
 ## combo.
 ## #########################################
 
