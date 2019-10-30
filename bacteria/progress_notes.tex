@@ -232,13 +232,35 @@ require more than 1\%?  For more than 2 samples?))
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section[Ribs, family-level]{Family-level taxa for ribs}
+\section[Ribs, family-level]{Family-level analysis for ribs}
+
+\begin{frame}{Implementing random forest model}
+
+\begin{itemize}
+\item The model utilized 24 family-level taxa.
+\item Cross-validation was used to determine that the best number of taxa to
+consider at each "branching" was about 14.
+\item If we were to change our critera and reduce the number of taxa which are
+considered plentiful enough to be considered, then we would need to do
+cross-validation again (as we might expect it to be lower than 14.)
+\end{itemize}
+
+\vspace{0.1in}
+
+\noindent For the fitted model (using all available data):\\
+\noindent RMSE: 517.0 $\pm$ 6.3  \hspace{0.05in}  Explained variation: 89.5\%
+$\pm$ 0.3\%
+
+
+\end{frame}
+
+
 
 \begin{frame}{Which taxa are influential in the random forest model?}
 
   \begin{center}
     \begin{figure}
-      \includegraphics[width=3.25in]{use_families/w_ribs/families_PercIncMSE_barchart}
+      \includegraphics[width=3.25in]{use_families/w_ribs/families_rib_PercIncMSE_barchart}
     \end{figure}
   \end{center}
   \vspace{-0.1in}
@@ -268,10 +290,74 @@ require more than 1\%?  For more than 2 samples?))
   \begin{itemize}
   \item I've only shown top 6 because more than that is hard to fit.
   \item Note that the y-axes have differing scales.
-  \item Fractions of f\_\_Comamonadaceae and f\_\_Rhodocyclaceae are very low.
+  \item Fractions of Comamonadaceae and Rhodocyclaceae are very low.
   \end{itemize}
   }
 
+\end{frame}
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section[Scapulae, family-level]{Family-level analysis for scapluae}
+
+\begin{frame}{Implementing random forest model}
+
+\begin{itemize}
+\item The model utilized 34 family-level taxa.
+\item Cross-validation was used to determine that the best number of taxa to
+consider at each "branching" was about 20.
+\item If we were to change our critera and reduce the number of taxa which are
+considered plentiful enough to be considered, then we would need to do
+cross-validation again (as we might expect it to be lower than 20.)
+\end{itemize}
+
+\vspace{0.1in}
+
+\noindent For the fitted model (using all available data):\\
+\noindent RMSE: 333.48  \hspace{0.05in}  Explained variation: 95.35\%
+
+
+\end{frame}
+
+
+
+\begin{frame}{Which taxa are influential in the random forest model?}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=3.25in]{use_families/w_scapulae/families_scapula_PercIncMSE_barchart}
+    \end{figure}
+  \end{center}
+  \vspace{-0.1in}
+  {\scriptsize
+  \begin{itemize}
+  \item I've shown 15 because they would fit, but 34 were used in the model.
+  \item The first 7-8 taxa are noticeably more influential than those that
+  follow.
+  \end{itemize}
+  }
+
+\end{frame}
+
+
+
+\begin{frame}{Scatterplots for influential taxa}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=4.75in]{use_families/w_scapulae/infl_scapula_family_scatter}
+    \end{figure}
+  \end{center}
+  \vspace{-0.25in}
+  {\scriptsize
+  \begin{itemize}
+  \item I've only shown top 6 because more than that is hard to fit.
+  \item Note that the y-axes have differing scales.
+  \item Fractions of Pirellulaceae, Campylobacteraceae, and Crenotrichacea
+  are very low.
+  \end{itemize}
+  }
 
 \end{frame}
 

@@ -19,7 +19,7 @@ allT <- read_csv(paste0("../../", taxalevel, "_massaged.csv"))
 obstype <- "Rib"
 
 ## Filter the data to just that type.
-taxaT <- allT %>% filter(type=="Rib")
+taxaT <- allT %>% filter(type==obstype)
 rm(allT)
 ## ##################################################
 
@@ -121,9 +121,9 @@ fullImportanceT %>% group_by(taxa) %>% summarize(meanPercIncMSE=mean(PercIncMSE)
 
 ## Get summary statistics for report.
 c(mean(fullRMSE), 1.96*sd(fullRMSE))
-## RMSE: 516.873646   6.445124
+## RMSE: 516.968459   6.253109
 c(mean(fullRsq), 1.96*sd(fullRsq))
-## Rsq: 0.895491173 0.002605693
+## Rsq: 0.895453077 0.002528494
 
 write_csv(data.frame(fullRMSE, fullRsq), path="cvstats_w_full_dataset_final_params.csv")
 rm(fullRMSE, fullRsq)
@@ -207,7 +207,7 @@ ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
   coord_flip() +
   geom_col() +
   labs(x="Ribs: family-level taxa", y="Mean % increase in MSE when excluded")
-ggsave(filename="families_PercIncMSE_barchart.pdf", height=4.5, width=6, units="in")
+ggsave(filename="families_rib_PercIncMSE_barchart.pdf", height=4.5, width=6, units="in")
 ## ##################################################
 
 
