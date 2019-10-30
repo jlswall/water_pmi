@@ -91,8 +91,8 @@ for (i in 1:numRepeat)
 ## ###########################
 ## Now, fit random forests to the full dataset over and over.
 
-set.seed(420460)
-fullResultsL <- mclapply(repDataL, mc.cores=4, fitFullDataF, mtry=numVarSplit, ntree=numBtSamps)
+set.seed(420469)
+fullResultsL <- mclapply(repDataL, mc.cores=6, fitFullDataF, mtry=numVarSplit, ntree=numBtSamps)
 
 ## Calculate the RMSE and pseudo-Rsquared for these runs with the full
 ## dataset.
@@ -121,9 +121,9 @@ fullImportanceT %>% group_by(taxa) %>% summarize(meanPercIncMSE=mean(PercIncMSE)
 
 ## Get summary statistics for report.
 c(mean(fullRMSE), 1.96*sd(fullRMSE))
-## RMSE: 334.194783   4.502814
+## RMSE: 334.226718   4.415292
 c(mean(fullRsq), 1.96*sd(fullRsq))
-## Rsq: 0.953305818 0.001258071
+## Rsq: 0.953296978 0.001234682
 
 write_csv(data.frame(fullRMSE, fullRsq), path="cvstats_w_full_dataset_final_params.csv")
 rm(fullRMSE, fullRsq)
