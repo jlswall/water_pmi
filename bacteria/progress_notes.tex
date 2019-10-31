@@ -234,7 +234,7 @@ require more than 1\%?  For more than 2 samples?))
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section[Ribs, family-level]{Family-level analysis for ribs}
 
-\begin{frame}{Implementing random forest model}
+\begin{frame}{Implementing the random forest model}
 
 \begin{itemize}
 \item The model utilized 24 family-level taxa.
@@ -247,7 +247,7 @@ cross-validation again (as we might expect it to be lower than 14.)
 
 \vspace{0.1in}
 
-\noindent For the fitted model (using all available data):\\
+\noindent For the fitted model (using all available rib data):\\
 \noindent RMSE: 517.0 $\pm$ 6.3  \hspace{0.05in}  Explained variation: 89.5\%
 $\pm$ 0.3\%
 
@@ -295,13 +295,59 @@ $\pm$ 0.3\%
   }
 
 \end{frame}
+
+
+\begin{frame}{Getting a sense of "real-life" model fit}
+
+  \noindent In real life, we would be estimating ADD without
+  \begin{itemize}
+    \item having seen that rib/scapula before, and
+    \item maybe not having observed any rib/scapula at that level of ADD before
+  \end{itemize} 
+
+  \vspace{0.1in}
+
+  \noindent To try to get a sense of how the model would work in such cases, I
+  \begin{itemize}
+    \item fitted the model over and over, each time without one particular
+    combination of rib/scapula number and ADD.
+    \item This means the model had no info about the left-out rib/scapula and no
+    info about bacteria counts at that ADD.
+    \item Then, I used the model to estimate the ADD for the left-out
+    rib/scapula for the left-out ADD.
+  \end{itemize}
+  
+\end{frame}
+
+
+\begin{frame}{Residual plot to get sense of "real-life" model fit}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=2.2in]{use_families/w_ribs/leave_out_one_rib_and_one_day_residuals}
+      \caption{Residuals when leaving out one rib and one ADD at a time}
+    \end{figure}
+  \end{center}
+  \vspace{-0.1in}
+{\scriptsize
+\begin{itemize}
+  \item This RMSE is 743.9, which is higher than the RMSE for the full
+  dataset (as you'd expect).
+  \item We have less data available for each run, and we're predicting for an
+  ADD value which we have no information about.  The errors tend to be larger at
+  the extremes.
+\end{itemize}
+}
+
+\end{frame}
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section[Scapulae, family-level]{Family-level analysis for scapluae}
 
-\begin{frame}{Implementing random forest model}
+\begin{frame}{Implementing the random forest model}
 
 \begin{itemize}
 \item The model utilized 34 family-level taxa.
@@ -314,10 +360,15 @@ cross-validation again (as we might expect it to be lower than 20.)
 
 \vspace{0.1in}
 
-\noindent For the fitted model (using all available data):\\
+\noindent For the fitted model (using all available scapula data):\\
 \noindent RMSE: 334.2 $\pm$ 4.4 \hspace{0.05in}  Explained variation: 95.3\%
 $\pm$ 0.1\%
 
+\vspace{0.1in}
+
+\noindent There are more missing observations for ribs (18) than for scapulae
+(11).  This may be part of the reason we see better performance for the model
+using scapulae.
 
 \end{frame}
 
@@ -361,5 +412,28 @@ $\pm$ 0.1\%
   }
 
 \end{frame}
+
+
+
+\begin{frame}{Residual plot to get sense of "real-life" model fit}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=2.2in]{use_families/w_scapulae/leave_out_one_scapula_and_one_day_residuals}
+      \caption{Residuals when leaving out one scapula and one ADD at a time}
+    \end{figure}
+  \end{center}
+  \vspace{-0.1in}
+{\scriptsize
+\begin{itemize}
+  \item This RMSE is 452.7, which is higher than the RMSE for the full
+  dataset (as you'd expect).
+  \item We have less data available for each run, and we're predicting for an
+  ADD value which we have no information about.  The errors tend to be larger at
+  the extremes.
+\end{itemize}
+}
+\end{frame}
+
 
 \end{document}
