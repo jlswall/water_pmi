@@ -160,9 +160,9 @@
 \section[Preparation]{Preparing the data}
 
 
-\begin{frame}{Initial looks into family taxa}
+\begin{frame}{Data sources}
 
-  \noindent Data was read from Excel files:\\
+  \noindent Excel source files:\\
   \texttt{HenleyLake\_Taxonomy.xlsx} - taxonomy info\\
   \texttt{HenleyLake\_SampleInformation.xlsx} - sample info (degdays, type, date)
 
@@ -170,11 +170,20 @@
 
   \noindent Family data from \texttt{Taxlevel 5-Family} worksheet
   \begin{itemize}
-  \item Ribs: 154 family-level taxa represented
-  \item Scapulae: 210 family-level taxa represented
-  \item Water: 216 family-level taxa represented
+  \item Ribs: 154 family-level taxa listed
+  \item Scapulae: 210 family-level taxa listed
+  \item Water: 216 family-level taxa listed
   \end{itemize}
- 
+
+  \vspace{0.1in}
+
+  \noindent Class data from \texttt{Taxlevel 3-Class} worksheet
+  \begin{itemize}
+  \item Ribs: 95 family-level taxa listed
+  \item Scapulae: 124 family-level taxa listed
+  \item Water: 127 family-level taxa listed
+  \end{itemize}
+
 \end{frame}
 
 
@@ -198,6 +207,29 @@
 \end{frame}
 
 
+
+\begin{frame}{Percentages unclassified at the class level}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=3.25in]{class_perc_classif_by_add_type}
+    \end{figure}
+  \end{center}
+  \vspace{-0.1in}
+  {\footnotesize
+  \begin{itemize}
+    \item Percentages classified to family level: 94.4\% (ribs), 93.5\%
+    (scapulae), 87.2\% (water).
+  \end{itemize}
+  }
+\end{frame}
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section[Family-level taxa]{Working with family-level taxa}
 
 \begin{frame}{Which taxa were included?}
 
@@ -227,12 +259,11 @@ require more than 1\%?  For more than 2 samples?))
 
 
 \end{frame}
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section[Ribs, family-level]{Family-level analysis for ribs}
+%% %%%%%%%%%%%%%
+\subsection[Ribs]{Working with rib samples}
 
 \begin{frame}{Implementing the random forest model}
 
@@ -340,12 +371,12 @@ $\pm$ 0.3\%
 }
 
 \end{frame}
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%
 
 
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section[Scapulae, family-level]{Family-level analysis for scapluae}
+%% %%%%%%%%%%%%%
+\subsection[Scapulae]{Working with scapulae samples}
 
 \begin{frame}{Implementing the random forest model}
 
@@ -433,6 +464,36 @@ using scapulae.
   the extremes.
 \end{itemize}
 }
+\end{frame}
+%% %%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section[Class-level taxa]{Working with class-level taxa}
+
+\begin{frame}{Which taxa were included?}
+
+  \noindent For each sample, we calculated the total counts of all classified,
+class-level taxa.  Then, for each sample, we calculated the fraction of counts
+associated with each class-level taxa.  (Raw counts were \textbf{not} used.)
+
+  \vspace{0.1in}
+
+  \noindent As we did for the family-level analysis, we require that a taxon
+  makes up more than 1\% of the total counts for at least 2 samples.
+
+  \vspace{0.1in}
+
+  \noindent Number of taxa utilized in random forest models:
+  \begin{itemize}
+    \item Ribs: ? taxa
+    \item Scapulae: ? taxa
+    %% \item Water: ? taxa
+  \end{itemize}
+
+
 \end{frame}
 
 

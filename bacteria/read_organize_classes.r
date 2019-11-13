@@ -51,7 +51,7 @@ rm(sumCols, sumMinusTotal, percDiff, whichDiffer)
 ## organized the sample information.  Now, we can use the CSV file we
 ## made of the sample information.  (This info originially came from
 ## file "HenleyLake_SampleInformation.xlsx").
-samplingT <- read_csv(file="family_sampling_info.csv")
+samplingT <- read_csv(file="sampling_info.csv")
 
 ## To keep the chronological order (and avoid ABC order), we specify
 ## this as an ordered factor.

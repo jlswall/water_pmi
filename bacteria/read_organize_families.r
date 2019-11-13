@@ -127,7 +127,7 @@ samplingT %>%
 ## #######################
 
 ## Write out the sample information into a CSV file.
-write.csv(samplingT, file="family_sampling_info.csv", row.names=F)
+write.csv(samplingT, file="sampling_info.csv", row.names=F)
 
 rm(fileNm, tmp)
 ## ##################################################
