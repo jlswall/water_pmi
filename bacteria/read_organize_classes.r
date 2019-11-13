@@ -47,89 +47,15 @@ rm(sumCols, sumMinusTotal, percDiff, whichDiffer)
 
 
 ## ##################################################
-## Read information about collections, sample types, dates, etc. from
-## spreadsheet in "HenleyLake_SampleInformation.xlsx".
+## When we organized the family taxonomic info, we also read in and
+## organized the sample information.  Now, we can use the CSV file we
+## made of the sample information.  (This info originially came from
+## file "HenleyLake_SampleInformation.xlsx").
+samplingT <- read_csv(file="family_sampling_info.csv")
 
-## The first 3 rows of the spreadsheet are all part of the header, so
-## skip those.
-fileNm <- "orig_data_files/HenleyLake_SampleInformation.xlsx"
-samplingT <- read_excel(fileNm, skip=3,
-                        col_names=c("date", "degdays", "season",
-                                    "location", "type", "collection",
-                                    "extractMethod", "sampleName"))
-
-## Switch date to "Date" class.  Default is POSIX class, which is for
-## datetimes.  Here, we only have the dates, not a time of day.
-samplingT$date <- as.Date(samplingT$date)
-
-## All of these samples were taken at the same location (Henley Lake)
-## and using the sampe extraction method, so "location" and
-## "extractMethod" columns are not necessary.
-samplingT <- samplingT %>% select(-location, -extractMethod)
-
-
-## The "collection" column contains one of "Baseline", "Collection 1",
-## ..., "Collection 19".  We save space by refering to these as "B",
-## "1", ..., "19". 
-tmp <- samplingT$collection
-tmp <- str_remove(tmp, pattern="Collection ")
-tmp[tmp=="Baseline"] <- "B"
-samplingT$collection <- tmp
 ## To keep the chronological order (and avoid ABC order), we specify
 ## this as an ordered factor.
 samplingT$collection <- ordered(samplingT$collection, levels=c("B", as.character(1:19)))
-
-
-## Some of the sample names have spaces in them.  That is not true of
-## the corresonding sample names in the taxonomy file.  So, we take
-## the spaces out for consistency.
-## Take out spaces and store elsewhere.
-tmp <- str_replace_all(samplingT$sampleName, " ", "")
-## Check to see which sample names were changed, and make sure all looks ok.
-cbind(samplingT$sampleName, tmp)[samplingT$sampleName!=tmp,]
-## Replace sample name column with adjusted names.
-samplingT$sampleName <- tmp
-
-
-## #######################
-## Ideally, we would have 5 rib samples, 5 scapula samples, and 1
-## water sample for each collection day.  That would 11 samples in
-## total for each of 20 collection days.  In reality, all samples are
-## not available for every collection day.
-
-## Count the number of such samples for each collection day.
-samplingT %>% group_by(collection, type) %>% summarize(nObs=n())
-
-## Identify collection days on which samples are missing.
-samplingT %>%
-  group_by(collection, type) %>%
-  summarize(nObs=n()) %>%
-  filter( ((type=="Rib" | type=="Scapula") & nObs<5) | (type=="Water" & nObs<1) )
-## This table shows which collections have missing scapula or rib
-## samples.  Water samples are not missing on any of the collection
-## days.
-##    collection type     nObs
-##    <ord>      <chr>   <int>
-##  1 B          Scapula     2
-##  2 3          Rib         4
-##  3 4          Rib         4
-##  4 6          Rib         4
-##  5 9          Rib         3
-##  6 10         Rib         4
-##  7 11         Rib         3
-##  8 12         Rib         4
-##  9 13         Rib         4
-## 10 14         Rib         3
-## 11 15         Rib         3
-## 12 16         Rib         4
-## 13 17         Rib         3
-## 14 19         Rib         4
-## #######################
-
-## Write out the sample information into a CSV file.
-write.csv(samplingT, file="family_sampling_info.csv", row.names=F)
-
-rm(fileNm, tmp)
 ## ##################################################
 
 
@@ -167,21 +93,19 @@ rm(rawIndivT, rawAllT, samplingT)
 ## Make new variable to indicate the most precise taxon which could be
 ## identified.
 indivT$taxLvl <- ""
-indivT$taxLvl[str_detect(indivT$taxon, "f__")] <- "family"
-indivT$taxLvl[str_detect(indivT$taxon, "o__")] <- "order"
 indivT$taxLvl[str_detect(indivT$taxon, "c__")] <- "class"
 indivT$taxLvl[str_detect(indivT$taxon, "p__")] <- "phylum"
 indivT$taxLvl[str_detect(indivT$taxon, "k__")] <- "kingdom"
-indivT$taxLvl <- ordered(indivT$taxLvl, levels=c("family", "order", "class", "phylum", "kingdom"))
+indivT$taxLvl <- ordered(indivT$taxLvl, levels=c("class", "phylum", "kingdom"))
 
 
-## Find percentage of counts can be classified down to the family
+## Find percentage of counts can be classified down to the class
 ## level, across all types.  We see that about 93.3% of the counts can
 ## be attributed at the class level.
 indivT %>% group_by(taxLvl) %>% summarize(sumCounts=sum(counts), percCounts=100*sum(counts)/sum(indivT$counts))
 
 ## Find percentage of counts which can be classified down to the
-## family level, type by type.
+## class level, type by type.
 indivT %>% group_by(type, taxLvl) %>% summarize(sumCountsByTypeTaxLvl=sum(counts)) %>% left_join(indivT %>% group_by(type) %>% summarize(sumCountsByType=sum(counts))) %>% mutate(perc=100*sumCountsByTypeTaxLvl/sumCountsByType)
 ## Percentages classified to class level: 94.4% (ribs), 93.5%
 ## (scapulae), 87.2% (water).
@@ -211,14 +135,14 @@ ggplot(percTaxLvlBySampleT) +
 
 
 ## ##################################################
-## From this point forward, we consider only family-level taxa for our
-## model.  So, we remove all counts of non-family-level taxa.  This is
+## From this point forward, we consider only class-level taxa for our
+## model.  So, we remove all counts of non-class-level taxa.  This is
 ## consistent with the anlaysis we did for Shane's and Luisa's data.
-indivT <- indivT %>% filter(taxLvl=="family")
+indivT <- indivT %>% filter(taxLvl=="class")
 
 
 ## Make a new, more readable taxon column.
-## Column names with open brackets (e.g. "f__[Tissierellaceae]") cause
+## Column names with open brackets (e.g., "c__[Saprospirae]") cause
 ## problems for functions expecting traditional data frame column
 ## names (like randomForest function).
 indivT$newtaxon <- gsub(indivT$taxon, pattern="\\[", replacement="")
@@ -231,14 +155,14 @@ indivT$newtaxon <- gsub(indivT$newtaxon, pattern="-", replacement="_")
 indivT <- indivT %>% select(-taxon)
 indivT <- rename(indivT, taxon = newtaxon)
 
-## Count the number of unique family-level taxa observed for the
+## Count the number of unique class-level taxa observed for the
 ## various types (rib, scapula, water).
-indivT %>% filter(taxLvl=="family") %>% filter(counts>0) %>% group_by(type) %>% distinct(taxon) %>% summarize(n=n())
+indivT %>% filter(taxLvl=="class") %>% filter(counts>0) %>% group_by(type) %>% distinct(taxon) %>% summarize(n=n())
 ##   type        n
 ##   <chr>   <int>
-## 1 Rib       154
-## 2 Scapula   210
-## 3 Water     216
+## 1 Rib       95
+## 2 Scapula   124
+## 3 Water     127
 
 
 ## For use in graphs and in calculating percentages later, we need
@@ -252,9 +176,9 @@ ctBySampleT <- indivT %>%
 
 ## ##################################################
 ## Some taxa don't occur frequently.  It's hard to make a hard cutoff
-## for what constitutes "frequently".  There are 245 family-level taxa
-## represented, and a lot of them appear in less than 1% of
-## samples.
+## for what constitutes "frequently".  There are 145 family-level taxa
+## listed (some with 0 counts), and a lot of them appear in less than
+## 1% of samples.
 
 ## I'm going to set the frequency cutoff at 1% (0.01).  This means
 ## that in order to meet the cutoff, a specific family-level taxa must
@@ -262,8 +186,8 @@ ctBySampleT <- indivT %>%
 ## sample.
 freqCutoff <- 0.01
 
-## Get list of maximum taxa percentages for various types (rib,
-## scapula, water) sorted in descending order:
+## ## Get list of maximum taxa percentages for various types (rib,
+## ## scapula, water) sorted in descending order:
 ## indivT %>%
 ##   left_join(ctBySampleT) %>%
 ##   mutate(fracBySubjDay = counts/totals) %>%
@@ -290,7 +214,7 @@ freqTaxaByTypeT <- indivT %>%
 ## For each type, how many taxa meet the cutoff?
 freqTaxaByTypeT %>% group_by(type) %>% summarize(n=n())
 ## Save list of frequent taxa by type to a CSV file.
-write.csv(freqTaxaByTypeT, file="family_freq_taxa_by_type.csv", row.names=F)
+write.csv(freqTaxaByTypeT, file="class_freq_taxa_by_type.csv", row.names=F)
 
 
 ## Rename taxa that occur less than the frequency cutoff allows as
@@ -336,5 +260,5 @@ rm(indicRare, freqCutoff, freqTaxaByTypeT)
 ## Save the tibble to a file for use in separate code
 ## for graphing and analysis.
 
-write.csv(commontaxaT, file="families_massaged.csv", row.names=FALSE)
+write.csv(commontaxaT, file="classes_massaged.csv", row.names=FALSE)
 ## ##################################################
