@@ -6,7 +6,7 @@ library("parallel")
 
 ## ##################################################
 ## Are we dealing with phlya, orders, or families?
-taxalevel <- "families"
+taxalevel <- "classes"
 
 ## Read in cleaned-up phyla, orders, or families taxa.
 allT <- read_csv(paste0("../../", taxalevel, "_massaged.csv"))
@@ -51,9 +51,9 @@ numBtSamps <- 3000
 
 ## Repeated cross-validation runs (1000 of them), leaving out 20% of
 ## the observations at a time, indicated that the number of variables
-## to consider at each split is about 14 (also 15 is very close)
-## for the response variable in the original units.
-numVarSplit <- 14
+## to consider at each split is 5 for the response variable in the
+## original units.
+numVarSplit <- 5
 ## ##################################################
 
 
@@ -101,7 +101,7 @@ origUnitsF <- function(x, mtry, ntree){
 }
 
 ## Set random seed for reproducibility.
-set.seed(466267)
+set.seed(759565)
 
 ## Try using lapply to fit the random forests.
 origFitL <- mclapply(crossvalidL, mc.cores=6, origUnitsF, mtry=numVarSplit, ntree=numBtSamps)
@@ -170,7 +170,7 @@ myresids <- residDF %>%
   filter((ribnumactual==ribnumOmit) & (dayOmit==yactual)) %>%
   pull(resid)
 sqrt(mean(myresids^2))
-## This is about 741-744, whether I use 1, 10, or 100 runs per
+## This is about 808-811, whether I use 1, 10, or 100 runs per
 ## combo.
 ## #########################################
 
@@ -188,7 +188,7 @@ ggplot(residDF %>%
   ## geom_point(aes(col=ribnumOmit)) +
   geom_hline(yintercept=0) +
   labs(x="Actual degree days", y="Error (actual - estimated)")
-ggsave(filename="leave_out_one_rib_and_one_day_residuals.pdf", height=3.5, width=3.5, units="in")
+ggsave(filename="classes_leave_out_one_rib_and_one_day_residuals.pdf", height=3.5, width=3.5, units="in")
 
 ggplot(residDF, aes(x=yactual, y=resid)) +
   facet_wrap(~ribnumOmit) +

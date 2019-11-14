@@ -6,7 +6,7 @@ library("parallel")
 
 ## ##################################################
 ## Are we dealing with phlya, orders, or families?
-taxalevel <- "families"
+taxalevel <- "classes"
 
 ## Read in cleaned-up phyla, orders, or families taxa.
 allT <- read_csv(paste0("../../", taxalevel, "_massaged.csv"))
@@ -49,9 +49,9 @@ numBtSamps <- 3000
 
 ## Repeated cross-validation runs (1000 of them), leaving out 20% of
 ## the observations at a time, indicated that the number of variables
-## to consider at each split is about 14 (also 15 is very close)
-## for the response variable in the original units.
-numVarSplit <- 14
+## to consider at each split is 5 for the response variable in the
+## original units.
+numVarSplit <- 5
 ## ##################################################
 
 
@@ -91,8 +91,8 @@ for (i in 1:numRepeat)
 ## ###########################
 ## Now, fit random forests to the full dataset over and over.
 
-set.seed(726460)
-fullResultsL <- mclapply(repDataL, mc.cores=2, fitFullDataF, mtry=numVarSplit, ntree=numBtSamps)
+set.seed(121460)
+fullResultsL <- mclapply(repDataL, mc.cores=6, fitFullDataF, mtry=numVarSplit, ntree=numBtSamps)
 
 ## Calculate the RMSE and pseudo-Rsquared for these runs with the full
 ## dataset.
@@ -121,9 +121,9 @@ fullImportanceT %>% group_by(taxa) %>% summarize(meanPercIncMSE=mean(PercIncMSE)
 
 ## Get summary statistics for report.
 c(mean(fullRMSE), 1.96*sd(fullRMSE))
-## RMSE: 516.968459   6.253109
+## RMSE: 624.480518   6.829951
 c(mean(fullRsq), 1.96*sd(fullRsq))
-## Rsq: 0.895453077 0.002528494
+## Rsq: 0.847447990 0.003336977
 
 write_csv(data.frame(fullRMSE, fullRsq), path="cvstats_w_full_dataset_final_params.csv")
 rm(fullRMSE, fullRsq)
@@ -135,14 +135,14 @@ rm(fullRMSE, fullRsq)
 ## ##################################################
 ## Fit the final random forest with all the data (no cross-validation).
 
-set.seed(4940635)
+set.seed(7940630)
 
 ## Fit the random forest model on all the data (no cross-validation).
 rf <- randomForest(degdays ~ . , data=wideT, mtry=numVarSplit,
                    ntree=numBtSamps, importance=T)
 
 ## init.fig.dimen(file=paste0("orig_units_all_data_families_imp_plot.pdf"), width=8, height=6)
-## varImpPlot(rf, main="Importance of eukaryotic family-level taxa (all time steps)")
+## varImpPlot(rf, main="Importance of eukaryotic class-level taxa (all time steps)")
 ## dev.off()
 
 
@@ -151,12 +151,12 @@ resids <- rf$predicted - wideT$degdays
 
 ## Print out RMSE:
 sqrt( mean( resids^2 ) )
-## RMSE: 522.9666
+## RMSE: 624.7547
 
 ## Estimate of explained variance, which R documentation calls "pseudo
 ## R-squared"
 1 - ( sum(resids^2)/sum( (wideT$degdays - mean(wideT$degdays))^2 ) )
-## Expl. frac.: 0.8930171
+## Expl. frac.: 0.8473187
 ## ##################################################
 
 
@@ -171,16 +171,16 @@ sqrt( mean( resids^2 ) )
 ## ## increasing order.
 ## importanceT <- importance(rf) %>%
 ##   as.data.frame() %>% as_tibble() %>%
-##   rownames_to_column("family") %>%
+##   rownames_to_column("class") %>%
 ##   arrange(IncNodePurity)
-## ## Turn family names into factors, so that we can make the bar chart
+## ## Turn class names into factors, so that we can make the bar chart
 ## ## with the bars in decreasing order.
-## importanceT$family <- factor(importanceT$family, levels=importanceT$family)
+## importanceT$class <- factor(importanceT$class, levels=importanceT$class)
 ## ggplot(importanceT %>% top_n(n, wt=IncNodePurity),
-##        aes(x=family, y=IncNodePurity)) +
+##        aes(x=class, y=IncNodePurity)) +
 ##   coord_flip() +
 ##   geom_col() +
-##   labs(x="Eukaryotic family-level taxa", y="Decrease in node impurity")
+##   labs(x="Eukaryotic class-level taxa", y="Decrease in node impurity")
 ## ggsave(filename="orig_units_all_data_families_IncNodePurity_barchart.pdf", height=2.5, width=4.5, units="in")
 ## ## ##################################################
 
@@ -190,24 +190,24 @@ sqrt( mean( resids^2 ) )
 ## Make graph of just %IncMSE alone.
 
 ## Get the top "n" (whether 8, 10, whatever) influential taxa.
-n <- 15
+n <- 11
 
 ## Turn importance measures into a tibble, sorted by IncNodePurity in
 ## increasing order.
 importanceT <- importance(rf) %>%
   as.data.frame() %>%
-  rownames_to_column("family") %>%
+  rownames_to_column("class") %>%
    as_tibble() %>%
   arrange(`%IncMSE`)
-## Turn family names into factors, so that we can make the bar chart
+## Turn class names into factors, so that we can make the bar chart
 ## with the bars in decreasing order.
-importanceT$family <- factor(importanceT$family, levels=importanceT$family)
+importanceT$class <- factor(importanceT$class, levels=importanceT$class)
 ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
-       aes(x=family, y=`%IncMSE`)) +
+       aes(x=class, y=`%IncMSE`)) +
   coord_flip() +
   geom_col() +
-  labs(x="Ribs: family-level taxa", y="Mean % increase in MSE when excluded")
-ggsave(filename="families_rib_PercIncMSE_barchart.pdf", height=4.5, width=6, units="in")
+  labs(x="Ribs: class-level taxa", y="Mean % increase in MSE when excluded")
+ggsave(filename="classes_rib_PercIncMSE_barchart.pdf", height=4.5, width=6, units="in")
 ## ##################################################
 
 
@@ -217,11 +217,11 @@ ggsave(filename="families_rib_PercIncMSE_barchart.pdf", height=4.5, width=6, uni
 ## top n taxa in terms of %IncMSE.
 
 ## Get the top "n" (whether 8, 10, whatever) influential taxa.
-n <- 6
+n <- 11
 
 ## Save the names of the families that are in the top 10 in
 ## terms of %IncMSE.
-topChoices <- as.character(importanceT %>% arrange(desc(`%IncMSE`)) %>% pull(family))[1:n]
+topChoices <- as.character(importanceT %>% arrange(desc(`%IncMSE`)) %>% pull(class))[1:n]
 
 ## Find the percentages for these taxa.
 chooseT <- taxaT %>%
@@ -242,7 +242,7 @@ ggplot(chooseT, aes(degdays, fracBySample)) +
   ## Allow diff. y-scales across panels.
   facet_wrap(~taxon, ncol=3, scales="free_y") 
   ## facet_wrap(~taxon, ncol=3)  ## Keep y-scales same across panels.
-ggsave("infl_rib_family_scatter.pdf", width=8, height=4, units="in")
+ggsave("infl_rib_class_scatter.pdf", width=8, height=4, units="in")
 ## ##################################################
 
 
@@ -280,17 +280,17 @@ ggsave("infl_rib_family_scatter.pdf", width=8, height=4, units="in")
 ## ## increasing order.
 ## importanceT <- importance(rf) %>%
 ##   as.data.frame() %>% as_tibble() %>%
-##   rownames_to_column("family") %>%
+##   rownames_to_column("class") %>%
 ##   arrange(`%IncMSE`)
-## ## Turn family names into factors, so that we can make the bar chart
+## ## Turn class names into factors, so that we can make the bar chart
 ## ## with the bars in decreasing order.
-## importanceT$family <- factor(importanceT$family, levels=importanceT$family)
+## importanceT$class <- factor(importanceT$class, levels=importanceT$class)
 ## tlPanel <- ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
-##                   aes(x=family, y=`%IncMSE`)) +
+##                   aes(x=class, y=`%IncMSE`)) +
 ##   theme_minimal() +
 ##   coord_flip() +
 ##   geom_col() +
-##   labs(x="Eukaryotic Family-level Taxa", y="Mean % Decrease in MSE When Excluded from Random Forest Model")
+##   labs(x="Eukaryotic Class-level Taxa", y="Mean % Decrease in MSE When Excluded from Random Forest Model")
 ## ## ########################
 
 
@@ -306,13 +306,13 @@ ggsave("infl_rib_family_scatter.pdf", width=8, height=4, units="in")
 ## ## increasing order.
 ## importanceT <- importance(rf) %>%
 ##   as.data.frame() %>% as_tibble() %>%
-##   rownames_to_column("family") %>%
+##   rownames_to_column("class") %>%
 ##   arrange(`%IncMSE`)
 
 
 ## ## Save the names of the families that are in the top 10 in
 ## ## terms of %IncMSE.
-## topChoices <- as.character(importanceT %>% arrange(desc(`%IncMSE`)) %>% pull(family))[1:n]
+## topChoices <- as.character(importanceT %>% arrange(desc(`%IncMSE`)) %>% pull(class))[1:n]
 
 ## ## Find the percentages for these taxa.
 ## chooseT <- taxaT %>%
