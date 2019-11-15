@@ -217,7 +217,7 @@ ggsave(filename="classes_rib_PercIncMSE_barchart.pdf", height=4.5, width=6, unit
 ## top n taxa in terms of %IncMSE.
 
 ## Get the top "n" (whether 8, 10, whatever) influential taxa.
-n <- 11
+n <- 6
 
 ## Save the names of the families that are in the top 10 in
 ## terms of %IncMSE.
