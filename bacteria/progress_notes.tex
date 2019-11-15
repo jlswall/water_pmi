@@ -265,7 +265,7 @@ require more than 1\%?  For more than 2 samples?))
 %% %%%%%%%%%%%%%
 \subsection[Ribs]{Working with rib samples}
 
-\begin{frame}{Implementing the random forest model}
+\begin{frame}{Implementing the random forest model for ribs}
 
 \begin{itemize}
 \item The model utilized 24 family-level taxa.
@@ -300,7 +300,7 @@ $\pm$ 0.3\%
   \item The measure of importance is the mean percentage increase in the
     mean-square error of model predictions when the variable is left out of the
     model. 
-  \item I've shown 15 because they would fit, but 24 were used in the model.
+  \item I've shown the top 15 because they'd fit, but 24 were used in the model.
   \item The first four taxa are noticeably more influential than those that
   follow.
   \end{itemize}
@@ -363,10 +363,9 @@ $\pm$ 0.3\%
 {\scriptsize
 \begin{itemize}
   \item This RMSE is 743.9, which is higher than the RMSE for the full
-  dataset (as you'd expect).
-  \item We have less data available for each run, and we're predicting for an
-  ADD value which we have no information about.  The errors tend to be larger at
-  the extremes.
+  dataset (as you'd expect).  We have less data available for each run, and we're predicting for an
+  ADD value which we have no information about.
+  \item The errors tend to be larger at the extremes.
 \end{itemize}
 }
 
@@ -458,10 +457,9 @@ using scapulae.
 {\scriptsize
 \begin{itemize}
   \item This RMSE is 452.7, which is higher than the RMSE for the full
-  dataset (as you'd expect).
-  \item We have less data available for each run, and we're predicting for an
-  ADD value which we have no information about.  The errors tend to be larger at
-  the extremes.
+  dataset (as you'd expect).  We have less data available for each run, and we're predicting for an
+  ADD value which we have no information about.
+  \item The errors tend to be larger at the extremes.
 \end{itemize}
 }
 \end{frame}
@@ -488,12 +486,95 @@ associated with each class-level taxa.  (Raw counts were \textbf{not} used.)
 
   \noindent Number of taxa utilized in random forest models:
   \begin{itemize}
-    \item Ribs: ? taxa
-    \item Scapulae: ? taxa
+    \item Ribs: 11 taxa
+    \item Scapulae: 17 taxa
     %% \item Water: ? taxa
   \end{itemize}
 
 \end{frame}
+
+
+
+%% %%%%%%%%%%%%%
+\subsection[Ribs]{Working with rib samples}
+
+\begin{frame}{Implementing the random forest model for ribs}
+
+\begin{itemize}
+\item The model utilized 11 class-level taxa.
+\item Cross-validation was used to determine that the best number of taxa to
+consider at each "branching" was 5.
+\end{itemize}
+
+\vspace{0.1in}
+
+\noindent For the fitted model (using all available rib data):\\
+\noindent RMSE: 624 $\pm$ 6.8  \hspace{0.05in}  Explained variation: 84.7\%
+$\pm$ 0.3\%
+
+\end{frame}
+
+
+\begin{frame}{Which taxa are influential in the random forest model?}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=3.25in]{use_classes/w_ribs/classes_rib_PercIncMSE_barchart}
+    \end{figure}
+  \end{center}
+  \vspace{-0.1in}
+  {\scriptsize
+  \begin{itemize}
+  \item The measure of importance is the mean percentage increase in the
+    mean-square error of model predictions when the variable is left out of the
+    model. 
+  \item All 11 taxa used in the analysis are shown (since they fit).
+  \end{itemize}
+  }
+
+\end{frame}
+
+
+\begin{frame}{Scatterplots for influential taxa}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=4.75in]{use_classes/w_ribs/infl_rib_class_scatter}
+    \end{figure}
+  \end{center}
+  \vspace{-0.25in}
+  {\scriptsize
+  \begin{itemize}
+  \item I've only shown top 6 because more than that is hard to fit.
+  \item Note that the y-axes have differing scales.
+  \item Fractions of Ignavibacteria, 4C0d-2, and Betaproteobacteria are very
+  low.
+  \end{itemize}
+  }
+
+\end{frame}
+
+
+\begin{frame}{Residual plot to get sense of "real-life" model fit}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=2.2in]{use_classes/w_ribs/classes_leave_out_one_rib_and_one_day_residuals}
+      \caption{Residuals when leaving out one rib and one ADD at a time}
+    \end{figure}
+  \end{center}
+  \vspace{-0.1in}
+{\scriptsize
+\begin{itemize}
+  \item This RMSE is about 808, which is higher than the RMSE for the full
+  dataset (as you'd expect).
+  \item The errors tend to be larger at the upper extreme.
+\end{itemize}
+}
+
+\end{frame}
+%% %%%%%%%%%%%%%
+
 
 
 \end{document}
