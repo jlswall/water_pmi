@@ -217,7 +217,7 @@ ggsave(filename="classes_scapula_PercIncMSE_barchart.pdf", height=4.5, width=6, 
 ## top n taxa in terms of %IncMSE.
 
 ## Get the top "n" (whether 8, 10, whatever) influential taxa.
-n <- 12
+n <- 6
 
 ## Save the names of the classes that are in the top 10 in
 ## terms of %IncMSE.
