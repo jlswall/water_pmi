@@ -93,7 +93,7 @@
 
 %% \date[Short Occasion] % (optional)
 %% {Date / Occasion}
-%% \date{Oct.\ 2017}
+\date{Nov.\ 2019}
 
 %% \subject{Talks}
 % This is only inserted into the PDF information catalog. Can be left
@@ -375,7 +375,7 @@ $\pm$ 0.3\%
 
 
 %% %%%%%%%%%%%%%
-\subsection[Scapulae]{Working with scapulae samples}
+\subsection[Scapulae]{Working with scapula samples}
 
 \begin{frame}{Implementing the random forest model}
 
@@ -576,5 +576,81 @@ $\pm$ 0.3\%
 %% %%%%%%%%%%%%%
 
 
+%% %%%%%%%%%%%%%
+\subsection[Scapulae]{Working with scapula samples}
+
+\begin{frame}{Implementing the random forest model for scapulae}
+
+\begin{itemize}
+\item The model utilized 17 class-level taxa.
+\item Cross-validation was used to determine that the best number of taxa to
+consider at each "branching" was 7.
+\end{itemize}
+
+\vspace{0.1in}
+
+\noindent For the fitted model (using all available rib data):\\
+\noindent RMSE: 360 $\pm$ 4.6  \hspace{0.05in}  Explained variation: 94.6\%
+$\pm$ 0.1\%
+
+\end{frame}
+
+
+\begin{frame}{Which taxa are influential in the random forest model?}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=3.25in]{use_classes/w_scapulae/classes_scapula_PercIncMSE_barchart}
+    \end{figure}
+  \end{center}
+  \vspace{-0.1in}
+  {\scriptsize
+  \begin{itemize}
+  \item The 12 most influential taxa used in the analysis are shown (all 17 wouldn't
+  fit).)
+  \end{itemize}
+  }
+
+\end{frame}
+
+
+\begin{frame}{Scatterplots for influential taxa}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=4.75in]{use_classes/w_scapulae/infl_scapula_class_scatter}
+    \end{figure}
+  \end{center}
+  \vspace{-0.25in}
+  {\scriptsize
+  \begin{itemize}
+  \item I've only shown top 6 because more than that is hard to fit.
+  \item Note that the y-axes have differing scales.
+  \item Fractions of Planctomycetia, Leptospirae, and Anaerolineae are very
+  low.
+  \end{itemize}
+  }
+
+\end{frame}
+
+
+\begin{frame}{Residual plot to get sense of "real-life" model fit}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=2.2in]{use_classes/w_scapulae/leave_out_one_scapula_and_one_day_residuals}
+      \caption{Residuals when leaving out one rib and one ADD at a time}
+    \end{figure}
+  \end{center}
+  \vspace{-0.1in}
+{\scriptsize
+\begin{itemize}
+  \item This RMSE is about 499, which is higher than the RMSE for the full
+  dataset (as you'd expect).
+\end{itemize}
+}
+
+\end{frame}
+%% %%%%%%%%%%%%%
 
 \end{document}
