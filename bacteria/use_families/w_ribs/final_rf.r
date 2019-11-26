@@ -92,7 +92,7 @@ for (i in 1:numRepeat)
 ## Now, fit random forests to the full dataset over and over.
 
 set.seed(726460)
-fullResultsL <- mclapply(repDataL, mc.cores=2, fitFullDataF, mtry=numVarSplit, ntree=numBtSamps)
+fullResultsL <- mclapply(repDataL, mc.cores=6, fitFullDataF, mtry=numVarSplit, ntree=numBtSamps)
 
 ## Calculate the RMSE and pseudo-Rsquared for these runs with the full
 ## dataset.
@@ -157,6 +157,10 @@ sqrt( mean( resids^2 ) )
 ## R-squared"
 1 - ( sum(resids^2)/sum( (wideT$degdays - mean(wideT$degdays))^2 ) )
 ## Expl. frac.: 0.8930171
+
+## Save the fitted model so that we can re-create graphics and summary
+## statistics without running it again.
+save(rf, file="families_ribs_rfmodel.RData")
 ## ##################################################
 
 
