@@ -157,6 +157,10 @@ sqrt( mean( resids^2 ) )
 ## R-squared"
 1 - ( sum(resids^2)/sum( (wideT$degdays - mean(wideT$degdays))^2 ) )
 ## Expl. frac.: 0.9535078
+
+## Save the fitted model so that we can re-create graphics and summary
+## statistics without running it again.
+save(rf, file="families_scapulae_rfmodel.RData")
 ## ##################################################
 
 
