@@ -5,8 +5,25 @@ library("figdim")
 
 
 ## ##################################################
-## Read in fitted random forest models for family-level taxa with ribs
-## and with scapulae..
+## Read in dataset with family-level taxa.
+
+## Are we dealing with phlya, orders, or families?
+taxalevel <- "families"
+
+## Read in cleaned-up phyla, orders, or families taxa.
+allT <- read_csv(paste0("../", taxalevel, "_massaged.csv"))
+
+## Filter data to just ribs, and then store.  Then, do the same for scapulae.
+ribT <- allT %>% filter(type=="Rib")
+scapulaT <- allT %>% filter(type=="Scapula")
+
+rm(allT)
+## ##################################################
+
+
+
+## ##################################################
+## Read in the final fitted models for ribs and scapulae.
 
 load("w_ribs/families_ribs_rfmodel.RData")
 ## The object was named "rf", but we don't want to mix up the model
