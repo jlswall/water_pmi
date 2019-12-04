@@ -124,17 +124,21 @@ r1c2Panel <- ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
 ## ########################
 ## Ribs: Show line plot of changing relative abundance for the top 5 taxa.
 
-## There is a break between the top 5 and the rest in terms of their
-## influence, as measured by %IncMSE or IncNodePurity.
-## Get these top 5 influential taxa.
+## For the rib family-level taxa, it looks like the first 4 taxa are
+## the most influential.  However, for consistency with the way we did
+## this plot for the Forger et al (2019) paper, I'm going to draw the
+## top 5 taxa, as measured by %IncMSE.
 n <- 5
 
-## Turn importance measures into a tibble, sorted by IncNodePurity in
+## Turn importance measures into a tibble, sorted by %IncMSE in
 ## increasing order.
 importanceT <- importance(ribRF) %>%
-  as.data.frame() %>% as_tibble() %>%
+  as.data.frame() %>% 
   rownames_to_column("family") %>%
+  as_tibble() %>%
   arrange(`%IncMSE`)
+## Remove the "f__" from the family taxon names.
+importanceT$family <- str_remove(importanceT$family, "f__")
 
 
 ## Save the names of the families that are in the top 10 in
@@ -146,15 +150,16 @@ chooseT <- ribT %>%
   filter(taxon %in% topChoices)
 
 ## Average the value across cadavers for each taxa and each day.
-summTopT <- chooseT %>% group_by(taxon, days, degdays) %>% summarize(meanPercByDay=100*mean(fracBySubjDay), medianPercByDay=100*median(fracBySubjDay))
+summTopT <- chooseT %>%
+  group_by(taxon, sampleName) %>%
+  summarize(meanPercByDay=100*mean(fracBySample), medianPercByDay=100*median(fracBySample))
 
-## In Luisa's paper, she had a plot of average relative abundance
-## vs. time for 5 taxa that she identified as being present in large
-## numbers.  Her x-axis had the time steps evenly spaced (not
-## reflecting actual time passage), with each tick mark labeled with
-## the day/degreeday.  To do this, but yet keep days in order, we need
-## to build a new factor variable of the form day/degree day, with
-## ordered levels.
+## As in Forger et al (2019), we want a plot of average relative
+## abundance vs. time for these five influential taxa.  The x-axis had
+## the time steps evenly spaced (not reflecting actual time passage),
+## with each tick mark labeled with the day/degreeday.  To do this,
+## but yet keep days in order, we need to build a new factor variable
+## of the form day/degree day, with ordered levels.
 orderedLevels <- with(timeT, paste(degdays, days, sep="/"))
 summTopT$dayADD <- factor(with(summTopT, paste(degdays, days, sep="/")), levels=orderedLevels)
 rm(orderedLevels)
