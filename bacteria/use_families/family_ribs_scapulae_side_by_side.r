@@ -149,20 +149,31 @@ topChoices <- as.character(importanceT %>% arrange(desc(`%IncMSE`)) %>% pull(fam
 chooseT <- ribT %>%
   filter(taxon %in% topChoices)
 
-## Average the value across cadavers for each taxa and each day.
+## Average the value across samples for each taxa and each day.
 summTopT <- chooseT %>%
   group_by(taxon, sampleName) %>%
   summarize(meanPercByDay=100*mean(fracBySample), medianPercByDay=100*median(fracBySample))
 
+
+## #####
 ## As in Forger et al (2019), we want a plot of average relative
 ## abundance vs. time for these five influential taxa.  The x-axis had
 ## the time steps evenly spaced (not reflecting actual time passage),
 ## with each tick mark labeled with the day/degreeday.  To do this,
 ## but yet keep days in order, we need to build a new factor variable
 ## of the form day/degree day, with ordered levels.
-orderedLevels <- with(timeT, paste(degdays, days, sep="/"))
+
+## Read in dates and ADD for each sample.
+infoT <- read_csv("../sampling_info.csv")
+## Using the dates, calculate how many days have passed since the
+## first day of the study (2016-11-17).
+days <- as.vector(infoT$date - min(infoT$date))
+
+infoT$dayADD <- factor(with(infoT, paste(degdays, days, sep="/")))
 summTopT$dayADD <- factor(with(summTopT, paste(degdays, days, sep="/")), levels=orderedLevels)
 rm(orderedLevels)
+## #####
+
 dev.new(width=4.5, height=4)
 trPanel <- ggplot(summTopT, aes(x=dayADD, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon)) +
