@@ -124,6 +124,7 @@ r1c2Panel <- ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
 ## ########################
 ## Ribs: Show line plot of changing relative abundance for the top 5 taxa.
 
+## #####
 ## For the rib family-level taxa, it looks like the first 4 taxa are
 ## the most influential.  However, for consistency with the way we did
 ## this plot for the Forger et al (2019) paper, I'm going to draw the
@@ -148,11 +149,34 @@ topChoices <- as.character(importanceT %>% arrange(desc(`%IncMSE`)) %>% pull(fam
 ## Find the percentages for these taxa.
 chooseT <- ribT %>%
   filter(taxon %in% topChoices)
+## #####
 
+
+## #####
+## Read in dates and ADD for each sample from a separate CSV file.
+infoT <- read_csv("../sampling_info.csv")
+
+## Calculate actual number of days elapsed since the first day of the
+## study (2016-11-17).
+infoT$days <- as.vector(infoT$date - min(infoT$date))
+
+## Build a variable of form "ADD/days" to use with plots.  Make it an
+## ordered factor to maintain chronological order.
+ADDday <- with(infoT, paste(degdays, days, sep="/"))
+infoT$ADDday <- factor(ADDday, levels=unique(ADDday))
+
+## Merge this info with the taxa percentages.
+chooseT <- chooseT %>%
+  left_join(infoT %>% select(sampleName, ADDday, degdays, days))
+## #####
+
+
+## #####
 ## Average the value across samples for each taxa and each day.
 summTopT <- chooseT %>%
-  group_by(taxon, sampleName) %>%
+  group_by(taxon, ADDday, degdays, days) %>%
   summarize(meanPercByDay=100*mean(fracBySample), medianPercByDay=100*median(fracBySample))
+## #####
 
 
 ## #####
@@ -162,20 +186,8 @@ summTopT <- chooseT %>%
 ## with each tick mark labeled with the day/degreeday.  To do this,
 ## but yet keep days in order, we need to build a new factor variable
 ## of the form day/degree day, with ordered levels.
-
-## Read in dates and ADD for each sample.
-infoT <- read_csv("../sampling_info.csv")
-## Using the dates, calculate how many days have passed since the
-## first day of the study (2016-11-17).
-days <- as.vector(infoT$date - min(infoT$date))
-
-infoT$dayADD <- factor(with(infoT, paste(degdays, days, sep="/")))
-summTopT$dayADD <- factor(with(summTopT, paste(degdays, days, sep="/")), levels=orderedLevels)
-rm(orderedLevels)
-## #####
-
 dev.new(width=4.5, height=4)
-trPanel <- ggplot(summTopT, aes(x=dayADD, y=meanPercByDay, group=taxon)) +
+trPanel <- ggplot(summTopT, aes(x=ADDday, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon)) +
   scale_y_continuous(limits=c(0, 100), expand=c(0,0)) +
   theme_minimal() +
@@ -185,7 +197,7 @@ trPanel <- ggplot(summTopT, aes(x=dayADD, y=meanPercByDay, group=taxon)) +
         legend.title=element_blank(),
         legend.key.size=unit(0.5, 'lines'),
         legend.background=element_rect(fill="white")) +
-  labs(x="Accumulated Degree Days/Days", y="Relative Abundance")## tag="A")
+  labs(x="Accumulated Degree Days/Days", y="Relative Abundance for Ribs")## tag="A")
 ## ########################
 
 
