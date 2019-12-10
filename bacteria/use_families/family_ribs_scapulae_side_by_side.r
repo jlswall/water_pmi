@@ -88,7 +88,8 @@ r1c1Panel <- ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
   theme_minimal() +
   coord_flip() +
   geom_col() +
-  labs(x="Family-level Taxa for Ribs", y="Mean % Decrease in MSE When Excluded from Random Forest Model")
+  labs(x="Family-level Taxa (Ribs)", y="Mean % Decrease in MSE") 
+  ## No room for full x-axis label.  May have to later try annontation_custom().
 ## ########################
 
 
@@ -117,7 +118,7 @@ r1c2Panel <- ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
   theme_minimal() +
   coord_flip() +
   geom_col() +
-  labs(x="Family-level Taxa for Scapulae", y="Mean % Decrease in MSE When Excluded from Random Forest Model")
+  labs(x="Family-level Taxa (Scapulae)", y="Mean % Decrease in MSE")
 ## ########################
 
 
@@ -186,10 +187,10 @@ summTopT <- chooseT %>%
 ## with each tick mark labeled with the day/degreeday.  To do this,
 ## but yet keep days in order, we need to build a new factor variable
 ## of the form day/degree day, with ordered levels.
-dev.new(width=4.5, height=4)
-trPanel <- ggplot(summTopT, aes(x=ADDday, y=meanPercByDay, group=taxon)) +
+## dev.new(width=4.5, height=4)
+r2c1Panel <- ggplot(summTopT, aes(x=ADDday, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon)) +
-  scale_y_continuous(limits=c(0, 100), expand=c(0,0)) +
+  scale_y_continuous(limits=c(0, 50), expand=c(0,0)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle=45, hjust=0.5, vjust=0.5),
         legend.position=c(0.95, 0.98),
@@ -197,60 +198,146 @@ trPanel <- ggplot(summTopT, aes(x=ADDday, y=meanPercByDay, group=taxon)) +
         legend.title=element_blank(),
         legend.key.size=unit(0.5, 'lines'),
         legend.background=element_rect(fill="white")) +
-  labs(x="Accumulated Degree Days/Days", y="Relative Abundance for Ribs")## tag="A")
+  labs(x="Accumulated Degree Days/Days", y="Relative Abundance (Ribs)")## tag="A")
 ## ########################
 
 
 ## ########################
-## This panel is based on Fig. 1c from Pechal et al. (2015).  It
-## is predicted vs. actual ADD.
+## Scapulae: Show line plot of changing relative abundance for the top 5 taxa.
+
+## #####
+## For the scapulae family-level taxa, it looks like the first taxa is
+## most influential, with the next 6 gradually decreasing in
+## importance.  Then, there's another break between the 7th and 8th
+## taxa. However, for consistency with the way we did this plot for
+## the Forger et al (2019) paper, I'm going to draw the top 5 taxa, as
+## measured by %IncMSE.
+n <- 5
+
+## Turn importance measures into a tibble, sorted by %IncMSE in
+## increasing order.
+importanceT <- importance(scapRF) %>%
+  as.data.frame() %>% 
+  rownames_to_column("family") %>%
+  as_tibble() %>%
+  arrange(`%IncMSE`)
+## Remove the "f__" from the family taxon names.
+importanceT$family <- str_remove(importanceT$family, "f__")
+
+
+## Save the names of the families that are in the top 10 in
+## terms of %IncMSE.
+topChoices <- as.character(importanceT %>% arrange(desc(`%IncMSE`)) %>% pull(family))[1:n]
+
+## Find the percentages for these taxa.
+chooseT <- scapT %>%
+  filter(taxon %in% topChoices)
+## #####
+
+
+## #####
+## Read in dates and ADD for each sample from a separate CSV file.
+infoT <- read_csv("../sampling_info.csv")
+
+## Calculate actual number of days elapsed since the first day of the
+## study (2016-11-17).
+infoT$days <- as.vector(infoT$date - min(infoT$date))
+
+## Build a variable of form "ADD/days" to use with plots.  Make it an
+## ordered factor to maintain chronological order.
+ADDday <- with(infoT, paste(degdays, days, sep="/"))
+infoT$ADDday <- factor(ADDday, levels=unique(ADDday))
+
+## Merge this info with the taxa percentages.
+chooseT <- chooseT %>%
+  left_join(infoT %>% select(sampleName, ADDday, degdays, days))
+## #####
+
+
+## #####
+## Average the value across samples for each taxa and each day.
+summTopT <- chooseT %>%
+  group_by(taxon, ADDday, degdays, days) %>%
+  summarize(meanPercByDay=100*mean(fracBySample), medianPercByDay=100*median(fracBySample))
+## #####
+
+
+## #####
+## As in Forger et al (2019), we want a plot of average relative
+## abundance vs. time for these five influential taxa.  The x-axis had
+## the time steps evenly spaced (not reflecting actual time passage),
+## with each tick mark labeled with the day/degreeday.  To do this,
+## but yet keep days in order, we need to build a new factor variable
+## of the form day/degree day, with ordered levels.
+## dev.new(width=4.5, height=4)
+r2c2Panel <- ggplot(summTopT, aes(x=ADDday, y=meanPercByDay, group=taxon)) +
+  geom_line(size=1.25, aes(color=taxon)) +
+  scale_y_continuous(limits=c(0, 50), expand=c(0,0)) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle=45, hjust=0.5, vjust=0.5),
+        legend.position=c(0.95, 0.98),
+        legend.justification=c("right", "top"),
+        legend.title=element_blank(),
+        legend.key.size=unit(0.5, 'lines'),
+        legend.background=element_rect(fill="white")) +
+  labs(x="Accumulated Degree Days/Days", y="Relative Abundance (Scapulae)")## tag="A")
+## ########################
+
+
+## ########################
+## Ribs: Predicted vs. actual ADD
+
+## This panel is based on Fig. 6c from Forger et al. (2019).  That
+## figure was based on Fig. 1c from Pechal et al. (2015).
 
 ## Make a tibble of actual and predicted values for each observation.
-predvactT <- as.tibble(data.frame(predicted=rf$predicted, actual=rf$y))
+predvactT <- as_tibble(data.frame(predicted=ribRF$predicted, actual=ribRF$y))
+predvactT$resids <- with(predvactT, actual - predicted)
 Rsq <- with(predvactT, round(cor(actual, predicted)^2, 2))
 ## RMSE around 1:1 line, not regression line.
-RMSE <- round(sqrt(mean(resids^2)), 2)  
-blPanel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
+RMSE <- round(sqrt(mean(predvactT$resids^2)), 2)  
+r3c1Panel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
   geom_point() +
   geom_abline(slope=1, intercept=0) +
-  annotate("text", x=50, y=1700, hjust=0, label=paste("R^2  ==", Rsq), parse=T) +
-  annotate("text", x=50, y=1600, hjust=0, label=paste("RMSE = ", RMSE)) + 
+  annotate("text", x=50, y=4925, hjust=0, label=paste("R^2  ==", Rsq), parse=T) +
+  annotate("text", x=50, y=4600, hjust=0, label=paste("RMSE = ", RMSE)) + 
   coord_fixed(ratio=1) +
   theme_bw() + 
   lims(x=c(0, max(as.vector(predvactT))), y=c(0, max(as.vector(predvactT)))) +
-  labs(x="Actual Accumulated Degree Days", y="Predicted Accumulated Degree Days")
+  labs(x="Actual Accumulated Degree Days (Ribs)", y="Predicted Accumulated Degree Days (Ribs)")
 ## ########################
 
 
 ## ########################
-## This panel shows the same results as the panel above, but on the
-## log scale.
+## Scapulae: Predicted vs. actual ADD
 
-## Make new columns with log, base 10.  We have 6 observations made at
-## day/ADD 0/0.  Since log10(0) is undefined, we make these values NA.
-predvactT$logactual <- with(predvactT, ifelse(actual>0, log10(actual), NA))
-predvactT$logpredicted <- with(predvactT, ifelse(predicted>0, log10(predicted), NA))
-minAxisLmt <- min(c(predvactT$logactual, predvactT$logpredicted), na.rm=T)
-maxAxisLmt <- max(c(predvactT$logactual, predvactT$logpredicted), na.rm=T)
+## This panel is based on Fig. 6c from Forger et al. (2019).  That
+## figure was based on Fig. 1c from Pechal et al. (2015).
 
+## Make a tibble of actual and predicted values for each observation.
+predvactT <- as_tibble(data.frame(predicted=scapRF$predicted, actual=scapRF$y))
+predvactT$resids <- with(predvactT, actual - predicted)
 Rsq <- with(predvactT, round(cor(actual, predicted)^2, 2))
 ## RMSE around 1:1 line, not regression line.
-RMSE <- round(sqrt(mean(resids^2)), 2)  
-blPanel <- ggplot(predvactT, aes(x=logactual, y=logpredicted)) +
+RMSE <- round(sqrt(mean(predvactT$resids^2)), 2)  
+r3c2Panel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
   geom_point() +
   geom_abline(slope=1, intercept=0) +
-  ## annotate("text", x=50, y=1700, hjust=0, label=paste("R^2  ==", Rsq), parse=T) +
-  ## annotate("text", x=50, y=1600, hjust=0, label=paste("RMSE = ", RMSE)) + 
+  annotate("text", x=50, y=4925, hjust=0, label=paste("R^2  ==", Rsq), parse=T) +
+  annotate("text", x=50, y=4600, hjust=0, label=paste("RMSE = ", RMSE)) + 
   coord_fixed(ratio=1) +
   theme_bw() + 
-  lims(x=c(minAxisLmt, maxAxisLmt), y=c(minAxisLmt, maxAxisLmt)) +
-  labs(x="Log 10 of Actual Accumulated Degree Days", y="Log 10 of Predicted Accumulated Degree Days")
+  lims(x=c(0, max(as.vector(predvactT))), y=c(0, max(as.vector(predvactT)))) +
+  labs(x="Actual Accumulated Degree Days (Scapulae)", y="Predicted Accumulated Degree Days (Scapulae)")
 ## ########################
+
+
 
 
 ## ########################
 library("cowplot")
-plot_grid(tlPanel, trPanel, blPanel, labels=c("a", "b", "c", "d"), rel_widths=c(1.125, 1), rel_heights=c(1, 1))
-ggsave(file="relative_abundance_Rsq_rmse.pdf", width=8.5, height=4, units="in")
+plot_grid(r1c1Panel, r1c2Panel, r2c1Panel, r2c2Panel, r3c1Panel, r3c2Panel, labels=c("a", "b", "c", "d", "e", "f"), nrow=3)
+
+ggsave(file="ribs_scapula_family_6panels.pdf", height=10, width=7.5, units="in")
 ## ########################
 ## ##################################################
