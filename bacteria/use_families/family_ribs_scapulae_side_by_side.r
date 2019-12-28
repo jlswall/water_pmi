@@ -57,9 +57,40 @@ rm(rf)
 
 
 
+## ##################################################
+## Find influential taxa for ribs and scapulae, and set colors for
+## these to be used consistently across plot panels.
+
+
+## ########################
+## First, we look at ribs taxa.
+
+## Get the top "n" (whether 8, 10, whatever) influential taxa.
+n <- 10
+
+## Turn importance measures into a tibble, sorted by IncNodePurity in
+## increasing order.
+ribimportT <- importance(ribRF) %>%
+  as.data.frame() %>% 
+  rownames_to_column("family") %>%
+  as_tibble() %>%
+  top_n(n, wt=`%IncMSE`) %>%
+  arrange(`%IncMSE`)
+## Remove the "f__" from the family taxon names.
+ribimportT$family <- str_remove(ribimportT$family, "f__")
+
+## Turn family names into factors, so that we can make the bar chart
+## with the bars in decreasing order.
+ribimportT$family <- factor(ribimportT$family, levels=ribimportT$family)
+
+## WORKING HERE!
 
 ## ##################################################
-## Make six-panel (3 rows by 2 columns) figure for use in publication,
+
+
+
+## ##################################################
+## Make four-panel (2 rows by 2 columns) figure for use in publication,
 ## with rib plots in one column and scapula in the other.
 
 
@@ -88,7 +119,7 @@ r1c1Panel <- ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
   theme_minimal() +
   coord_flip() +
   geom_col() +
-  labs(x="Family-level Taxa (Ribs)", y="Mean % Decrease in MSE") 
+  labs(x=NULL, y="Mean % Decrease in MSE") 
   ## No room for full x-axis label.  May have to later try annontation_custom().
 ## ########################
 
@@ -118,7 +149,7 @@ r1c2Panel <- ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
   theme_minimal() +
   coord_flip() +
   geom_col() +
-  labs(x="Family-level Taxa (Scapulae)", y="Mean % Decrease in MSE")
+  labs(x=NULL, y="Mean % Decrease in MSE")
 ## ########################
 
 
@@ -153,52 +184,52 @@ chooseT <- ribT %>%
 ## #####
 
 
-## #####
-## Read in dates and ADD for each sample from a separate CSV file.
-infoT <- read_csv("../sampling_info.csv")
+## The following code was used to label the x-axis with a combo of ADD
+## and actual number of days elapsed.
+## ## #####
+## ## Read in dates and ADD for each sample from a separate CSV file.
+## infoT <- read_csv("../sampling_info.csv")
 
-## Calculate actual number of days elapsed since the first day of the
-## study (2016-11-17).
-infoT$days <- as.vector(infoT$date - min(infoT$date))
+## ## Calculate actual number of days elapsed since the first day of the
+## ## study (2016-11-17).
+## infoT$days <- as.vector(infoT$date - min(infoT$date))
 
-## Build a variable of form "ADD/days" to use with plots.  Make it an
-## ordered factor to maintain chronological order.
-ADDday <- with(infoT, paste(degdays, days, sep="/"))
-infoT$ADDday <- factor(ADDday, levels=unique(ADDday))
+## ## Build a variable of form "ADD/days" to use with plots.  Make it an
+## ## ordered factor to maintain chronological order.
+## ADDday <- with(infoT, paste(degdays, days, sep="/"))
+## infoT$ADDday <- factor(ADDday, levels=unique(ADDday))
 
-## Merge this info with the taxa percentages.
-chooseT <- chooseT %>%
-  left_join(infoT %>% select(sampleName, ADDday, degdays, days))
-## #####
+## ## Merge this info with the taxa percentages.
+## chooseT <- chooseT %>%
+##   left_join(infoT %>% select(sampleName, ADDday, degdays, days))
+## ## #####
 
 
 ## #####
 ## Average the value across samples for each taxa and each day.
+## Remove day 0 from figures.
 summTopT <- chooseT %>%
-  group_by(taxon, ADDday, degdays, days) %>%
+  filter(degdays > 0) %>%
+  group_by(taxon, degdays) %>%
   summarize(meanPercByDay=100*mean(fracBySample), medianPercByDay=100*median(fracBySample))
 ## #####
 
 
 ## #####
-## As in Forger et al (2019), we want a plot of average relative
-## abundance vs. time for these five influential taxa.  The x-axis had
-## the time steps evenly spaced (not reflecting actual time passage),
-## with each tick mark labeled with the day/degreeday.  To do this,
-## but yet keep days in order, we need to build a new factor variable
-## of the form day/degree day, with ordered levels.
+## Draw plot of average relative abundance vs. time for these five
+## influential taxa.
 ## dev.new(width=4.5, height=4)
-r2c1Panel <- ggplot(summTopT, aes(x=ADDday, y=meanPercByDay, group=taxon)) +
+r2c1Panel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon)) +
   scale_y_continuous(limits=c(0, 50), expand=c(0,0)) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle=45, hjust=0.5, vjust=0.5),
+  theme(##axis.text.x = element_text(angle=45, hjust=0.5, vjust=0.5),
         legend.position=c(0.95, 0.98),
         legend.justification=c("right", "top"),
         legend.title=element_blank(),
         legend.key.size=unit(0.5, 'lines'),
         legend.background=element_rect(fill="white")) +
-  labs(x="Accumulated Degree Days/Days", y="Relative Abundance (Ribs)")## tag="A")
+  labs(x="Accumulated Degree Days", y="Relative Abundance (Ribs)")## tag="A")
 ## ########################
 
 
@@ -235,53 +266,67 @@ chooseT <- scapT %>%
 ## #####
 
 
-## #####
-## Read in dates and ADD for each sample from a separate CSV file.
-infoT <- read_csv("../sampling_info.csv")
+## The following code was used to label the x-axis with a combo of ADD
+## and actual number of days elapsed.
+## ## #####
+## ## Read in dates and ADD for each sample from a separate CSV file.
+## infoT <- read_csv("../sampling_info.csv")
 
-## Calculate actual number of days elapsed since the first day of the
-## study (2016-11-17).
-infoT$days <- as.vector(infoT$date - min(infoT$date))
+## ## Calculate actual number of days elapsed since the first day of the
+## ## study (2016-11-17).
+## infoT$days <- as.vector(infoT$date - min(infoT$date))
 
-## Build a variable of form "ADD/days" to use with plots.  Make it an
-## ordered factor to maintain chronological order.
-ADDday <- with(infoT, paste(degdays, days, sep="/"))
-infoT$ADDday <- factor(ADDday, levels=unique(ADDday))
+## ## Build a variable of form "ADD/days" to use with plots.  Make it an
+## ## ordered factor to maintain chronological order.
+## ADDday <- with(infoT, paste(degdays, days, sep="/"))
+## infoT$ADDday <- factor(ADDday, levels=unique(ADDday))
 
-## Merge this info with the taxa percentages.
-chooseT <- chooseT %>%
-  left_join(infoT %>% select(sampleName, ADDday, degdays, days))
-## #####
+## ## Merge this info with the taxa percentages.
+## chooseT <- chooseT %>%
+##   left_join(infoT %>% select(sampleName, ADDday, degdays, days))
+## ## #####
 
 
 ## #####
 ## Average the value across samples for each taxa and each day.
+## Remove day 0 from figures.
 summTopT <- chooseT %>%
-  group_by(taxon, ADDday, degdays, days) %>%
+  filter(degdays > 0) %>%
+  group_by(taxon, degdays) %>%
   summarize(meanPercByDay=100*mean(fracBySample), medianPercByDay=100*median(fracBySample))
 ## #####
 
 
 ## #####
-## As in Forger et al (2019), we want a plot of average relative
-## abundance vs. time for these five influential taxa.  The x-axis had
-## the time steps evenly spaced (not reflecting actual time passage),
-## with each tick mark labeled with the day/degreeday.  To do this,
-## but yet keep days in order, we need to build a new factor variable
-## of the form day/degree day, with ordered levels.
+## Draw plot of average relative abundance vs. time for these five
+## influential taxa.
 ## dev.new(width=4.5, height=4)
-r2c2Panel <- ggplot(summTopT, aes(x=ADDday, y=meanPercByDay, group=taxon)) +
+r2c2Panel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon)) +
   scale_y_continuous(limits=c(0, 50), expand=c(0,0)) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle=45, hjust=0.5, vjust=0.5),
+  theme(## axis.text.x = element_text(angle=45, hjust=0.5, vjust=0.5),
         legend.position=c(0.95, 0.98),
         legend.justification=c("right", "top"),
         legend.title=element_blank(),
         legend.key.size=unit(0.5, 'lines'),
         legend.background=element_rect(fill="white")) +
-  labs(x="Accumulated Degree Days/Days", y="Relative Abundance (Scapulae)")## tag="A")
+  labs(x="Accumulated Degree Days", y="Relative Abundance (Scapulae)")## tag="A")
 ## ########################
+
+## ########################
+library("cowplot")
+plot_grid(r1c1Panel, r1c2Panel, r2c1Panel, r2c2Panel, labels=c("a", "b", "c", "d"), nrow=2)
+
+ggsave(file="ribs_scapula_family_4panels.pdf", height=10, width=7.5, units="in")
+## ########################
+## ##################################################
+
+
+
+## ##################################################
+## Make two-panel figure showing predicted vs. actual ADD for ribs and
+## scapulae.
 
 
 ## ########################
@@ -332,12 +377,12 @@ r3c2Panel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
 ## ########################
 
 
-
-
 ## ########################
 library("cowplot")
-plot_grid(r1c1Panel, r1c2Panel, r2c1Panel, r2c2Panel, r3c1Panel, r3c2Panel, labels=c("a", "b", "c", "d", "e", "f"), nrow=3)
+plot_grid(r3c1Panel, r3c2Panel, labels=c("a", "b"), nrow=1)
 
-ggsave(file="ribs_scapula_family_6panels.pdf", height=10, width=7.5, units="in")
+ggsave(file="ribs_scapula_predicted_vs_actual_ADD_family.pdf", height=4, width=7.5, units="in")
 ## ########################
+## ##################################################
+
 ## ##################################################
