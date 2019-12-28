@@ -1,6 +1,7 @@
 library("tidyverse")
 library("figdim")
 library("randomForest")
+library("scales")  ## For hue_pal() function.
 
 
 ## ##################################################
@@ -63,7 +64,7 @@ rm(rf)
 
 
 ## ########################
-## First, we look at ribs taxa.
+## Get top n influential taxa for ribs.
 
 ## Get the top "n" (whether 8, 10, whatever) influential taxa.
 n <- 10
@@ -82,9 +83,30 @@ ribimportT$family <- str_remove(ribimportT$family, "f__")
 ## Turn family names into factors, so that we can make the bar chart
 ## with the bars in decreasing order.
 ribimportT$family <- factor(ribimportT$family, levels=ribimportT$family)
+## ########################
 
-## WORKING HERE!
 
+## ########################
+## Get top n influential taxa for scapulae.
+
+## Get the top "n" (whether 8, 10, whatever) influential taxa.
+n <- 10
+
+## Turn importance measures into a tibble, sorted by IncNodePurity in
+## increasing order.
+scapimportT <- importance(scapRF) %>%
+  as.data.frame() %>% 
+  rownames_to_column("family") %>%
+  as_tibble() %>%
+  top_n(n, wt=`%IncMSE`) %>%
+  arrange(`%IncMSE`)
+## Remove the "f__" from the family taxon names.
+scapimportT$family <- str_remove(scapimportT$family, "f__")
+
+## Turn family names into factors, so that we can make the bar chart
+## with the bars in decreasing order.
+scapimportT$family <- factor(scapimportT$family, levels=scapimportT$family)
+## ########################
 ## ##################################################
 
 
@@ -92,6 +114,26 @@ ribimportT$family <- factor(ribimportT$family, levels=ribimportT$family)
 ## ##################################################
 ## Make four-panel (2 rows by 2 columns) figure for use in publication,
 ## with rib plots in one column and scapula in the other.
+
+
+## ########################
+## Set up colors so that we can keep them consistent among the 4
+## panels. For the taxa displayed in relative abundance plots, use the
+## same colors for the bar charts showing the mean % decrease in MSE.
+
+## Will assign colors to "m" most influential taxa for both ribs and
+## scapula; some taxa may be influential to both.
+m <- 5
+mostinfl <- unique( c(
+    as.character(ribimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family)),
+    as.character(scapimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family))
+) )
+
+
+## WORKING HERE!
+taxa.colors <- c(hue_pal()(9))
+names(taxa.colors) <- mostinfl
+## ########################
 
 
 ## ########################
