@@ -80,6 +80,11 @@ ribimportT <- importance(ribRF) %>%
 ## Remove the "f__" from the family taxon names.
 ribimportT$family <- str_remove(ribimportT$family, "f__")
 
+## WORKING HERE!
+## We need to remove the following line, leaving it just before we
+## make the horizontail bar chart.  Then, we can make the code below
+## more readable, since we'll be able to leave out the "as.character"
+## parts.
 ## Turn family names into factors, so that we can make the bar chart
 ## with the bars in decreasing order.
 ribimportT$family <- factor(ribimportT$family, levels=ribimportT$family)
@@ -129,40 +134,52 @@ mostinfl <- unique( c(
     as.character(scapimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family))
 ) )
 
+## The most influential taxa will get colors.  Taxa which are less
+## influential, but still appear in the bar chart (top n, but not top
+## m), will have bars plotted in gray.
+infltaxaColors <- c(hue_pal()(length(mostinfl)))
+names(infltaxaColors) <- mostinfl
 
-## WORKING HERE!
-taxa.colors <- c(hue_pal()(9))
-names(taxa.colors) <- mostinfl
+graytaxaNames <- c(as.character(ribimportT$family), as.character(scapimportT$family))[!c(as.character(ribimportT$family), as.character(scapimportT$family)) %in% mostinfl]
+graytaxaColors <- rep("#999999", length(graytaxaNames))
+names(graytaxaColors) <- graytaxaNames
+
+## Combine gray and colored taxa into one vector of colors.
+taxaColors <- c(infltaxaColors, graytaxaColors)
 ## ########################
 
 
 ## ########################
 ## Ribs: Make graph of just %IncMSE alone.
 
-## Get the top "n" (whether 8, 10, whatever) influential taxa.
-n <- 10
+## ## Get the top "n" (whether 8, 10, whatever) influential taxa.
+## n <- 10
 
-## Turn importance measures into a tibble, sorted by IncNodePurity in
-## increasing order.
-importanceT <- importance(ribRF) %>%
-  as.data.frame() %>% 
-  rownames_to_column("family") %>%
-  as_tibble() %>%
-  arrange(`%IncMSE`)
-## Remove the "f__" from the family taxon names.
-importanceT$family <- str_remove(importanceT$family, "f__")
+## ## Turn importance measures into a tibble, sorted by IncNodePurity in
+## ## increasing order.
+## importanceT <- importance(ribRF) %>%
+##   as.data.frame() %>% 
+##   rownames_to_column("family") %>%
+##   as_tibble() %>%
+##   arrange(`%IncMSE`)
+## ## Remove the "f__" from the family taxon names.
+## importanceT$family <- str_remove(importanceT$family, "f__")
+
+## ## Turn family names into factors, so that we can make the bar chart
+## ## with the bars in decreasing order.
+## importanceT$family <- factor(importanceT$family, levels=importanceT$family)
+
 
 ## Turn family names into factors, so that we can make the bar chart
 ## with the bars in decreasing order.
-importanceT$family <- factor(importanceT$family, levels=importanceT$family)
+ribimportT$family <- factor(ribimportT$family, levels=ribimportT$family)
 
-r1c1Panel <- ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
-                  aes(x=family, y=`%IncMSE`)) +
+r1c1Panel <- ggplot(ribimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
   theme_minimal() +
   coord_flip() +
-  geom_col() +
-  labs(x=NULL, y="Mean % Decrease in MSE") 
-  ## No room for full x-axis label.  May have to later try annontation_custom().
+  geom_col(show.legend=FALSE) +
+  labs(x=NULL, y="Mean % Decrease in MSE") +
+  scale_fill_manual(values=taxaColors)
 ## ########################
 
 
