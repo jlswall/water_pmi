@@ -2,6 +2,8 @@ library("tidyverse")
 library("figdim")
 library("randomForest")
 library("scales")  ## For hue_pal() function.
+library("cowplot")
+library("ggpubr")
 
 
 ## ##################################################
@@ -79,15 +81,6 @@ ribimportT <- importance(ribRF) %>%
   arrange(`%IncMSE`)
 ## Remove the "f__" from the family taxon names.
 ribimportT$family <- str_remove(ribimportT$family, "f__")
-
-## WORKING HERE!
-## We need to remove the following line, leaving it just before we
-## make the horizontail bar chart.  Then, we can make the code below
-## more readable, since we'll be able to leave out the "as.character"
-## parts.
-## Turn family names into factors, so that we can make the bar chart
-## with the bars in decreasing order.
-## ribimportT$family <- factor(ribimportT$family, levels=ribimportT$family)
 ## ########################
 
 
@@ -107,10 +100,6 @@ scapimportT <- importance(scapRF) %>%
   arrange(`%IncMSE`)
 ## Remove the "f__" from the family taxon names.
 scapimportT$family <- str_remove(scapimportT$family, "f__")
-
-## Turn family names into factors, so that we can make the bar chart
-## with the bars in decreasing order.
-## scapimportT$family <- factor(scapimportT$family, levels=scapimportT$family)
 ## ########################
 ## ##################################################
 
@@ -129,14 +118,14 @@ scapimportT$family <- str_remove(scapimportT$family, "f__")
 ## Will assign colors to "m" most influential taxa for both ribs and
 ## scapula; some taxa may be influential to both.
 m <- 5
-mostinfl <- unique( c(
+mostinfl <- sort( unique( c(
     ribimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family),
     scapimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family)
-) )
+) ) )
 
 ## The most influential taxa will get colors.  Taxa which are less
-## influential, but still appear in the bar chart (top n, but not top
-## m), will have bars plotted in gray.
+## influential, and don not appear in the top "m" taxa for either ribs
+## or scapulae, will have bars plotted in gray.
 infltaxaColors <- c(hue_pal()(length(mostinfl)))
 names(infltaxaColors) <- mostinfl
 
@@ -150,35 +139,27 @@ taxaColors <- c(infltaxaColors, graytaxaColors)
 
 
 ## ########################
+## Set up range for the bars in the bar chart so that axes can be
+## consistent between bar charts for ribs and scapulae.
+
+barMax <- ceiling(max(c(ribimportT %>% pull(`%IncMSE`), scapimportT %>% pull(`%IncMSE`))))
+## ########################
+
+
+## ########################
 ## Ribs: Make graph of just %IncMSE alone.
-
-## ## Get the top "n" (whether 8, 10, whatever) influential taxa.
-## n <- 10
-
-## ## Turn importance measures into a tibble, sorted by IncNodePurity in
-## ## increasing order.
-## importanceT <- importance(ribRF) %>%
-##   as.data.frame() %>% 
-##   rownames_to_column("family") %>%
-##   as_tibble() %>%
-##   arrange(`%IncMSE`)
-## ## Remove the "f__" from the family taxon names.
-## importanceT$family <- str_remove(importanceT$family, "f__")
-
-## ## Turn family names into factors, so that we can make the bar chart
-## ## with the bars in decreasing order.
-## importanceT$family <- factor(importanceT$family, levels=importanceT$family)
-
 
 ## Turn family names into factors, so that we can make the bar chart
 ## with the bars in decreasing order.
 ribimportT$family <- factor(ribimportT$family, levels=ribimportT$family)
 
-r1c1Panel <- ggplot(ribimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
+ribbarPanel <- ggplot(ribimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
   theme_minimal() +
+  scale_y_continuous(limits=c(0, barMax), expand=c(0,0)) +
   coord_flip() +
   geom_col(show.legend=FALSE) +
   labs(x=NULL, y="Mean % Decrease in MSE") +
+  theme(axis.title.x = element_text(size=10)) +
   scale_fill_manual(values=taxaColors)
 ## ########################
 
@@ -186,33 +167,17 @@ r1c1Panel <- ggplot(ribimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
 ## ########################
 ## Scapulae: Make graph of just %IncMSE alone.
 
-## ## Get the top "n" (whether 8, 10, whatever) influential taxa.
-## n <- 10
-
-## ## Turn importance measures into a tibble, sorted by IncNodePurity in
-## ## increasing order.
-## importanceT <- importance(scapRF) %>%
-##   as.data.frame() %>% 
-##   rownames_to_column("family") %>%
-##   as_tibble() %>%
-##   arrange(`%IncMSE`)
-## ## Remove the "f__" from the family taxon names.
-## importanceT$family <- str_remove(importanceT$family, "f__")
-
-## ## Turn family names into factors, so that we can make the bar chart
-## ## with the bars in decreasing order.
-## importanceT$family <- factor(importanceT$family, levels=importanceT$family)
-
-
 ## Turn family names into factors, so that we can make the bar chart
 ## with the bars in decreasing order.
 scapimportT$family <- factor(scapimportT$family, levels=scapimportT$family)
 
-r1c2Panel <- ggplot(scapimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
+scapbarPanel <- ggplot(scapimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
   theme_minimal() +
+  scale_y_continuous(limits=c(0, barMax), expand=c(0,0)) +
   coord_flip() +
   geom_col(show.legend=FALSE) +
   labs(x=NULL, y="Mean % Decrease in MSE") +
+  theme(axis.title.x = element_text(size=10)) +
   scale_fill_manual(values=taxaColors)
 ## ########################
 
@@ -250,7 +215,7 @@ summTopT <- chooseT %>%
 ## Draw plot of average relative abundance vs. time for these five
 ## influential taxa.
 ## dev.new(width=4.5, height=4)
-r2c1Panel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
+riblinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon), show.legend=FALSE) +
   scale_y_continuous(limits=c(0, 30), expand=c(0,0)) +
   theme_minimal() +
@@ -260,7 +225,8 @@ r2c1Panel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   ##       legend.title=element_blank(),
   ##       legend.key.size=unit(0.5, 'lines'),
   ##       legend.background=element_rect(fill="white")) +
-  labs(x="Accumulated Degree Days", y="Relative Abundance (Ribs)") +
+  labs(x="Accumulated Degree Days", y="Relative Abundance") +
+  theme(axis.title.x = element_text(size=10), axis.title.y = element_text(size=10)) +
   scale_color_manual(values=taxaColors)
 ## ########################
 
@@ -300,7 +266,7 @@ summTopT <- chooseT %>%
 ## Draw plot of average relative abundance vs. time for these five
 ## influential taxa.
 ## dev.new(width=4.5, height=4)
-r2c2Panel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
+scaplinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon), show.legend=FALSE) +
   scale_y_continuous(limits=c(0, 30), expand=c(0,0)) +
   theme_minimal() +
@@ -310,15 +276,25 @@ r2c2Panel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   ##       legend.title=element_blank(),
   ##       legend.key.size=unit(0.5, 'lines'),
   ##       legend.background=element_rect(fill="white")) +
-  labs(x="Accumulated Degree Days", y="Relative Abundance (Scapulae)") +
+  labs(x="Accumulated Degree Days", y="Relative Abundance") +
+  theme(axis.title.x = element_text(size=10), axis.title.y = element_text(size=10)) +
   scale_color_manual(values=taxaColors)
 ## ########################
 
-## ########################
-library("cowplot")
-plot_grid(r1c1Panel, r1c2Panel, r2c1Panel, r2c2Panel, labels=c("a", "b", "c", "d"), nrow=2)
 
-ggsave(file="ribs_scapula_family_4panels.pdf", height=10, width=7.5, units="in")
+## ########################
+## First row shows info about rib taxa (bar chart, relative abundance graphs).
+plotrow1 <- plot_grid(ribbarPanel, riblinePanel, rel_widths=c(1, 2), nrow=1)
+plotrow1 <- annotate_figure(plotrow1, left=text_grob("Ribs", face="bold", rot=90, size=14))
+
+## First row shows info about rib taxa (bar chart, relative abundance graphs).
+plotrow2 <- plot_grid(scapbarPanel, scaplinePanel, rel_widths=c(1, 2), nrow=1)
+plotrow2 <- annotate_figure(plotrow2, left=text_grob("Scapulae", face="bold", rot=90, size=14))
+
+## Put the rows together to make 4-panel figure.
+plot_grid(plotrow1, plotrow2, nrow=2)
+
+ggsave(file="ribs_scapula_family_4panels.pdf", height=5, width=7.5, units="in")
 ## ########################
 ## ##################################################
 
@@ -327,13 +303,12 @@ ggsave(file="ribs_scapula_family_4panels.pdf", height=10, width=7.5, units="in")
 ## ##################################################
 ## Make two-panel figure showing predicted vs. actual ADD for ribs and
 ## scapulae.
+## This panel is based on Fig. 6c from Forger et al. (2019).  That
+## figure was based on Fig. 1c from Pechal et al. (2015).
 
 
 ## ########################
 ## Ribs: Predicted vs. actual ADD
-
-## This panel is based on Fig. 6c from Forger et al. (2019).  That
-## figure was based on Fig. 1c from Pechal et al. (2015).
 
 ## Make a tibble of actual and predicted values for each observation.
 predvactT <- as_tibble(data.frame(predicted=ribRF$predicted, actual=ribRF$y))
@@ -341,7 +316,7 @@ predvactT$resids <- with(predvactT, actual - predicted)
 Rsq <- with(predvactT, round(cor(actual, predicted)^2, 2))
 ## RMSE around 1:1 line, not regression line.
 RMSE <- round(sqrt(mean(predvactT$resids^2)), 2)  
-r3c1Panel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
+ribscatterPanel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
   geom_point() +
   geom_abline(slope=1, intercept=0) +
   annotate("text", x=50, y=4925, hjust=0, label=paste("R^2  ==", Rsq), parse=T) +
@@ -349,15 +324,15 @@ r3c1Panel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
   coord_fixed(ratio=1) +
   theme_bw() + 
   lims(x=c(0, max(as.vector(predvactT))), y=c(0, max(as.vector(predvactT)))) +
-  labs(x="Actual Accumulated Degree Days (Ribs)", y="Predicted Accumulated Degree Days (Ribs)")
+  theme(axis.title.x = element_text(size=10), axis.title.y = element_text(size=10)) +
+  labs(x="Actual Accumulated Degree Days", y="Predicted Accumulated Degree Days")
+
+ribscatterPanel <- annotate_figure(ribscatterPanel, top=text_grob("Ribs", face="bold", size=14, vjust=1))
 ## ########################
 
 
 ## ########################
 ## Scapulae: Predicted vs. actual ADD
-
-## This panel is based on Fig. 6c from Forger et al. (2019).  That
-## figure was based on Fig. 1c from Pechal et al. (2015).
 
 ## Make a tibble of actual and predicted values for each observation.
 predvactT <- as_tibble(data.frame(predicted=scapRF$predicted, actual=scapRF$y))
@@ -365,7 +340,7 @@ predvactT$resids <- with(predvactT, actual - predicted)
 Rsq <- with(predvactT, round(cor(actual, predicted)^2, 2))
 ## RMSE around 1:1 line, not regression line.
 RMSE <- round(sqrt(mean(predvactT$resids^2)), 2)  
-r3c2Panel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
+scapscatterPanel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
   geom_point() +
   geom_abline(slope=1, intercept=0) +
   annotate("text", x=50, y=4925, hjust=0, label=paste("R^2  ==", Rsq), parse=T) +
@@ -373,16 +348,16 @@ r3c2Panel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
   coord_fixed(ratio=1) +
   theme_bw() + 
   lims(x=c(0, max(as.vector(predvactT))), y=c(0, max(as.vector(predvactT)))) +
-  labs(x="Actual Accumulated Degree Days (Scapulae)", y="Predicted Accumulated Degree Days (Scapulae)")
+  theme(axis.title.x = element_text(size=10), axis.title.y = element_text(size=10)) +
+  labs(x="Actual Accumulated Degree Days", y="Predicted Accumulated Degree Days")
+
+scapscatterPanel <- annotate_figure(scapscatterPanel, top=text_grob("Scapulae", face="bold", size=14, vjust=1))
 ## ########################
 
 
 ## ########################
-library("cowplot")
-plot_grid(r3c1Panel, r3c2Panel, labels=c("a", "b"), nrow=1)
+plot_grid(ribscatterPanel, scapscatterPanel, nrow=1)
 
 ggsave(file="ribs_scapula_predicted_vs_actual_ADD_family.pdf", height=4, width=7.5, units="in")
 ## ########################
-## ##################################################
-
 ## ##################################################
