@@ -38,18 +38,28 @@ rawAllT <- rawAllT %>% select(-total, -newtotal)
 ## ##################################################
 ## Concentrate on the taxa counts for the individual cadavers on the
 ## various collection days.  Transfer from wide format to long format.
-## Parse out the column names to get collection day, sample type, etc.
 
 ## Go from wide to long format.
 rawIndivT <- rawAllT %>%
   gather(sampleName, counts, -taxon)
+## ##################################################
 
 
+## ##################################################
 ## Join with sampling information tibble to get information about
 ## accumulated degree days.  That tibble already has information about
-## sample type (R, S, or W) and collection number (baseline,
-## collection 1-19), so that we don't have to parse it out of the taxa
-## spreadsheet's column names.
+## sample type (R, S, W, or M) and collection number, so that we don't
+## have to parse it out of the taxa spreadsheet's column names.
+
+## Read in sampling information, which we already organized and stored
+## in a CSV file.
+samplingT <- read_csv("sampling_info.csv")
+
+## WORKING HERE!
+## Concerned that sampleName variable isn't the same in the 2 Excel files:
+## unique(rawIndivT$sampleName[!(rawIndivT$sampleName %in% samplingT$sampleName)])
+## unique(samplingT$sampleName[!(samplingT$sampleName %in% rawIndivT$sampleName)])
+
 ## NOTE: We also remove date, season, and collection variables.  This
 ## info is contained in the sampleName variable.
 indivT <- rawIndivT %>%
