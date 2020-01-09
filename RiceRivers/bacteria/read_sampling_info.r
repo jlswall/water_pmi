@@ -25,12 +25,21 @@ samplingT$date <- as.Date(samplingT$date)
 
 
 ## ##################################################
+## Enforce single capitalization pattern for rib.  Remove unnecessary
+## columns.
+
+## We found a two rows in which rib had a capitalized "I".  We
+## make this look like the other ribs rows, using "Rib".
+samplingT$type[samplingT$type=="RIb"] <- "Rib"
+
 ## All of these samples were taken at the same location ("James
 ## River") and using the same extraction method, so the "location" and
 ## "extractMethod" columns are not necessary.
 samplingT <- samplingT %>% select(-location, -extractMethod)
+## ##################################################
 
 
+## ##################################################
 ## The "collection" column contains one of "Baseline", "Collection 1",
 ## ..., "Collection 24", "Collection 24 Disturbed".  Note that the
 ## word "collection" is misspelled for collection 14 and that we may
@@ -71,17 +80,18 @@ samplingT %>%
 ## This table shows which collections have missing scapula or rib
 ## samples.  Water and mud samples are not missing on any of the collection
 ## days.
-##   collection type     nObs
-##   <ord>      <chr>   <int>
-## 1 6          Rib         1
-## 2 9          Rib         3
-## 3 12         Rib         3
-## 4 18         Scapula     4
-## 5 20         Rib         2
-## 6 21         Rib         3
-## 7 22         Rib         4
-## 8 23         Rib         4
-## 9 24         Rib         1
+##    collection type     nObs
+##    <ord>      <chr>   <int>
+##  1 5          Rib         2
+##  2 6          Rib         1
+##  3 9          Rib         3
+##  4 12         Rib         3
+##  5 18         Scapula     4
+##  6 20         Rib         2
+##  7 21         Rib         3
+##  8 22         Rib         4
+##  9 23         Rib         4
+## 10 24         Rib         1
 ## ##################################################
 
 

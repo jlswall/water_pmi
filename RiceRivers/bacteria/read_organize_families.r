@@ -46,24 +46,19 @@ rawIndivT <- rawAllT %>%
 
 
 ## ##################################################
-## Join with sampling information tibble to get information about
-## accumulated degree days.  That tibble already has information about
-## sample type (R, S, W, or M) and collection number, so that we don't
-## have to parse it out of the taxa spreadsheet's column names.
+## Join with sampling information to get information about accumulated
+## degree days.  That tibble already has information about sample type
+## (R, S, W, or M) and collection number, so that we don't have to
+## parse it out of the taxa spreadsheet's column names.
 
 ## Read in sampling information, which we already organized and stored
 ## in a CSV file.
 samplingT <- read_csv("sampling_info.csv")
 
-## WORKING HERE!
-## Concerned that sampleName variable isn't the same in the 2 Excel files:
-## unique(rawIndivT$sampleName[!(rawIndivT$sampleName %in% samplingT$sampleName)])
-## unique(samplingT$sampleName[!(samplingT$sampleName %in% rawIndivT$sampleName)])
-
 ## NOTE: We also remove date, season, and collection variables.  This
 ## info is contained in the sampleName variable.
 indivT <- rawIndivT %>%
-  inner_join(samplingT) %>%
+  left_join(samplingT) %>%
   select(-date, -season, -collection)
 rm(rawIndivT, rawAllT, samplingT)
 ## ##################################################
@@ -87,15 +82,15 @@ indivT$taxLvl <- ordered(indivT$taxLvl, levels=c("family", "order", "class", "ph
 
 
 ## Find percentage of counts can be classified down to the family
-## level, across all types.  We see that about 88.5% of the counts can
+## level, across all types.  We see that about 80.3% of the counts can
 ## be attributed at the family level.
 indivT %>% group_by(taxLvl) %>% summarize(sumCounts=sum(counts), percCounts=100*sum(counts)/sum(indivT$counts))
 
 ## Find percentage of counts which can be classified down to the
 ## family level, type by type.
 indivT %>% group_by(type, taxLvl) %>% summarize(sumCountsByTypeTaxLvl=sum(counts)) %>% left_join(indivT %>% group_by(type) %>% summarize(sumCountsByType=sum(counts))) %>% mutate(perc=100*sumCountsByTypeTaxLvl/sumCountsByType)
-## Percentages classified to family level: 90.5% (ribs), 88.9%
-## (scapulae), 77.7% (water).
+## Percentages classified to family level: 83.8% (ribs), 78.9%
+## (scapulae), 71.2% (water), 70.9% (mud)
 
 
 ## For each sample, what percentage of counts can be classified to the
@@ -115,7 +110,7 @@ ggplot(percTaxLvlBySampleT) +
   geom_point(aes(x=degdays, y=percTaxLvlCts, color=taxLvl)) +
   facet_wrap(~type) +
   labs(x="Accumulated degree days", y="Percentage taxa classified each level")
-## ggsave("family_perc_classif_by_add_type.pdf", width=8.5, height=6, units="in")
+## ggsave("rr_family_perc_classif_by_add_type.pdf", width=8.5, height=6, units="in")
 ## dev.off()
 ## ##################################################
 
@@ -131,7 +126,7 @@ indivT <- indivT %>% filter(taxLvl=="family")
 ## Make a new, more readable taxon column.
 ## Column names with open brackets (e.g. "f__[Tissierellaceae]") cause
 ## problems for functions expecting traditional data frame column
-## names (like randomForest function).
+## names (like randomForest function), so we remove brackets.
 indivT$newtaxon <- gsub(indivT$taxon, pattern="\\[", replacement="")
 indivT$newtaxon <- gsub(indivT$newtaxon, pattern="]", replacement="")
 ## Column names with dashes can likewise be a problem, so I replace
@@ -143,14 +138,14 @@ indivT <- indivT %>% select(-taxon)
 indivT <- rename(indivT, taxon = newtaxon)
 
 ## Count the number of unique family-level taxa observed for the
-## various types (rib, scapula, water).
+## various types (rib, scapula, water, mud).
 indivT %>% filter(taxLvl=="family") %>% filter(counts>0) %>% group_by(type) %>% distinct(taxon) %>% summarize(n=n())
 ##   type        n
 ##   <chr>   <int>
-## 1 Rib       154
-## 2 Scapula   210
-## 3 Water     216
-
+## 1 Mud       187
+## 2 Rib       236
+## 3 Scapula   264
+## 4 Water     176
 
 ## For use in graphs and in calculating percentages later, we need
 ## total counts for each sample.
@@ -163,9 +158,9 @@ ctBySampleT <- indivT %>%
 
 ## ##################################################
 ## Some taxa don't occur frequently.  It's hard to make a hard cutoff
-## for what constitutes "frequently".  There are 245 family-level taxa
-## represented, and a lot of them appear in less than 1% of
-## samples.
+## for what constitutes "frequently".  There are 283 family-level taxa
+## represented, and a lot of them appear to make up less than 1% of
+## the counts for any sample.
 
 ## I'm going to set the frequency cutoff at 1% (0.01).  This means
 ## that in order to meet the cutoff, a specific family-level taxa must
@@ -173,15 +168,15 @@ ctBySampleT <- indivT %>%
 ## sample.
 freqCutoff <- 0.01
 
-## Get list of maximum taxa percentages for various types (rib,
-## scapula, water) sorted in descending order:
+## ## Get list of maximum taxa percentages for various types (rib,
+## ## scapula, water, mud) sorted in descending order:
 ## indivT %>%
 ##   left_join(ctBySampleT) %>%
-##   mutate(fracBySubjDay = counts/totals) %>%
+##   mutate(fracBySampleName = counts/totals) %>%
 ##   group_by(type, taxon) %>%
-##   summarize(maxFracBySubjDay = max(fracBySubjDay)) %>%
-##   ## filter(maxFracBySubjDay >= freqCutoff) %>%
-##   arrange(type, desc(maxFracBySubjDay)) %>%
+##   summarize(maxFracBySampleName = max(fracBySampleName)) %>%
+##   ## filter(maxFracBySampleName >= freqCutoff) %>%
+##   arrange(type, desc(maxFracBySampleName)) %>%
 ##   print(n = Inf)
 
 
@@ -190,8 +185,8 @@ freqCutoff <- 0.01
 ## sample.  Save those taxa names for each type.
 freqTaxaByTypeT <- indivT %>%
   left_join(ctBySampleT) %>%
-  mutate(fracBySubjDay = counts/totals,
-         isExceed=(fracBySubjDay>=freqCutoff)) %>%
+  mutate(fracBySampleName = counts/totals,
+         isExceed=(fracBySampleName>=freqCutoff)) %>%
   group_by(type, taxon) %>%
   summarize(numExceed = sum(isExceed)) %>%
   filter(numExceed > 1) %>%
