@@ -108,9 +108,9 @@ percTaxLvlBySampleT <- indivT %>%
 ## (e.g. family, phylum, etc.) by type (rib, scapula, water) and ADD.
 ggplot(percTaxLvlBySampleT) +
   geom_point(aes(x=degdays, y=percTaxLvlCts, color=taxLvl)) +
-  facet_wrap(~type) +
+  facet_wrap(~type, nrow=1) +
   labs(x="Accumulated degree days", y="Percentage taxa classified each level")
-## ggsave("rr_family_perc_classif_by_add_type.pdf", width=8.5, height=6, units="in")
+  ggsave("rr_family_perc_classif_by_add_type.pdf", width=8.5, height=4, units="in")
 ## dev.off()
 ## ##################################################
 
