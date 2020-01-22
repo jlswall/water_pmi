@@ -9,7 +9,7 @@ library("parallel")
 taxalevel <- "families"
 
 ## Read in cleaned-up phyla, orders, or families taxa.
-allT <- read_csv(paste0("../../", taxalevel, "_massaged.csv"))
+allT <- read_csv(paste0("../../../", taxalevel, "_massaged.csv"))
 ## ##################################################
 
 
