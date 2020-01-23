@@ -211,7 +211,7 @@ ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
        aes(x=family, y=`%IncMSE`)) +
   coord_flip() +
   geom_col() +
-  labs(x="Ribs: family-level taxa", y="Mean % increase in MSE when excluded")
+  labs(x="Scapulae: family-level taxa", y="Mean % increase in MSE when excluded")
 ggsave(filename="families_scapula_w_baseline_PercIncMSE_barchart.pdf", height=4.5, width=6, units="in")
 ## ##################################################
 
@@ -234,15 +234,15 @@ chooseT <- taxaT %>%
 chooseT$taxon <- factor(chooseT$taxon, levels=topChoices)
 
 
-## From sampleName variable, extract the rib number.  Include the rib
-## number is the scatterplot, so that we can check whether one rib has
+## From sampleName variable, extract the scapula number.  Include the
+## number in the scatterplot, so that we can check whether one scapula has
 ## frequently unusual data associated with it.
-chooseT$ribnum <- substring(chooseT$sampleName, first=3, last=4)
+chooseT$scapnum <- substring(chooseT$sampleName, first=3, last=4)
 
 
 ggplot(chooseT, aes(degdays, fracBySample)) +
-  geom_point(aes(color=ribnum)) +
-  labs(x="Degree days", y="Fraction", color="Rib") +
+  geom_point(aes(color=scapnum)) +
+  labs(x="Degree days", y="Fraction", color="Scapula") +
   theme(legend.title=element_text(size=rel(0.8)), legend.text=element_text(size=rel(0.8))) + 
   ## Allow diff. y-scales across panels.
   facet_wrap(~taxon, ncol=3, scales="free_y") 
