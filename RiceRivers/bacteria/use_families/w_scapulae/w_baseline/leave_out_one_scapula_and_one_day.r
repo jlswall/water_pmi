@@ -171,7 +171,7 @@ myresids <- residDF %>%
   filter((ribnumactual==ribnumOmit) & (dayOmit==yactual)) %>%
   pull(resid)
 sqrt(mean(myresids^2))
-## 1 run per combo: 631.2107
+## 1 run per combo: 630.8076
 ## 10 runs per combo: 630.712
 ## 100 runs per combo: 630.8999
 ## This is about 630-632, whether I use 1, 10, or 100 runs per
