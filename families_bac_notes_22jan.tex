@@ -219,7 +219,7 @@
 
   \vspace{0.1in}
 
-  \noindent For Henley Lake, number of taxa utilized in random forest models:
+  \noindent For Henley Lake, numbers of taxa utilized in random forest models:
   \begin{itemize}
     \item Ribs: 24 taxa
     \item Scapulae: 34 taxa
@@ -227,7 +227,7 @@
 
   \vspace{0.1in}
   
-  \noindent For Rice Rivers, number of taxa utilized in random forest models:
+  \noindent For Rice Rivers, the numbers of taxa utilized in random forest models were much higher:
   \begin{itemize}
     \item Ribs: 41 taxa
     \item Scapulae: 55 taxa
@@ -272,7 +272,7 @@ $\pm$ 0.3\%
 
 
 
-\begin{frame}{Influential taxa, when baseline samples are included}
+\begin{frame}{Influential taxa}
 
 %  \begin{center}
   \begin{minipage}{0.47\textwidth}
@@ -394,7 +394,7 @@ $\pm$ 0.3\%
 
 
 %% %%%%%%%%%%%%%
-\subsection[Scapulae]{Working with scapulae samples}
+\subsection[Scapulae]{Working with scapula samples}
 
 \begin{frame}{Implementing the random forest model for scapulae}
 
@@ -642,7 +642,7 @@ $\pm$ 0.2\%
 
 
 %% %%%%%%%%%%%%%
-\subsection[Scapulae]{Working with scapulae samples}
+\subsection[Scapulae]{Working with scapula samples}
 
 \begin{frame}{Implementing the random forest model for scapulae}
 
@@ -668,29 +668,27 @@ $\pm$ 0.1\%
 \end{frame}
 
 
-\end{document}
-
 
 \begin{frame}{Influential taxa}
 
   \begin{minipage}{0.47\textwidth}
     \begin{figure}
-    \includegraphics[width=2.25in]{HenleyLake/bacteria/use_families/w_scapulae/w_baseline/families_scapula_PercIncMSE_barchart}
+    \includegraphics[width=2.25in]{RiceRivers/bacteria/use_families/w_scapulae/w_baseline/families_scapula_w_baseline_PercIncMSE_barchart}
     \caption{Using baseline samples}
 \end{figure}
 \end{minipage}
 \begin{minipage}{0.47\textwidth}
   \begin{figure}
-    \includegraphics[width=2.25in]{HenleyLake/bacteria/use_families/w_scapulae/no_baseline/families_scapula_no_baseline_PercIncMSE_barchart}
+    \includegraphics[width=2.25in]{RiceRivers/bacteria/use_families/w_scapulae/no_baseline/families_scap_no_baseline_PercIncMSE_barchart}
     \caption{Omitting baseline samples}
   \end{figure}
   \end{minipage}
-%  \end{center}
   \vspace{0.1in}
   {\scriptsize
   \begin{itemize}
-  \item Again, I've just shown the top 15.
-  \item The taxa are similar whether we include the baseline samples or not.
+  \item The top 5 taxa are the same in both cases, though the order
+    for first and second changes.
+  \item There are some differences from the sixth taxa on down.
   \end{itemize}
   }
 
@@ -702,16 +700,14 @@ $\pm$ 0.1\%
 
   \begin{center}
     \begin{figure}
-      \includegraphics[width=4.75in]{HenleyLake/bacteria/use_families/w_scapulae/w_baseline/infl_scapula_family_scatter}
+      \includegraphics[width=4.75in]{RiceRivers/bacteria/use_families/w_scapulae/w_baseline/infl_scapula_family_w_baseline_scatter}
     \end{figure}
   \end{center}
   \vspace{-0.25in}
   {\scriptsize
   \begin{itemize}
-  \item Again, I've only shown top 6.
-  \item Note that the y-axes have differing scales.
-  \item Fractions of Pirellulaceae, Campylobacteraceae, and Crenotrichacea
-  are very low.
+  \item Again, I've only shown the top 6.
+  \item None of these taxa have consistently very low fractions, which is different from some of the other analyses.
   \end{itemize}
   }
 
@@ -723,13 +719,15 @@ $\pm$ 0.1\%
 
   \begin{center}
     \begin{figure}
-      \includegraphics[width=4.75in]{HenleyLake/bacteria/use_families/w_scapulae/no_baseline/infl_scapula_family_no_baseline_scatter}
+      \includegraphics[width=4.75in]{RiceRivers/bacteria/use_families/w_scapulae/no_baseline/infl_scap_family_no_baseline_scatter}
     \end{figure}
   \end{center}
   \vspace{-0.25in}
   {\scriptsize
   \begin{itemize}
-  \item These are the same six taxa as the analysis with baseline samples, though in a slightly changed order.
+  \item The sixth taxa, Syntrophobacteraceae, is different from the
+    analysis using the baseline samples (Holophagaceae).
+    \item The fractions for Syntrophobacteraceae are consistently low.
   \end{itemize}
   }
 
@@ -737,26 +735,25 @@ $\pm$ 0.1\%
 
 
 
-
 \begin{frame}{Residual plot to get sense of "real-life" model fit}
 
   \begin{minipage}{0.47\textwidth}
   \begin{figure}
-      \includegraphics[width=1.5in]{HenleyLake/bacteria/use_families/w_scapulae/w_baseline/leave_out_one_scapula_and_one_day_residuals}
+      \includegraphics[width=1.5in]{RiceRivers/bacteria/use_families/w_scapulae/w_baseline/leave_out_one_scapula_and_one_day_residuals}
       \caption{With baseline samples}
   \end{figure}
   \end{minipage}  
   \begin{minipage}{0.47\textwidth}
   \begin{figure}
-      \includegraphics[width=1.5in]{HenleyLake/bacteria/use_families/w_scapulae/no_baseline/leave_out_one_scapula_and_one_day_residuals}
+      \includegraphics[width=1.5in]{RiceRivers/bacteria/use_families/w_scapulae/no_baseline/leave_out_one_scap_and_one_day_residuals}
       \caption{Omitting baseline samples}
   \end{figure}
   \end{minipage}
     \vspace{0.1in}
 {\scriptsize
 \begin{itemize}
-\item The RMSE is in the range of 450-453 when we include baseline observations.
-\item The RMSE is in the range of 459-461 when we omit baseline observations.
+\item The RMSE is in the range of 630-632 when we include baseline observations.
+\item The RMSE is in the range of 637-639 when we omit baseline observations.
 \end{itemize}
 }
 
