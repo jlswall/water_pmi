@@ -161,7 +161,7 @@ sqrt( mean( resids^2 ) )
 
 ## Save the fitted model so that we can re-create graphics and summary
 ## statistics without running it again.
-save(rf, file="families_ribs_rfmodel.RData")
+save(rf, file="families_scapulae_rfmodel.RData")
 ## ##################################################
 
 
@@ -212,7 +212,7 @@ ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
   coord_flip() +
   geom_col() +
   labs(x="Ribs: family-level taxa", y="Mean % increase in MSE when excluded")
-ggsave(filename="families_rib_w_baseline_PercIncMSE_barchart.pdf", height=4.5, width=6, units="in")
+ggsave(filename="families_scapula_w_baseline_PercIncMSE_barchart.pdf", height=4.5, width=6, units="in")
 ## ##################################################
 
 
@@ -247,7 +247,7 @@ ggplot(chooseT, aes(degdays, fracBySample)) +
   ## Allow diff. y-scales across panels.
   facet_wrap(~taxon, ncol=3, scales="free_y") 
   ## facet_wrap(~taxon, ncol=3)  ## Keep y-scales same across panels.
-ggsave("infl_rib_family_w_baseline_scatter.pdf", width=8, height=4, units="in")
+ggsave("infl_scapula_family_w_baseline_scatter.pdf", width=8, height=4, units="in")
 ## ##################################################
 
 

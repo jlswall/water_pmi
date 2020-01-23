@@ -195,13 +195,8 @@
   \end{itemize}
   }
 \end{frame}
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
-
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section[Family-level taxa]{Working with family-level taxa}
 
 \begin{frame}{Which taxa were included?}
 
@@ -240,9 +235,13 @@
 }
 
 \end{frame}
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\end{document}
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section[Henley Lake]{Analysis using Henley Lake family-level taxa}
 
 
 %% %%%%%%%%%%%%%
@@ -252,51 +251,63 @@
 
 \begin{itemize}
 \item The model utilized 24 family-level taxa.
-\item Cross-validation was used to determine that the best number of taxa to
-consider at each "branching" was about 14.
-\item If we were to change our criteria and reduce the number of taxa which are
-considered plentiful enough to be considered, then we would need to do
-cross-validation again (as we might expect it to be lower than 14.)
+\item Cross-validation was used to determine that the best number of
+  taxa to consider at each "branching".  This changed very little
+  whether including or omitting baseline samples.
 \end{itemize}
 
 \vspace{0.1in}
 
-\noindent For the fitted model (using all available rib data):\\
+\noindent For the fitted model, using baseline samples:\\
 \noindent RMSE: 517.0 $\pm$ 6.3  \hspace{0.05in}  Explained variation: 89.5\%
 $\pm$ 0.3\%
 
+\vspace{0.1in}
+
+\noindent For the fitted model, omitting baseline samples:\\
+\noindent RMSE: 538.2 $\pm$ 6.3  \hspace{0.05in}  Explained variation: 87.7\%
+$\pm$ 0.3\%
 
 \end{frame}
 
 
 
-\begin{frame}{Which taxa are influential in the random forest model?}
+\begin{frame}{Influential taxa, when baseline samples are included}
 
-  \begin{center}
+%  \begin{center}
+  \begin{minipage}{0.47\textwidth}
     \begin{figure}
-      \includegraphics[width=3.25in]{use_families/w_ribs/families_rib_PercIncMSE_barchart}
-    \end{figure}
-  \end{center}
-  \vspace{-0.1in}
+    \includegraphics[width=2.25in]{HenleyLake/bacteria/use_families/w_ribs/w_baseline/families_rib_PercIncMSE_barchart}
+    \caption{{\tiny Using baseline samples}}
+\end{figure}
+\end{minipage}
+\begin{minipage}{0.47\textwidth}
+  \begin{figure}
+    \includegraphics[width=2.25in]{HenleyLake/bacteria/use_families/w_ribs/no_baseline/families_rib_no_baseline_PercIncMSE_barchart}
+    \caption{{\tiny Omitting baseline samples}}
+  \end{figure}
+  \end{minipage}
+%  \end{center}
+  \vspace{0.1in}
   {\scriptsize
   \begin{itemize}
   \item The measure of importance is the mean percentage increase in the
     mean-square error of model predictions when the variable is left out of the
     model. 
   \item I've shown the top 15 because they'd fit, but 24 were used in the model.
-  \item The first four taxa are noticeably more influential than those that
-  follow.
+  \item The taxa are similar whether we include the baseline samples or not.
   \end{itemize}
   }
 
 \end{frame}
 
 
-\begin{frame}{Scatterplots for influential taxa}
+
+\begin{frame}{Scatterplots for influential taxa, with baseline samples}
 
   \begin{center}
     \begin{figure}
-      \includegraphics[width=4.75in]{use_families/w_ribs/infl_rib_family_scatter}
+      \includegraphics[width=4.75in]{HenleyLake/bacteria/use_families/w_ribs/w_baseline/infl_rib_family_scatter}
     \end{figure}
   \end{center}
   \vspace{-0.25in}
@@ -309,6 +320,24 @@ $\pm$ 0.3\%
   }
 
 \end{frame}
+
+
+\begin{frame}{Scatterplots for influential taxa, no baseline samples}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=4.75in]{HenleyLake/bacteria/use_families/w_ribs/no_baseline/infl_rib_family_no_baseline_scatter}
+    \end{figure}
+  \end{center}
+  \vspace{-0.25in}
+  {\scriptsize
+  \begin{itemize}
+  \item These are the same six taxa as the analysis with baseline samples, though in a slightly changed order.
+  \end{itemize}
+  }
+
+\end{frame}
+
 
 
 \begin{frame}{Getting a sense of "real-life" model fit}
@@ -336,18 +365,25 @@ $\pm$ 0.3\%
 
 \begin{frame}{Residual plot to get sense of "real-life" model fit}
 
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=2.2in]{use_families/w_ribs/leave_out_one_rib_and_one_day_residuals}
-      \caption{Residuals when leaving out one rib and one ADD at a time}
-    \end{figure}
-  \end{center}
-  \vspace{-0.1in}
+  \begin{minipage}{0.47\textwidth}
+  \begin{figure}
+      \includegraphics[width=1.5in]{HenleyLake/bacteria/use_families/w_ribs/w_baseline/leave_out_one_rib_and_one_day_residuals}
+      \caption{With baseline samples}
+  \end{figure}
+  \end{minipage}  
+  \begin{minipage}{0.47\textwidth}
+  \begin{figure}
+      \includegraphics[width=1.5in]{HenleyLake/bacteria/use_families/w_ribs/no_baseline/leave_out_one_rib_and_one_day_residuals}
+      \caption{Omitting baseline samples}
+  \end{figure}
+  \end{minipage}
+    \vspace{0.1in}
 {\scriptsize
 \begin{itemize}
-  \item This RMSE is 743.9, which is higher than the RMSE for the full
-  dataset (as you'd expect).  We have less data available for each run, and we're predicting for an
-  ADD value which we have no information about.
+  \item This RMSE is in the range of 741-744 for both, which is
+    higher than the RMSE for the full dataset (as you'd expect).  We
+    have less data available for each run, and we're predicting for an
+    ADD value which we have no information about.
   \item The errors tend to be larger at the extremes.
 \end{itemize}
 }
@@ -358,48 +394,53 @@ $\pm$ 0.3\%
 
 
 %% %%%%%%%%%%%%%
-\subsection[Scapulae]{Working with scapula samples}
+\subsection[Scapulae]{Working with scapulae samples}
 
-\begin{frame}{Implementing the random forest model}
+\begin{frame}{Implementing the random forest model for scapulae}
 
 \begin{itemize}
 \item The model utilized 34 family-level taxa.
-\item Cross-validation was used to determine that the best number of taxa to
-consider at each "branching" was about 20.
-\item If we were to change our criteria and reduce the number of taxa which are
-considered plentiful enough to be considered, then we would need to do
-cross-validation again (as we might expect it to be lower than 20.)
+\item Cross-validation was used to determine that the best number of
+  taxa to consider at each "branching".  This changed very little
+  whether including or omitting baseline samples.
 \end{itemize}
 
 \vspace{0.1in}
 
-\noindent For the fitted model (using all available scapula data):\\
-\noindent RMSE: 334.2 $\pm$ 4.4 \hspace{0.05in}  Explained variation: 95.3\%
+\noindent For the fitted model, using baseline samples:\\
+\noindent RMSE: 334.2 $\pm$ 4.4  \hspace{0.05in}  Explained variation: 95.3\%
 $\pm$ 0.1\%
 
 \vspace{0.1in}
 
-\noindent There are more missing observations for ribs (18) than for scapulae
-(11).  This may be part of the reason we see better performance for the model
-using scapulae.
+\noindent For the fitted model, omitting baseline samples:\\
+\noindent RMSE: 331.9 $\pm$ 4.5  \hspace{0.05in}  Explained variation: 95.2\%
+$\pm$ 0.1\%
 
 \end{frame}
 
 
 
-\begin{frame}{Which taxa are influential in the random forest model?}
+\begin{frame}{Influential taxa}
 
-  \begin{center}
+  \begin{minipage}{0.47\textwidth}
     \begin{figure}
-      \includegraphics[width=3.25in]{use_families/w_scapulae/families_scapula_PercIncMSE_barchart}
-    \end{figure}
-  \end{center}
-  \vspace{-0.1in}
+    \includegraphics[width=2.25in]{HenleyLake/bacteria/use_families/w_scapulae/w_baseline/families_scapula_PercIncMSE_barchart}
+    \caption{Using baseline samples}
+\end{figure}
+\end{minipage}
+\begin{minipage}{0.47\textwidth}
+  \begin{figure}
+    \includegraphics[width=2.25in]{HenleyLake/bacteria/use_families/w_scapulae/no_baseline/families_scapula_no_baseline_PercIncMSE_barchart}
+    \caption{Omitting baseline samples}
+  \end{figure}
+  \end{minipage}
+%  \end{center}
+  \vspace{0.1in}
   {\scriptsize
   \begin{itemize}
-  \item I've shown 15 because they would fit, but 34 were used in the model.
-  \item The first 7-8 taxa are noticeably more influential than those that
-  follow.
+  \item Again, I've just shown the top 15.
+  \item The taxa are similar whether we include the baseline samples or not.
   \end{itemize}
   }
 
@@ -407,17 +448,17 @@ using scapulae.
 
 
 
-\begin{frame}{Scatterplots for influential taxa}
+\begin{frame}{Scatterplots for influential taxa, with baseline samples}
 
   \begin{center}
     \begin{figure}
-      \includegraphics[width=4.75in]{use_families/w_scapulae/infl_scapula_family_scatter}
+      \includegraphics[width=4.75in]{HenleyLake/bacteria/use_families/w_scapulae/w_baseline/infl_scapula_family_scatter}
     \end{figure}
   \end{center}
   \vspace{-0.25in}
   {\scriptsize
   \begin{itemize}
-  \item I've only shown top 6 because more than that is hard to fit.
+  \item Again, I've only shown top 6.
   \item Note that the y-axes have differing scales.
   \item Fractions of Pirellulaceae, Campylobacteraceae, and Crenotrichacea
   are very low.
@@ -428,54 +469,56 @@ using scapulae.
 
 
 
-\begin{frame}{Residual plot to get sense of "real-life" model fit}
+\begin{frame}{Scatterplots for influential taxa, no baseline samples}
 
   \begin{center}
     \begin{figure}
-      \includegraphics[width=2.2in]{use_families/w_scapulae/leave_out_one_scapula_and_one_day_residuals}
-      \caption{Residuals when leaving out one scapula and one ADD at a time}
+      \includegraphics[width=4.75in]{HenleyLake/bacteria/use_families/w_scapulae/no_baseline/infl_scapula_family_no_baseline_scatter}
     \end{figure}
   \end{center}
-  \vspace{-0.1in}
+  \vspace{-0.25in}
+  {\scriptsize
+  \begin{itemize}
+  \item These are the same six taxa as the analysis with baseline samples, though in a slightly changed order.
+  \end{itemize}
+  }
+
+\end{frame}
+
+
+
+
+\begin{frame}{Residual plot to get sense of "real-life" model fit}
+
+  \begin{minipage}{0.47\textwidth}
+  \begin{figure}
+      \includegraphics[width=1.5in]{HenleyLake/bacteria/use_families/w_scapulae/w_baseline/leave_out_one_scapula_and_one_day_residuals}
+      \caption{With baseline samples}
+  \end{figure}
+  \end{minipage}  
+  \begin{minipage}{0.47\textwidth}
+  \begin{figure}
+      \includegraphics[width=1.5in]{HenleyLake/bacteria/use_families/w_scapulae/no_baseline/leave_out_one_scapula_and_one_day_residuals}
+      \caption{Omitting baseline samples}
+  \end{figure}
+  \end{minipage}
+    \vspace{0.1in}
 {\scriptsize
 \begin{itemize}
-  \item This RMSE is 452.7, which is higher than the RMSE for the full
-  dataset (as you'd expect).  We have less data available for each run, and we're predicting for an
-  ADD value which we have no information about.
-  \item The errors tend to be larger at the extremes.
+\item The RMSE is in the range of 450-453 when we include baseline observations.
+\item The RMSE is in the range of 459-461 when we omit baseline observations.
 \end{itemize}
 }
+
 \end{frame}
 %% %%%%%%%%%%%%%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section[Class-level taxa]{Working with class-level taxa}
-
-\begin{frame}{Which taxa were included?}
-
-  \noindent For each sample, we calculated the total counts of all classified,
-class-level taxa.  Then, for each sample, we calculated the fraction of counts
-associated with each class-level taxa.  (Raw counts were \textbf{not} used.)
-
-  \vspace{0.1in}
-
-  \noindent As we did for the family-level analysis, we require that a taxon
-  makes up more than 1\% of the total counts for at least 2 samples.
-
-  \vspace{0.1in}
-
-  \noindent Number of taxa utilized in random forest models:
-  \begin{itemize}
-    \item Ribs: 11 taxa
-    \item Scapulae: 17 taxa
-    %% \item Water: ? taxa
-  \end{itemize}
-
-\end{frame}
-
+\section[Rice Rivers]{Analysis using Rice Rivers family-level taxa}
 
 
 %% %%%%%%%%%%%%%
@@ -484,156 +527,241 @@ associated with each class-level taxa.  (Raw counts were \textbf{not} used.)
 \begin{frame}{Implementing the random forest model for ribs}
 
 \begin{itemize}
-\item The model utilized 11 class-level taxa.
-\item Cross-validation was used to determine that the best number of taxa to
-consider at each "branching" was 5.
+\item The model utilized 41 family-level taxa, which is many more taxa
+  than we used for the Henley Lake analysis.
+\item Cross-validation was used to determine that the best number of
+  taxa to consider at each "branching".  The number of taxa to
+  consider was slightly lower when we omitted the baseline samples.
 \end{itemize}
 
 \vspace{0.1in}
 
-\noindent For the fitted model (using all available rib data):\\
-\noindent RMSE: 624 $\pm$ 6.8  \hspace{0.05in}  Explained variation: 84.7\%
-$\pm$ 0.3\%
+\noindent For the fitted model, using baseline samples:\\
+\noindent RMSE: 475.1 $\pm$ 5.6  \hspace{0.05in}  Explained variation: 93.6\%
+$\pm$ 0.1\%
+
+\vspace{0.1in}
+
+\noindent For the fitted model, omitting baseline samples:\\
+\noindent RMSE: 476.6 $\pm$ 5.7  \hspace{0.05in}  Explained variation: 93.2\%
+$\pm$ 0.2\%
 
 \end{frame}
 
 
-\begin{frame}{Which taxa are influential in the random forest model?}
 
-  \begin{center}
+\begin{frame}{Influential taxa}
+
+  \begin{minipage}{0.47\textwidth}
     \begin{figure}
-      \includegraphics[width=3.25in]{use_classes/w_ribs/classes_rib_PercIncMSE_barchart}
+      \includegraphics[width=2.25in]{RiceRivers/bacteria/use_families/w_ribs/w_baseline/families_rib_w_baseline_PercIncMSE_barchart}
+      \caption{Using baseline samples}
     \end{figure}
-  \end{center}
-  \vspace{-0.1in}
+  \end{minipage}
+  \begin{minipage}{0.47\textwidth}
+    \begin{figure}
+      \includegraphics[width=2.25in]{RiceRivers/bacteria/use_families/w_ribs/no_baseline/families_rib_no_baseline_PercIncMSE_barchart}
+      \caption{Omitting baseline samples}
+    \end{figure}
+  \end{minipage}
+  \vspace{0.1in}
   {\scriptsize
   \begin{itemize}
-  \item The measure of importance is the mean percentage increase in the
-    mean-square error of model predictions when the variable is left out of the
-    model. 
-  \item All 11 taxa used in the analysis are shown (since they fit).
+  \item Most of taxa identified as most influential are the same.  The top 5 are the same in both cases, though in slightly different orders.
+  \item There are more differences from the 6th most influential on down.
   \end{itemize}
   }
 
 \end{frame}
 
 
-\begin{frame}{Scatterplots for influential taxa}
+
+\begin{frame}{Scatterplots for influential taxa, with baseline samples}
 
   \begin{center}
     \begin{figure}
-      \includegraphics[width=4.75in]{use_classes/w_ribs/infl_rib_class_scatter}
+      \includegraphics[width=4.75in]{RiceRivers/bacteria/use_families/w_ribs/w_baseline/infl_rib_family_w_baseline_scatter}
     \end{figure}
   \end{center}
   \vspace{-0.25in}
   {\scriptsize
   \begin{itemize}
-  \item I've only shown top 6 because more than that is hard to fit.
+  \item Again, I've only shown top 6 because more than that is hard to fit.
   \item Note that the y-axes have differing scales.
-  \item Fractions of Ignavibacteria, 4C0d-2, and Betaproteobacteria are very
-  low.
+  \item Fractions of Pirellulaceae and Xanthobacteraceae are very low.
   \end{itemize}
   }
 
 \end{frame}
 
 
-\begin{frame}{Residual plot to get sense of "real-life" model fit}
+
+\begin{frame}{Scatterplots for influential taxa, no baseline samples}
 
   \begin{center}
     \begin{figure}
-      \includegraphics[width=2.2in]{use_classes/w_ribs/classes_leave_out_one_rib_and_one_day_residuals}
-      \caption{Residuals when leaving out one rib and one ADD at a time}
+      \includegraphics[width=4.75in]{RiceRivers/bacteria/use_families/w_ribs/no_baseline/infl_rib_family_no_baseline_scatter}
     \end{figure}
   \end{center}
-  \vspace{-0.1in}
+  \vspace{-0.25in}
+  {\scriptsize
+  \begin{itemize}
+  \item The sixth taxa is different between the analysis with and without the baseline samples.
+  \end{itemize}
+  }
+
+\end{frame}
+
+
+
+\begin{frame}{Residual plot to get sense of "real-life" model fit}
+
+  \begin{minipage}{0.47\textwidth}
+  \begin{figure}
+      \includegraphics[width=1.5in]{RiceRivers/bacteria/use_families/w_ribs/w_baseline/leave_out_one_rib_and_one_day_residuals}
+      \caption{With baseline samples}
+  \end{figure}
+  \end{minipage}  
+  \begin{minipage}{0.47\textwidth}
+  \begin{figure}
+      \includegraphics[width=1.5in]{RiceRivers/bacteria/use_families/w_ribs/no_baseline/leave_out_one_rib_and_one_day_residuals}
+      \caption{Omitting baseline samples}
+  \end{figure}
+  \end{minipage}
+    \vspace{0.1in}
 {\scriptsize
-\begin{itemize}
-  \item This RMSE is about 808, which is higher than the RMSE for the full
-  dataset (as you'd expect).
-  \item The errors tend to be larger at the upper extreme.
-\end{itemize}
+  \begin{itemize}
+  \item The RMSE is in the range of 651-655 when using baseline samples.
+  \item The RMSE is in the range of 645-648 when baseline samples are omitted.
+  \end{itemize}
 }
 
 \end{frame}
 %% %%%%%%%%%%%%%
 
 
+
 %% %%%%%%%%%%%%%
-\subsection[Scapulae]{Working with scapula samples}
+\subsection[Scapulae]{Working with scapulae samples}
 
 \begin{frame}{Implementing the random forest model for scapulae}
 
 \begin{itemize}
-\item The model utilized 17 class-level taxa.
-\item Cross-validation was used to determine that the best number of taxa to
-consider at each "branching" was 7.
+\item The model utilized 55 family-level taxa.
+\item Cross-validation was used to determine that the best number of
+  taxa to consider at each "branching".  This was the same whether
+  including or omitting baseline samples.
 \end{itemize}
 
 \vspace{0.1in}
 
-\noindent For the fitted model (using all available rib data):\\
-\noindent RMSE: 360 $\pm$ 4.6  \hspace{0.05in}  Explained variation: 94.6\%
+\noindent For the fitted model, using baseline samples:\\
+\noindent RMSE: 501.1 $\pm$ 5.1  \hspace{0.05in}  Explained variation: 93.3\%
+$\pm$ 0.1\%
+
+\vspace{0.1in}
+
+\noindent For the fitted model, omitting baseline samples:\\
+\noindent RMSE: 506.4 $\pm$ 5.1  \hspace{0.05in}  Explained variation: 92.6\%
 $\pm$ 0.1\%
 
 \end{frame}
 
 
-\begin{frame}{Which taxa are influential in the random forest model?}
+\end{document}
 
-  \begin{center}
+
+\begin{frame}{Influential taxa}
+
+  \begin{minipage}{0.47\textwidth}
     \begin{figure}
-      \includegraphics[width=3.25in]{use_classes/w_scapulae/classes_scapula_PercIncMSE_barchart}
-    \end{figure}
-  \end{center}
-  \vspace{-0.1in}
+    \includegraphics[width=2.25in]{HenleyLake/bacteria/use_families/w_scapulae/w_baseline/families_scapula_PercIncMSE_barchart}
+    \caption{Using baseline samples}
+\end{figure}
+\end{minipage}
+\begin{minipage}{0.47\textwidth}
+  \begin{figure}
+    \includegraphics[width=2.25in]{HenleyLake/bacteria/use_families/w_scapulae/no_baseline/families_scapula_no_baseline_PercIncMSE_barchart}
+    \caption{Omitting baseline samples}
+  \end{figure}
+  \end{minipage}
+%  \end{center}
+  \vspace{0.1in}
   {\scriptsize
   \begin{itemize}
-  \item The 12 most influential taxa used in the analysis are shown (all 17 wouldn't
-  fit).)
+  \item Again, I've just shown the top 15.
+  \item The taxa are similar whether we include the baseline samples or not.
   \end{itemize}
   }
 
 \end{frame}
 
 
-\begin{frame}{Scatterplots for influential taxa}
+
+\begin{frame}{Scatterplots for influential taxa, with baseline samples}
 
   \begin{center}
     \begin{figure}
-      \includegraphics[width=4.75in]{use_classes/w_scapulae/infl_scapula_class_scatter}
+      \includegraphics[width=4.75in]{HenleyLake/bacteria/use_families/w_scapulae/w_baseline/infl_scapula_family_scatter}
     \end{figure}
   \end{center}
   \vspace{-0.25in}
   {\scriptsize
   \begin{itemize}
-  \item I've only shown top 6 because more than that is hard to fit.
+  \item Again, I've only shown top 6.
   \item Note that the y-axes have differing scales.
-  \item Fractions of Planctomycetia, Leptospirae, and Anaerolineae are very
-  low.
+  \item Fractions of Pirellulaceae, Campylobacteraceae, and Crenotrichacea
+  are very low.
   \end{itemize}
   }
 
 \end{frame}
 
 
-\begin{frame}{Residual plot to get sense of "real-life" model fit}
+
+\begin{frame}{Scatterplots for influential taxa, no baseline samples}
 
   \begin{center}
     \begin{figure}
-      \includegraphics[width=2.2in]{use_classes/w_scapulae/leave_out_one_scapula_and_one_day_residuals}
-      \caption{Residuals when leaving out one rib and one ADD at a time}
+      \includegraphics[width=4.75in]{HenleyLake/bacteria/use_families/w_scapulae/no_baseline/infl_scapula_family_no_baseline_scatter}
     \end{figure}
   \end{center}
-  \vspace{-0.1in}
+  \vspace{-0.25in}
+  {\scriptsize
+  \begin{itemize}
+  \item These are the same six taxa as the analysis with baseline samples, though in a slightly changed order.
+  \end{itemize}
+  }
+
+\end{frame}
+
+
+
+
+\begin{frame}{Residual plot to get sense of "real-life" model fit}
+
+  \begin{minipage}{0.47\textwidth}
+  \begin{figure}
+      \includegraphics[width=1.5in]{HenleyLake/bacteria/use_families/w_scapulae/w_baseline/leave_out_one_scapula_and_one_day_residuals}
+      \caption{With baseline samples}
+  \end{figure}
+  \end{minipage}  
+  \begin{minipage}{0.47\textwidth}
+  \begin{figure}
+      \includegraphics[width=1.5in]{HenleyLake/bacteria/use_families/w_scapulae/no_baseline/leave_out_one_scapula_and_one_day_residuals}
+      \caption{Omitting baseline samples}
+  \end{figure}
+  \end{minipage}
+    \vspace{0.1in}
 {\scriptsize
 \begin{itemize}
-  \item This RMSE is about 499, which is higher than the RMSE for the full
-  dataset (as you'd expect).
+\item The RMSE is in the range of 450-453 when we include baseline observations.
+\item The RMSE is in the range of 459-461 when we omit baseline observations.
 \end{itemize}
 }
 
 \end{frame}
 %% %%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \end{document}

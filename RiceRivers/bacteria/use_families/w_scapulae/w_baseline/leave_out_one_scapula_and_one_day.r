@@ -154,7 +154,7 @@ for (i in 1:numCVs){
 rm(i, validT, resid, iresidDF)
 
 ## Write this info out.
-write.csv(residDF, file="resids_leave_out_one_rib_and_one_day.csv", row.names=FALSE)
+write.csv(residDF, file="resids_leave_out_one_scapula_and_one_day.csv", row.names=FALSE)
 ## #########################################
 
 
@@ -192,7 +192,7 @@ ggplot(residDF %>%
   ## geom_point(aes(col=ribnumOmit)) +
   geom_hline(yintercept=0) +
   labs(x="Actual degree days", y="Error (actual - estimated)")
-ggsave(filename="leave_out_one_rib_and_one_day_residuals.pdf", height=3.5, width=3.5, units="in")
+ggsave(filename="leave_out_one_scapula_and_one_day_residuals.pdf", height=3.5, width=3.5, units="in")
 
 ggplot(residDF, aes(x=yactual, y=resid)) +
   facet_wrap(~ribnumOmit) +
