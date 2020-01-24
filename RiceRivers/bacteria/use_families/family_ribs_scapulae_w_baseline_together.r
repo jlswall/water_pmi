@@ -218,7 +218,7 @@ summTopT <- chooseT %>%
 ## dev.new(width=4.5, height=4)
 riblinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon), show.legend=FALSE) +
-  scale_y_continuous(limits=c(0, 30), expand=c(0,0)) +
+  scale_y_continuous(limits=c(0, 12), expand=c(0,0)) +
   theme_minimal() +
   ##  labs(x="Accumulated Degree Days", y="Relative Abundance") +
   labs(x="", y="Relative Abundance") +
@@ -264,7 +264,7 @@ summTopT <- chooseT %>%
 ## dev.new(width=4.5, height=4)
 scaplinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon), show.legend=FALSE) +
-  scale_y_continuous(limits=c(0, 30), expand=c(0,0)) +
+  scale_y_continuous(limits=c(0, 12), expand=c(0,0)) +
   theme_minimal() +
   labs(x="Accumulated Degree Days", y="Relative Abundance") +
   theme(axis.title.x = element_text(size=10), axis.title.y = element_text(size=10)) +
@@ -284,7 +284,7 @@ plotrow2 <- annotate_figure(plotrow2, left=text_grob("Scapulae", face="bold", ro
 ## Put the rows together to make 4-panel figure.
 plot_grid(plotrow1, plotrow2, nrow=2)
 
-ggsave(file="hl_rib_scapula_family_w_baseline_4panels.pdf", height=5, width=7.5, units="in")
+ggsave(file="rr_rib_scapula_family_w_baseline_4panels.pdf", height=5, width=7.5, units="in")
 ## ########################
 ## ##################################################
 
@@ -310,8 +310,8 @@ RMSE <- round(sqrt(mean(predvactT$resids^2)), 2)
 ribscatterPanel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
   geom_point() +
   geom_abline(slope=1, intercept=0) +
-  annotate("text", x=50, y=4925, hjust=0, label=paste("R^2  ==", deparse(Rsq)), parse=T) +
-  annotate("text", x=50, y=4600, hjust=0, label=paste("RMSE = ", RMSE)) + 
+  annotate("text", x=50, y=5925, hjust=0, label=paste("R^2  ==", deparse(Rsq)), parse=T) +
+  annotate("text", x=50, y=5500, hjust=0, label=paste("RMSE = ", RMSE)) + 
   coord_fixed(ratio=1) +
   theme_bw() + 
   lims(x=c(0, max(as.vector(predvactT))), y=c(0, max(as.vector(predvactT)))) +
@@ -335,8 +335,8 @@ RMSE <- round(sqrt(mean(predvactT$resids^2)), 2)
 scapscatterPanel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
   geom_point() +
   geom_abline(slope=1, intercept=0) +
-  annotate("text", x=50, y=4925, hjust=0, label=paste("R^2  ==", deparse(Rsq)), parse=T) +
-  annotate("text", x=50, y=4600, hjust=0, label=paste("RMSE = ", RMSE)) + 
+  annotate("text", x=50, y=5925, hjust=0, label=paste("R^2  ==", deparse(Rsq)), parse=T) +
+  annotate("text", x=50, y=5500, hjust=0, label=paste("RMSE = ", RMSE)) + 
   coord_fixed(ratio=1) +
   theme_bw() + 
   lims(x=c(0, max(as.vector(predvactT))), y=c(0, max(as.vector(predvactT)))) +
@@ -351,6 +351,6 @@ scapscatterPanel <- annotate_figure(scapscatterPanel, top=text_grob("Scapulae", 
 ## ########################
 plot_grid(ribscatterPanel, scapscatterPanel, nrow=1)
 
-ggsave(file="hl_rib_scapula_family_w_baseline_predicted_vs_actual_ADD.pdf", height=4, width=7.5, units="in")
+ggsave(file="rr_rib_scapula_family_w_baseline_predicted_vs_actual_ADD.pdf", height=4, width=7.5, units="in")
 ## ########################
 ## ##################################################
