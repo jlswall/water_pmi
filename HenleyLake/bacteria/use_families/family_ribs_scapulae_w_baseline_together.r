@@ -46,13 +46,13 @@ rm(allT)
 ## ##################################################
 ## Read in the final fitted models for ribs and scapulae.
 
-load("w_ribs/families_ribs_rfmodel.RData")
+load("w_ribs/w_baseline/families_ribs_rfmodel.RData")
 ## The object was named "rf", but we don't want to mix up the model
 ## for ribs with the one for scapulae.  So we re-name it.
 ribRF <- rf
 rm(rf)
 
-load("w_scapulae/families_scapulae_rfmodel.RData")
+load("w_scapulae/w_baseline/families_scapulae_rfmodel.RData")
 ## As with the model for ribs, we give it a more specific name.
 scapRF <- rf
 rm(rf)
@@ -158,7 +158,8 @@ ribbarPanel <- ggplot(ribimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
   scale_y_continuous(limits=c(0, barMax), expand=c(0,0)) +
   coord_flip() +
   geom_col(show.legend=FALSE) +
-  labs(x=NULL, y="Mean % Decrease in MSE") +
+  ##  labs(x=NULL, y="Mean % Decrease in MSE") +
+  labs(x=NULL, y="") +
   theme(axis.title.x = element_text(size=10)) +
   scale_fill_manual(values=taxaColors)
 ## ########################
@@ -219,13 +220,8 @@ riblinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon), show.legend=FALSE) +
   scale_y_continuous(limits=c(0, 30), expand=c(0,0)) +
   theme_minimal() +
-  ## theme(##axis.text.x = element_text(angle=45, hjust=0.5, vjust=0.5),
-  ##       legend.position=c(0.95, 0.98),
-  ##       legend.justification=c("right", "top"),
-  ##       legend.title=element_blank(),
-  ##       legend.key.size=unit(0.5, 'lines'),
-  ##       legend.background=element_rect(fill="white")) +
-  labs(x="Accumulated Degree Days", y="Relative Abundance") +
+  ##  labs(x="Accumulated Degree Days", y="Relative Abundance") +
+  labs(x="", y="Relative Abundance") +
   theme(axis.title.x = element_text(size=10), axis.title.y = element_text(size=10)) +
   scale_color_manual(values=taxaColors)
 ## ########################
@@ -270,12 +266,6 @@ scaplinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) 
   geom_line(size=1.25, aes(color=taxon), show.legend=FALSE) +
   scale_y_continuous(limits=c(0, 30), expand=c(0,0)) +
   theme_minimal() +
-  ## theme(## axis.text.x = element_text(angle=45, hjust=0.5, vjust=0.5),
-  ##       legend.position=c(0.95, 0.98),
-  ##       legend.justification=c("right", "top"),
-  ##       legend.title=element_blank(),
-  ##       legend.key.size=unit(0.5, 'lines'),
-  ##       legend.background=element_rect(fill="white")) +
   labs(x="Accumulated Degree Days", y="Relative Abundance") +
   theme(axis.title.x = element_text(size=10), axis.title.y = element_text(size=10)) +
   scale_color_manual(values=taxaColors)
@@ -294,7 +284,7 @@ plotrow2 <- annotate_figure(plotrow2, left=text_grob("Scapulae", face="bold", ro
 ## Put the rows together to make 4-panel figure.
 plot_grid(plotrow1, plotrow2, nrow=2)
 
-ggsave(file="ribs_scapula_family_4panels.pdf", height=5, width=7.5, units="in")
+ggsave(file="rib_scapula_family_w_baseline_4panels.pdf", height=5, width=7.5, units="in")
 ## ########################
 ## ##################################################
 
@@ -313,13 +303,14 @@ ggsave(file="ribs_scapula_family_4panels.pdf", height=5, width=7.5, units="in")
 ## Make a tibble of actual and predicted values for each observation.
 predvactT <- as_tibble(data.frame(predicted=ribRF$predicted, actual=ribRF$y))
 predvactT$resids <- with(predvactT, actual - predicted)
-Rsq <- with(predvactT, round(cor(actual, predicted)^2, 2))
+## Force Rsq to be printed to 2 decmial places.
+Rsq <- with(predvactT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
 ## RMSE around 1:1 line, not regression line.
 RMSE <- round(sqrt(mean(predvactT$resids^2)), 2)  
 ribscatterPanel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
   geom_point() +
   geom_abline(slope=1, intercept=0) +
-  annotate("text", x=50, y=4925, hjust=0, label=paste("R^2  ==", Rsq), parse=T) +
+  annotate("text", x=50, y=4925, hjust=0, label=paste("R^2  ==", deparse(Rsq)), parse=T) +
   annotate("text", x=50, y=4600, hjust=0, label=paste("RMSE = ", RMSE)) + 
   coord_fixed(ratio=1) +
   theme_bw() + 
@@ -337,19 +328,21 @@ ribscatterPanel <- annotate_figure(ribscatterPanel, top=text_grob("Ribs", face="
 ## Make a tibble of actual and predicted values for each observation.
 predvactT <- as_tibble(data.frame(predicted=scapRF$predicted, actual=scapRF$y))
 predvactT$resids <- with(predvactT, actual - predicted)
-Rsq <- with(predvactT, round(cor(actual, predicted)^2, 2))
+## Force Rsq to be printed to 2 decmial places.
+Rsq <- with(predvactT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
 ## RMSE around 1:1 line, not regression line.
 RMSE <- round(sqrt(mean(predvactT$resids^2)), 2)  
 scapscatterPanel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
   geom_point() +
   geom_abline(slope=1, intercept=0) +
-  annotate("text", x=50, y=4925, hjust=0, label=paste("R^2  ==", Rsq), parse=T) +
+  annotate("text", x=50, y=4925, hjust=0, label=paste("R^2  ==", deparse(Rsq)), parse=T) +
   annotate("text", x=50, y=4600, hjust=0, label=paste("RMSE = ", RMSE)) + 
   coord_fixed(ratio=1) +
   theme_bw() + 
   lims(x=c(0, max(as.vector(predvactT))), y=c(0, max(as.vector(predvactT)))) +
   theme(axis.title.x = element_text(size=10), axis.title.y = element_text(size=10)) +
-  labs(x="Actual Accumulated Degree Days", y="Predicted Accumulated Degree Days")
+  ##  labs(x="Actual Accumulated Degree Days", y="Predicted Accumulated Degree Days")
+  labs(x="Actual Accumulated Degree Days", y="")
 
 scapscatterPanel <- annotate_figure(scapscatterPanel, top=text_grob("Scapulae", face="bold", size=14, vjust=1))
 ## ########################
@@ -358,6 +351,6 @@ scapscatterPanel <- annotate_figure(scapscatterPanel, top=text_grob("Scapulae", 
 ## ########################
 plot_grid(ribscatterPanel, scapscatterPanel, nrow=1)
 
-ggsave(file="ribs_scapula_predicted_vs_actual_ADD_family.pdf", height=4, width=7.5, units="in")
+ggsave(file="rib_scapula_family_w_baseline_predicted_vs_actual_ADD.pdf", height=4, width=7.5, units="in")
 ## ########################
 ## ##################################################
