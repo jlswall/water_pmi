@@ -67,6 +67,9 @@ rm(rawIndivT, rawAllT, samplingT)
 
 
 ## ######### WORKING HERE!!!!!
+indivT$taxLvl <- "family"
+indivT$taxLvl[str_detect(indivT$taxon, "_fa")] <- "above_family"
+indivT$taxLvl[str_detect(indivT$taxon, "_unclassified")] <- "above_family"
 
 
 
