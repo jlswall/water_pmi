@@ -70,8 +70,8 @@ rm(rawIndivT, rawAllT, samplingT)
 indivT$taxLvl <- "family"
 indivT$taxLvl[str_detect(indivT$taxon, "_fa")] <- "above_family"
 indivT$taxLvl[str_detect(indivT$taxon, "_unclassified")] <- "above_family"
-
-
+indivT$taxLvl[str_detect(indivT$taxon, "uncultured")] <- "above_family"
+indivT %>% group_by(taxLvl) %>% summarize(total_counts=sum(counts))
 
 
 ## ##################################################
