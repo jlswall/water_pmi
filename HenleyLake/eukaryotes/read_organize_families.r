@@ -74,6 +74,23 @@ indivT$taxLvl[str_detect(indivT$taxon, "uncultured")] <- "above_family"
 indivT %>% group_by(taxLvl) %>% summarize(total_counts=sum(counts))
 
 
+ctBySampleT <- rawIndivT %>%
+  group_by(sampleName) %>%
+  summarize(totals=sum(counts))
+
+
+rawIndivT %>%
+  left_join(ctBySampleT) %>%
+  mutate(fracBySampleName = counts/totals) %>%
+  group_by(type, taxon) %>%
+  summarize(maxFracBySampleName = max(fracBySampleName)) %>%
+  ## filter(maxFracBySampleName >= freqCutoff) %>%
+  arrange(type, desc(maxFracBySampleName)) %>%
+  print(n = Inf)
+## #########################
+
+
+
 ## ##################################################
 ## Consider level of classification for each taxa.  (Some could not be
 ## classified down to the family level, but maybe the order could be
