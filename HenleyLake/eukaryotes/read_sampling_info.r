@@ -38,7 +38,7 @@ samplingT <- samplingT %>% select(-location, -extractMethod)
 
 tmp <- samplingT$collection
 tmp <- str_remove(tmp, pattern="Collection ")
-samplingT$collection <- as.numeric(tmp)
+samplingT$collection <- tmp
 
 rm(tmp)
 ## ##################################################
@@ -74,6 +74,7 @@ fullObsT <- as_tibble(expand.grid(type=c("Rib", "Scapula", "Water"), collection=
 fullObsT$type <- as.character(fullObsT$type)
 fullObsT$fullObsn <- 5
 fullObsT$fullObsn[fullObsT$type=="Water"] <- 1
+fullObsT$collection <- as.character(fullObsT$collection)
 
 
 ## Identify count how many samples we have for rib, scapula, water for
@@ -131,4 +132,3 @@ fullObsT %>%
 ## Write out the sample information into a CSV file.
 write.csv(samplingT, file="sampling_info.csv", row.names=F)
 ## ##################################################
-
