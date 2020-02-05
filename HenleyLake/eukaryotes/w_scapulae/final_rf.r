@@ -195,7 +195,7 @@ save(rf, file="families_scapulae_rfmodel.RData")
 ## Make graph of just %IncMSE alone.
 
 ## Get the top "n" (whether 8, 10, whatever) influential taxa.
-n <- 15
+n <- 10
 
 ## Turn importance measures into a tibble, sorted by IncNodePurity in
 ## increasing order.
