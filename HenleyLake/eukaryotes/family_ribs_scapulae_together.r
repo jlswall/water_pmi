@@ -24,6 +24,10 @@ allT <- read_csv(paste0(taxalevel, "_massaged.csv"))
 ## Filter data to just ribs, and then store.  Then, do the same for scapulae.
 ribT <- allT %>% filter(type=="Rib")
 scapT <- allT %>% filter(type=="Scapula")
+## Change "_unclassified" to "_uncl" in the family taxon names to make
+## the names shorter to display on plots.
+ribT$taxon <- str_replace(ribT$taxon, "_unclassified", "_uncl")
+scapT$taxon <- str_replace(scapT$taxon, "_unclassified", "_uncl")
 
 ## For both rib and scapula data, remove "Rare" taxa category and put
 ## into the wide format which was used by the random forest model.
@@ -64,7 +68,6 @@ rm(rf)
 ## Find influential taxa for ribs and scapulae, and set colors for
 ## these to be used consistently across plot panels.
 
-
 ## ########################
 ## Get top n influential taxa for ribs.
 
@@ -79,8 +82,9 @@ ribimportT <- importance(ribRF) %>%
   as_tibble() %>%
   top_n(n, wt=`%IncMSE`) %>%
   arrange(`%IncMSE`)
-## ## Remove the "f__" from the family taxon names.
-## ribimportT$family <- str_remove(ribimportT$family, "f__")
+## Change "_unclassified" to "_uncl" in the family taxon names to make
+## the names shorter to display on plots.
+ribimportT$family <- str_replace(ribimportT$family, "_unclassified", "_uncl")
 ## ########################
 
 
@@ -98,9 +102,60 @@ scapimportT <- importance(scapRF) %>%
   as_tibble() %>%
   top_n(n, wt=`%IncMSE`) %>%
   arrange(`%IncMSE`)
-## ## Remove the "f__" from the family taxon names.
-## scapimportT$family <- str_remove(scapimportT$family, "f__")
+## Change "_unclassified" to "_uncl" in the family taxon names to make
+## the names shorter to display on plots.
+scapimportT$family <- str_replace(scapimportT$family, "_unclassified", "_uncl")
 ## ########################
+## ##################################################
+
+
+
+## ##################################################
+## Find mean relative abundance across time for top m influential taxa
+## for both ribs and scapulae.  This will allow us to set consistent
+## y-axes for rib plot and scapula plot.
+
+## Set number of top taxa to plot.
+m <- 5
+
+## #####
+## For ribs:
+
+## Identify top m taxa, pull their percentages.
+topChoicesRib <- as.character(ribimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family))
+## Find the percentages for these taxa for each ADD.
+chooseT <- ribT %>%
+  filter(taxon %in% topChoicesRib)
+
+## Average the value across samples for each taxa and each day.
+summTopRibT <- chooseT %>%
+  group_by(taxon, degdays) %>%
+  summarize(meanPercByDay=100*mean(fracBySample), medianPercByDay=100*median(fracBySample))
+rm(chooseT)
+## #####
+
+
+## #####
+## For scapulae:
+
+## Identify top m taxa, pull their percentages.
+topChoicesScap <- as.character(scapimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family))
+## Find the percentages for these taxa for each ADD.
+chooseT <- scapT %>%
+  filter(taxon %in% topChoicesScap)
+
+## Average the value across samples for each taxa and each day.
+summTopScapT <- chooseT %>%
+  group_by(taxon, degdays) %>%
+  summarize(meanPercByDay=100*mean(fracBySample), medianPercByDay=100*median(fracBySample))
+rm(chooseT)
+## #####
+
+
+## Find the highest mean relative abundance for both ribs and
+## scapulae.  This will allow us specifiy consistent y-axes for the
+## relative abundance plots.
+relAbundMax <- ceiling( max( c(summTopRibT %>% pull(meanPercByDay), summTopScapT %>% pull(meanPercByDay)) ) )
 ## ##################################################
 
 
@@ -117,11 +172,12 @@ scapimportT <- importance(scapRF) %>%
 
 ## Will assign colors to "m" most influential taxa for both ribs and
 ## scapula; some taxa may be influential to both.
-m <- 5
-mostinfl <- sort( unique( c(
-    ribimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family),
-    scapimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family)
-) ) )
+mostinfl <- sort(unique(c(summTopRibT$taxon, summTopScapT$taxon)))
+## m <- 5
+## mostinfl <- sort( unique( c(
+##     ribimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family),
+##     scapimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family)
+## ) ) )
 
 ## The most influential taxa will get colors.  Taxa which are less
 ## influential, and don not appear in the top "m" taxa for either ribs
@@ -184,40 +240,13 @@ scapbarPanel <- ggplot(scapimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
 
 
 ## ########################
-## Ribs: Show line plot of changing relative abundance for the top 5 taxa.
+## Ribs: Show line plot of changing relative abundance for the top m taxa.
 
-## #####
-## For the rib family-level taxa, it looks like the first 4 taxa are
-## the most influential.  However, for consistency with the way we did
-## this plot for the Forger et al (2019) paper, I'm going to draw the
-## top m taxa, as measured by %IncMSE.
-
-## Save the names of the families that are in the top m in terms of
-## %IncMSE.
-topChoices <- as.character(ribimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family))
-
-## Find the percentages for these taxa.
-chooseT <- ribT %>%
-  filter(taxon %in% topChoices)
-## #####
-
-
-## #####
-## Average the value across samples for each taxa and each day.
-## Remove day 0 from figures.
-summTopT <- chooseT %>%
-  group_by(taxon, degdays) %>%
-  summarize(meanPercByDay=100*mean(fracBySample), medianPercByDay=100*median(fracBySample))
-## #####
-
-
-## #####
-## Draw plot of average relative abundance vs. time for these five
-## influential taxa.
-## dev.new(width=4.5, height=4)
-riblinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
+## Draw plot of average relative abundance vs. time (ADD) for these
+## top m influential taxa.
+riblinePanel <- ggplot(summTopRibT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon), show.legend=FALSE) +
-  scale_y_continuous(limits=c(0, 90), expand=c(0,0)) +
+  scale_y_continuous(limits=c(0, relAbundMax), expand=c(0,0)) +
   theme_minimal() +
   ##  labs(x="Accumulated Degree Days", y="Relative Abundance") +
   labs(x="", y="Relative Abundance") +
@@ -227,42 +256,13 @@ riblinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
 
 
 ## ########################
-## Scapulae: Show line plot of changing relative abundance for the top 5 taxa.
+## Scapulae: Show line plot of changing relative abundance for the top m taxa.
 
-## #####
-## For the scapulae family-level taxa, it looks like the first taxa is
-## most influential, with the next 6 gradually decreasing in
-## importance.  Then, there's another break between the 7th and 8th
-## taxa. However, for consistency with the way we did this plot for
-## the Forger et al (2019) paper, I'm going to draw the top m taxa, as
-## measured by %IncMSE.
-
-## Save the names of the families that are in the top 10 in
-## terms of %IncMSE.
-topChoices <- as.character(scapimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family))
-
-## Find the percentages for these taxa.
-chooseT <- scapT %>%
-  filter(taxon %in% topChoices)
-## #####
-
-
-## #####
-## Average the value across samples for each taxa and each day.
-## Remove day 0 from figures.
-summTopT <- chooseT %>%
-  group_by(taxon, degdays) %>%
-  summarize(meanPercByDay=100*mean(fracBySample), medianPercByDay=100*median(fracBySample))
-## #####
-
-
-## #####
-## Draw plot of average relative abundance vs. time for these five
-## influential taxa.
-## dev.new(width=4.5, height=4)
-scaplinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
+## Draw plot of average relative abundance vs. time (ADD) for these
+## top m influential taxa.
+scaplinePanel <- ggplot(summTopScapT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon), show.legend=FALSE) +
-  scale_y_continuous(limits=c(0, 90), expand=c(0,0)) +
+  scale_y_continuous(limits=c(0, relAbundMax), expand=c(0,0)) +
   theme_minimal() +
   labs(x="Accumulated Degree Days", y="Relative Abundance") +
   theme(axis.title.x = element_text(size=10), axis.title.y = element_text(size=10)) +
@@ -282,7 +282,7 @@ plotrow2 <- annotate_figure(plotrow2, left=text_grob("Scapulae", face="bold", ro
 ## Put the rows together to make 4-panel figure.
 plot_grid(plotrow1, plotrow2, nrow=2)
 
-ggsave(file="hl_rib_scapula_family_w_baseline_4panels.pdf", height=5, width=7.5, units="in")
+ggsave(file="hl_rib_scapula_family_4panels.pdf", height=5, width=7.5, units="in")
 ## ########################
 ## ##################################################
 
@@ -349,6 +349,6 @@ scapscatterPanel <- annotate_figure(scapscatterPanel, top=text_grob("Scapulae", 
 ## ########################
 plot_grid(ribscatterPanel, scapscatterPanel, nrow=1)
 
-ggsave(file="hl_rib_scapula_family_w_baseline_predicted_vs_actual_ADD.pdf", height=4, width=7.5, units="in")
+ggsave(file="hl_rib_scapula_family_predicted_vs_actual_ADD.pdf", height=4, width=7.5, units="in")
 ## ########################
 ## ##################################################
