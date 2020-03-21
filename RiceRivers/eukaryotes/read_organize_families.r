@@ -39,10 +39,10 @@ rawAllT <- rawAllT %>% select(-`New total`)
 ## Dealing with unusual columns.
 
 ## Column "RRWBCS" (denoted EV in the spreadsheet) doesn't have a
-## match in the sampling information file.)  I think this column
-## contains baseline (day 0, when ribs and scapulae were placed in the
-## river) eukaryote counts from the water.  We have no other baseline
-## data, so we remove this column.
+## match in the sampling information file.)  This column contains
+## baseline (day 0, when ribs and scapulae were placed in the river)
+## eukaryote counts from the water.  We have no other baseline data,
+## so we remove this column.
 rawAllT <- rawAllT %>% select(-RRWBCS)
 
 ## We have some column names in which the ending "S" was omitted.  We
@@ -129,7 +129,7 @@ indivT %>% filter(counts>0) %>% group_by(type) %>% distinct(taxon) %>% summarize
 ## the criteria will be considered in the random forest model.
 
 ## To calculate percentages, we need total counts for each sample.
-## We find that the total for each sample is the same (5048).
+## We find that the total for each sample is the same (5287).
 ctBySampleT <- indivT %>%
   group_by(sampleName) %>%
   summarize(totals=sum(counts))
@@ -176,9 +176,9 @@ freqTaxaByTypeT <- indivT %>%
 freqTaxaByTypeT %>% group_by(type) %>% summarize(n=n())
 ##   type        n
 ##   <chr>   <int>
-## 1 Rib        16
-## 2 Scapula    27
-## 3 Water      27
+## 1 Rib        14
+## 2 Scapula    21
+## 3 Water      16
 
 ## Save list of frequent taxa by type to a CSV file.
 write.csv(freqTaxaByTypeT, file="family_freq_taxa_by_type.csv", row.names=F)
