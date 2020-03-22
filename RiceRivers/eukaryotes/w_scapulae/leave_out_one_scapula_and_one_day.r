@@ -51,10 +51,10 @@ numBtSamps <- 3000
 
 ## Repeated cross-validation runs (1000 of them), leaving out 20% of
 ## the observations at a time, indicated that the number of variables
-## to consider at each split is about 18 (lowest avgcvMSE and 2nd
-## lowest avgcvErrFrac for 3000 bootstrap samples).  However, 16, 17,
-## 19, and 20 are all close.
-numVarSplit <- 18
+## to consider at each split is about 9 (lowest avgcvMSE and 2nd
+## lowest avgcvErrFrac for 3000 bootstrap samples).  However, 8 is
+## very close.
+numVarSplit <- 9
 ## ##################################################
 
 
@@ -102,10 +102,10 @@ origUnitsF <- function(x, mtry, ntree){
 }
 
 ## Set random seed for reproducibility.
-set.seed(8162067)
+set.seed(6164057)
 
 ## Try using lapply to fit the random forests.
-origFitL <- mclapply(crossvalidL, mc.cores=7, origUnitsF, mtry=numVarSplit, ntree=numBtSamps)
+origFitL <- mclapply(crossvalidL, mc.cores=6, origUnitsF, mtry=numVarSplit, ntree=numBtSamps)
 ## #########################################
 
 
@@ -171,10 +171,10 @@ myresids <- residDF %>%
   filter((scapnumactual==scapnumOmit) & (dayOmit==yactual)) %>%
   pull(resid)
 sqrt(mean(myresids^2))
-## With 1 run per combo: 680.8998
-## With 10 runs per combo: 680.5354
-## With 100 runs per combo: 681.1542
-## This is about ?-?, whether I use 1, 10, or 100 runs per
+## With 1 run per combo: 709.5528
+## With 10 runs per combo: 706.4729
+## With 100 runs per combo: 705.7633
+## This is about 705-710, whether I use 1, 10, or 100 runs per
 ## combo.
 ## #########################################
 
