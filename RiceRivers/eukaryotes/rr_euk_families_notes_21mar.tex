@@ -204,6 +204,17 @@
     Mediophyceae & Melosirids\\
     Oligohymenophorea & Peronosporomycetes\_fa          
   \end{tabular}
+
+  \vspace{0.2in}
+  \noindent There are only 59 observations available for the rib data.
+  \begin{itemize}
+    \item There are no rib samples for collections 7 and 17 (ADD 1827 and 4473).
+    \item There is only 1 rib sample for collections 1, 2, and 6 (ADD 268, 516,
+    and 1513).
+    \item There are 2 rib samples for collections 5 and 9 (ADD 1278 and 2395).
+    \item The last 6 collections (after ADD 3181) have 4-5 rib samples at each
+    collection.
+  \end{itemize}
   }
 
 \end{frame}
@@ -235,6 +246,14 @@
     Metakinetoplastina\_unclassified & Oligohymenophorea\\              
     Peronosporomycetes\_fa           & Podocopida\_fa\\             
   \end{tabular}
+
+  \vspace{0.2in}
+  \noindent There are 87 observations available for the scapula data.
+  \begin{itemize}
+    \item There is only 1 scapula sample for collection 17 (ADD 4473).
+    \item Other than collection 17, all other collection days included 4 or 5
+    scapula samples.
+  \end{itemize}
   }
 
 \end{frame}
@@ -243,7 +262,7 @@
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section[Ribs]{Analysis using Henley Lake ribs}
+\section[Ribs]{Analysis using Rice Rivers ribs}
 
 
 \begin{frame}{Implementing the random forest model for ribs}
@@ -292,8 +311,6 @@
     unclassifiable is the most predictive taxon.
     \item The next most influential taxon is Melosirids, but it's much less
     influential than Eukaryota\_unclassified.
-    \item There's a smaller, but still noticeable, gap
-      between the 2nd most influential Melosirids and the others.
     \end{itemize}
   }
 
@@ -361,18 +378,14 @@
   {\scriptsize
  
     \begin{itemize}
-    \item This RMSE is in the range of 1143-1146, which is higher than
-      the RMSE for the full dataset (as you'd expect).  We have less
-      data available for each run, and we're predicting for an ADD
+    \item This RMSE is in the range of 817-819, which is higher than
+      the RMSE for the model fitted on the full dataset (as you'd expect).  We
+      have less data available for each run, and we're predicting for an ADD
       value which we have no information about.
-    \item We expect that errors tend to be larger at the extremes, but
-      the pattern we see for ADD above 2500 is strange.  I think it's
-      at least partially due to the fact that after this time:
-      \begin{itemize}
-      \item {\scriptsize Data for rib 3 was missing in 4 out of 9 remaining collections.}
-      \item {\scriptsize Data for rib 4 was missing in 5 out of 9 remaining collections.}
-      \item {\scriptsize Data for rib 5 was missing in 8 out of 9 remaining collections.}
-      \end{itemize}
+    \item We expect that errors tend to be larger at the extremes, but here we
+    also have large errors for ADD 2141.  This is probably because we have
+    limited samples for the neighboring collections.  (We have no rib data for
+    ADD 1827, 1 sample for 1513, and 2 samples for 2395.)
     \end{itemize}
   }
 
@@ -383,7 +396,7 @@
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section[Scapulae]{Analysis using Henley Lake scapulae}
+\section[Scapulae]{Analysis using Rice Rivers scapulae}
 
 \begin{frame}{Implementing the random forest model for scapulae}
 
@@ -422,15 +435,14 @@
   \vspace{0.05in}
   
   {\scriptsize
-  \begin{itemize}
+    \begin{itemize}
     \item Again, I've just shown the top 10.
-    \item As with the ribs, Eukaryota\_unclassified is the most influential taxon.
-    \item Compared with the ribs, the gap between Eukaryota\_unclassified and the
-    next most influential taxon is not as large.
-    \item The second most influential taxon is Peronosporomycetes\_fa, which is
-    different from the ribs. 
-    \item There is a large gap between Peronosporomycetes\_fa and the rest of the
-    taxa.
+    \item As with the ribs, Eukaryota\_unclassified is the most
+      influential taxon.
+    \item The second most influential taxon is Peronosporomycetes\_fa,
+      which is different from that for the ribs.
+    \item There is a large gap between Peronosporomycetes\_fa and the
+      rest of the taxa.
   \end{itemize}
   }
 
@@ -473,11 +485,14 @@
 
   {\scriptsize
     \begin{itemize}
-    \item The RMSE is in the range of 680-682.  As expected, this is
+    \item The RMSE is in the range of 705-710.  As expected, this is
       higher than the RMSE for the full dataset.
-    \item We don't see the same strange pattern for high ADD that we
-      saw for the ribs.  This is probably because there is much less
-      missing data.
+    \item In general, this plot looks better than the corresponding one for the
+    rib data.
+    \item We do see some large residuals at ADD 3673.  This may be due to the
+    fact that scapulae 2, 4, and 5 have somewhat low fractions of
+    Eukaryota\_unclassified and quite high fractions of Peronosporomycetes\_fa
+    on ADD 3673. 
     \end{itemize}
   }
 
