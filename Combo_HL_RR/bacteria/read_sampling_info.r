@@ -37,6 +37,8 @@ samplingT <- samplingT %>% select(-extractMethod)
 
 tmp <- samplingT$collection
 tmp <- str_remove(tmp, pattern="Collection ")
+## We have some rows where collection is misspelled.
+tmp <- str_remove(tmp, pattern="Colelction ")
 samplingT$collection <- tmp
 
 rm(tmp)
@@ -56,19 +58,21 @@ rm(tmp)
 
 
 ## ##################################################
+
 ## Ideally, we would have 5 rib samples, 5 scapula samples, and 1
-## water sample, for each collection day.  That would mean 11 samples
-## in total for each collection.  In reality, all samples are not
+## water sample, for each collection day at each location.  That would mean 11
+## samples in total for each collection.  In reality, all samples are not
 ## available for every collection day.
 
 ## Count the number of such samples for each collection day.
-samplingT %>% group_by(collection) %>% summarize(nObs=n())
+samplingT %>% group_by(location, collection) %>% summarize(nObs=n())
 ## Count the number of such samples for each collection day and type.
-samplingT %>% group_by(collection, type) %>% summarize(nObs=n())
+samplingT %>% group_by(location, collection, type) %>% summarize(nObs=n())
 
 
 ## If we had the full number of samples for each collection, the
-## counts would like this table.
+## counts would look like this table.
+## WORKING HERE!
 fullObsT <- as_tibble(expand.grid(type=c("Rib", "Scapula", "Water"), collection=1:19))
 fullObsT$type <- as.character(fullObsT$type)
 fullObsT$fullObsn <- 5
