@@ -58,26 +58,22 @@ rm(tmp)
 
 
 ## ##################################################
-
 ## Ideally, we would have 5 rib samples, 5 scapula samples, and 1
 ## water sample, for each collection day at each location.  That would mean 11
 ## samples in total for each collection.  In reality, all samples are not
 ## available for every collection day.
 
-## Count the number of such samples for each collection day.
-samplingT %>% group_by(location, collection) %>% summarize(nObs=n())
-## Count the number of such samples for each collection day and type.
-samplingT %>% group_by(location, collection, type) %>% summarize(nObs=n())
-
-
 ## If we had the full number of samples for each collection, the
 ## counts would look like this table.
 ## WORKING HERE!
-fullObsT <- as_tibble(expand.grid(type=c("Rib", "Scapula", "Water"), collection=1:19))
+fullObsT <- as_tibble(expand.grid(location=c("Henley Lake", "James River"),
+              type=c("Rib", "Scapula", "Water"),
+              collection=c("Baseline", 1:19))
+              )
 fullObsT$type <- as.character(fullObsT$type)
+fullObsT$collection <- as.character(fullObsT$collection)
 fullObsT$fullObsn <- 5
 fullObsT$fullObsn[fullObsT$type=="Water"] <- 1
-fullObsT$collection <- as.character(fullObsT$collection)
 
 
 ## Identify count how many samples we have for rib, scapula, water for
