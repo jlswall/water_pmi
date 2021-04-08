@@ -3,8 +3,8 @@ library("readxl")
 library("stringr")
 
 
-## ##################################################
-## Read in family-level taxonomic data from Excel sheet.
+# ##################################################
+# Read in family-level taxonomic data from Excel sheet.
 fileNm <- "orig_data_files/HVJ_HL_Taxonomy.xlsx"
 
 # The first 454 rows contain the bone swabs.  The rows after than contain
@@ -21,144 +21,63 @@ rm(fileNm)
 # been extended past the raw data into the summary table after column BJ.
 rawAllT <- rawAllT %>% select(-taxlevel, -rankID, -total)
 
-## We also check the "total" column.  For most rows, the "total" is
-## the sum of all the subsequent columns.  However, for 107 of the
-## rows, the "total" is higher than the sum of the subsequent rows,
-## due to some control samples, etc. which were purposefully omitted.
-## In these cases, the "total" number should match the number for that
-## taxon given in the "Original" tab.  (I've spotchecked several of
-## these cases, and that seems to be true.)
-sumCols <- apply(rawAllT[,-c(1, 2)], 1, sum)
-sumMinusTotal <- sumCols - (rawAllT %>% pull(total)) 
-percDiff <- 100 * sumMinusTotal/(rawAllT %>% pull(total))
-whichDiffer <- which(abs(sumMinusTotal) >= 1)
-## There are 107 rows (out of 520) for which the totals in the "total"
-## column (column "E") do not match the sum of the all the
-## observations in that row.
-sum(abs(sumMinusTotal) > 0)
-## Some of these differences are quite big percentage differences, but
-## in all cases the calculated total is less than the total given in
-## column "E".
-summary(percDiff)
-## After these checks, we can remove the "total" column".
-rawAllT <- rawAllT %>% select(-total)
-
-rm(sumCols, sumMinusTotal, percDiff, whichDiffer)
-## ##################################################
-
-
-
-
-## ##################################################
-## Read information about collections, sample types, dates, etc. from
-## spreadsheet in "HenleyLake_SampleInformation.xlsx".
-
-## The first 3 rows of the spreadsheet are all part of the header, so
-## skip those.
-fileNm <- "orig_data_files/HenleyLake_SampleInformation.xlsx"
-samplingT <- read_excel(fileNm, skip=3,
-                        col_names=c("date", "degdays", "season",
-                                    "location", "type", "collection",
-                                    "extractMethod", "sampleName"))
-
-## Switch date to "Date" class.  Default is POSIX class, which is for
-## datetimes.  Here, we only have the dates, not a time of day.
-samplingT$date <- as.Date(samplingT$date)
-
-## All of these samples were taken at the same location (Henley Lake)
-## and using the sampe extraction method, so "location" and
-## "extractMethod" columns are not necessary.
-samplingT <- samplingT %>% select(-location, -extractMethod)
-
-
-## The "collection" column contains one of "Baseline", "Collection 1",
-## ..., "Collection 19".  We save space by refering to these as "B",
-## "1", ..., "19". 
-tmp <- samplingT$collection
-tmp <- str_remove(tmp, pattern="Collection ")
-tmp[tmp=="Baseline"] <- "B"
-samplingT$collection <- tmp
-## To keep the chronological order (and avoid ABC order), we specify
-## this as an ordered factor.
-samplingT$collection <- ordered(samplingT$collection, levels=c("B", as.character(1:19)))
-
-
-## Some of the sample names have spaces in them.  That is not true of
-## the corresonding sample names in the taxonomy file.  So, we take
-## the spaces out for consistency.
-## Take out spaces and store elsewhere.
-tmp <- str_replace_all(samplingT$sampleName, " ", "")
-## Check to see which sample names were changed, and make sure all looks ok.
-cbind(samplingT$sampleName, tmp)[samplingT$sampleName!=tmp,]
-## Replace sample name column with adjusted names.
-samplingT$sampleName <- tmp
-
-
-## #######################
-## Ideally, we would have 5 rib samples, 5 scapula samples, and 1
-## water sample for each collection day.  That would 11 samples in
-## total for each of 20 collection days.  In reality, all samples are
-## not available for every collection day.
-
-## Count the number of such samples for each collection day.
-samplingT %>% group_by(collection, type) %>% summarize(nObs=n())
-
-## Identify collection days on which samples are missing.
-samplingT %>%
-  group_by(collection, type) %>%
-  summarize(nObs=n()) %>%
-  filter( ((type=="Rib" | type=="Scapula") & nObs<5) | (type=="Water" & nObs<1) )
-## This table shows which collections have missing scapula or rib
-## samples.  Water samples are not missing on any of the collection
-## days.
-##    collection type     nObs
-##    <ord>      <chr>   <int>
-##  1 B          Scapula     2
-##  2 3          Rib         4
-##  3 4          Rib         4
-##  4 6          Rib         4
-##  5 9          Rib         3
-##  6 10         Rib         4
-##  7 11         Rib         3
-##  8 12         Rib         4
-##  9 13         Rib         4
-## 10 14         Rib         3
-## 11 15         Rib         3
-## 12 16         Rib         4
-## 13 17         Rib         3
-## 14 19         Rib         4
-## #######################
-
-## Write out the sample information into a CSV file.
-write.csv(samplingT, file="sampling_info.csv", row.names=F)
-
-rm(fileNm, tmp)
-## ##################################################
-
-
-
-## ##################################################
-## Concentrate on the taxa counts for the individual cadavers on the
-## various collection days.  Transfer from wide format to long format.
-## Parse out the column names to get collection day, sample type, etc.
-
-## Go from wide to long format.
+# Go from wide to long format.
 rawIndivT <- rawAllT %>%
   gather(sampleName, counts, -taxon)
+# ##################################################
 
 
-## Join with sampling information tibble to get information about
-## accumulated degree days.  That tibble already has information about
-## sample type (R, S, or W) and collection number (baseline,
-## collection 1-19), so that we don't have to parse it out of the taxa
-## spreadsheet's column names.
-## NOTE: We also remove date, season, and collection variables.  This
-## info is contained in the sampleName variable.
+
+
+# ##################################################
+# Read information about collections, sample types, ADD, etc. from
+# sheet "ADD_Collections".
+
+fileNm <- "orig_data_files/HVJ_HL_Taxonomy.xlsx"
+rawsamplingT <- read_excel(fileNm, sheet="ADD_Collections")
+
+# We only need the actual ADD and the codes for the rib ane scapula samples
+# (e.g., "R1B", "R1C2", "S1C17")
+rawsamplingT <- rawsamplingT %>% select(`Actual ADD`, `Rib Swab Samples`,
+              `Scapulae Swab Samples`)
+# Separate the `Rib Swab Samples` column, which has 3 codes listed for each
+# collection day, so that each code is listed in its own column.
+rawsamplingT <- rawsamplingT %>% separate(`Rib Swab Samples`,
+              into=c("R1", "R2", "R3")) 
+# Do the same thing for the scapula samples.  However, the first and last
+# collection days are missing one sample each.  This means we'll have two
+# missing values and a warning message.
+rawsamplingT <- rawsamplingT %>% separate(`Scapulae Swab Samples`,
+              into=c("S1", "S2", "S3")) 
+
+# Now, we go from wide to long format.  There are 2 rows with missing values,
+# from the missing scapula swabs on the first and last days, and we drop those.
+samplingT <- rawsamplingT %>% gather(RiOrSc, sampleName, -`Actual ADD`) %>%
+              select(-RiOrSc) %>%
+              arrange(`Actual ADD`) %>%
+              rename(degdays=`Actual ADD`) %>%
+              drop_na(sampleName)
+
+rm(rawsamplingT)
+# ##################################################
+
+
+
+
+# ##################################################
+# Join the sampling information with ADD to the taxa counts.
+
 indivT <- rawIndivT %>%
-  inner_join(samplingT) %>%
-  select(-date, -season, -collection)
+  inner_join(samplingT)
 rm(rawIndivT, rawAllT, samplingT)
-## ##################################################
+# ##################################################
+
+
+
+
+
+
+
 
 
 
