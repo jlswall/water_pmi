@@ -58,6 +58,12 @@ samplingT <- rawsamplingT %>% gather(RiOrSc, sampleName, -`Actual ADD`) %>%
               rename(degdays=`Actual ADD`) %>%
               drop_na(sampleName)
 
+# Make "type" variable to make it easy to tell which came from ribs and which
+# came from scapulae.  This is also consistent with how I set up the dataset for
+# the analysis with bones (rather than swabs).
+samplingT$type <- ifelse(substring(samplingT$sampleName, first=1, last=1)=="S",
+  "Scapula", "Rib") 
+
 rm(rawsamplingT)
 # ##################################################
 
@@ -81,32 +87,43 @@ rm(rawIndivT, rawAllT, samplingT)
 
 
 
-## ##################################################
-## Consider level of classification for each taxa.  (Some could not be
-## classified down to the family level, but maybe the order could be
-## determined.)
+# ##################################################
+# Consider level of classification for each taxa.  (Some could not be
+# classified down to the family level, but maybe the order could be
+# determined.)
 
-## Make new variable to indicate the most precise taxon which could be
-## identified.
+# Make new variable to indicate the most precise taxon which could be
+# identified.
 indivT$taxLvl <- ""
 indivT$taxLvl[str_detect(indivT$taxon, "f__")] <- "family"
 indivT$taxLvl[str_detect(indivT$taxon, "o__")] <- "order"
 indivT$taxLvl[str_detect(indivT$taxon, "c__")] <- "class"
 indivT$taxLvl[str_detect(indivT$taxon, "p__")] <- "phylum"
 indivT$taxLvl[str_detect(indivT$taxon, "k__")] <- "kingdom"
-indivT$taxLvl <- ordered(indivT$taxLvl, levels=c("family", "order", "class", "phylum", "kingdom"))
+indivT$taxLvl <- ordered(indivT$taxLvl,
+      levels=c("family", "order", "class", "phylum", "kingdom"))
 
 
-## Find percentage of counts can be classified down to the family
-## level, across all types.  We see that about 88.5% of the counts can
-## be attributed at the family level.
-indivT %>% group_by(taxLvl) %>% summarize(sumCounts=sum(counts), percCounts=100*sum(counts)/sum(indivT$counts))
+# Find percentage of counts can be classified down to the family
+# level, across all types.  We see that about 85.1% of the counts can
+# be attributed at the family level.
+indivT %>%
+  group_by(taxLvl) %>%
+  summarize(sumCounts=sum(counts),
+            percCounts=100*sum(counts)/sum(indivT$counts))
 
-## Find percentage of counts which can be classified down to the
-## family level, type by type.
-indivT %>% group_by(type, taxLvl) %>% summarize(sumCountsByTypeTaxLvl=sum(counts)) %>% left_join(indivT %>% group_by(type) %>% summarize(sumCountsByType=sum(counts))) %>% mutate(perc=100*sumCountsByTypeTaxLvl/sumCountsByType)
-## Percentages classified to family level: 90.5% (ribs), 88.9%
-## (scapulae), 77.7% (water).
+# Find percentage of counts which can be classified down to the
+# family level, type by type.
+indivT %>%
+  group_by(taxLvl, type) %>%
+  summarize(sumCountsByTypeTaxLvl=sum(counts)) %>%
+  left_join(indivT %>%
+            group_by(type) %>%
+            summarize(sumCountsByType=sum(counts))
+            ) %>%
+  mutate(perc=100*sumCountsByTypeTaxLvl/sumCountsByType)
+# Percentages classified to family level: 86.8% (ribs), 83.2%
+# (scapulae)
 
 
 ## For each sample, what percentage of counts can be classified to the
