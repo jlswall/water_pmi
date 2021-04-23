@@ -52,7 +52,7 @@ numBtSampsVec <- c(600, 1500, 2100, 3000)
 
 ## Try different values for mtry (which represents how many variables
 ## can be chosen from at each split of the tree).
-numVarSplitVec <- seq(3, numPredictors, by=3)
+numVarSplitVec <- seq(2, numPredictors, by=1)
 
 ## Form matrix with all combinations of these.
 combos <- expand.grid(numBtSamps=numBtSampsVec, numVarSplit=numVarSplitVec)
@@ -62,7 +62,7 @@ combos <- expand.grid(numBtSamps=numBtSampsVec, numVarSplit=numVarSplitVec)
 ## Do cross-validation over and over, leaving out a different 20% of
 ## the observations each time.
 
-set.seed(3753297)
+set.seed(37592297)
 
 ## Number of times to do cross-validation.
 numCVs <- 1000
@@ -84,14 +84,18 @@ sqrtcvErrFrac <- matrix(NA, nrow(combos), ncol=numCVs)
 ## Set up function for fitting random forest model using original
 ## units.
 origUnitsF <- function(x, jCombo){
-  rf <- randomForest(degdays ~ . , data=x$trainT, mtry=combos[jCombo, "numVarSplit"], ntree=combos[jCombo, "numBtSamps"], importance=T)
+  rf <- randomForest(degdays ~ . , data=x$trainT,
+    mtry=combos[jCombo, "numVarSplit"], ntree=combos[jCombo, "numBtSamps"],
+    importance=T)
   return(predict(rf, newdata=x$validT))
 }
 
 ## Set up function for fitting random forest model using square root
 ## units.
 sqrtUnitsF <- function(x, jCombo){
-  sqrtrf <- randomForest(sqrt(degdays) ~ . , data=x$trainT, mtry=combos[jCombo, "numVarSplit"], ntree=combos[jCombo, "numBtSamps"], importance=T)
+  sqrtrf <- randomForest(sqrt(degdays) ~ . , data=x$trainT,
+    mtry=combos[jCombo, "numVarSplit"], ntree=combos[jCombo, "numBtSamps"],
+    importance=T)
   return(predict(sqrtrf, newdata=x$validT))
 }
 ## #########################################
@@ -120,7 +124,7 @@ rm(j)
 
 sqrtFitL <- vector("list", nrow(combos))
 for (j in 1:nrow(combos)){
-  sqrtFitL[[j]] <- mclapply(crossvalidL, mc.cores=7, sqrtUnitsF, jCombo=j)
+  sqrtFitL[[j]] <- mclapply(crossvalidL, mc.cores=4, sqrtUnitsF, jCombo=j)
   if (j %% 2 == 0)
     print(paste0("In sqrt units, finished combo number ", j))
 }
@@ -172,7 +176,7 @@ combos$avgsqrtcvErrFrac <- apply(sqrtcvErrFrac, 1, mean)
 combos$avgorigUnitsqrtcvMSE <- apply(origUnitsqrtcvMSE, 1, mean)
 combos$avgorigUnitsqrtcvErrFrac <- apply(origUnitsqrtcvErrFrac, 1, mean)
 
-write_csv(combos, path="parallel_leave_out_20perc.csv")
+write_csv(combos, file="parallel_leave_out_20perc.csv")
 
 
 ggplot(data=combos, aes(x=numBtSamps, y=avgcvMSE, color=as.factor(numVarSplit))) + geom_line()
