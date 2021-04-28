@@ -69,7 +69,7 @@ numVarSplit <- 13
 excludeCombos <- wideT %>% select(degdays, ribnum) %>% distinct()
                  
 # How many times do we want to run each exclusion combo?
-numRunsEachCombo <- 10
+numRunsEachCombo <- 1
 excludeT <- NULL
 for (i in 1:numRunsEachCombo)
     excludeT <- bind_rows(excludeT, excludeCombos)
@@ -103,7 +103,9 @@ origUnitsF <- function(x, mtry, ntree){
 }
 
 # Set random seed for reproducibility.
-set.seed(756267)
+set.seed(756267)   # For 1 run per combo
+# set.seed(543103)  # For 100 runs per combo
+# set.seed(563903)  # For 10 runs per combo
 
 # Try using lapply to fit the random forests.
 origFitL <- mclapply(crossvalidL, mc.cores=8, origUnitsF, mtry=numVarSplit,
@@ -174,7 +176,7 @@ myresids <- residDF %>%
   filter((ribnumactual==ribnumOmit) & (dayOmit==yactual)) %>%
   pull(resid)
 sqrt(mean(myresids^2))
-# This is about 927-930, whether I use 1, 10, or 100 runs per
+# This is about 923-929, whether I use 1, 10, or 100 runs per
 # combo.
 # #########################################
 
