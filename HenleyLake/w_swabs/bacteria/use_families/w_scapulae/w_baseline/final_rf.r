@@ -49,7 +49,7 @@ numBtSamps <- 3000
 
 # Repeated cross-validation runs (1000 of them), leaving out 20% of the
 # observations at a time, indicated that the number of variables to consider at
-# each split is about 31 (but values between 26-32 yield similar results) for
+# each split is about 31 (but values between 26-35 yield similar results) for
 # the response variable in the original units.
 numVarSplit <- 31
 ## ##################################################
