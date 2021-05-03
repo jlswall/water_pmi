@@ -250,7 +250,7 @@ chooseT$taxon <- factor(chooseT$taxon, levels=topChoices)
 # From sampleName variable, extract the scapulanumber.  Include the scapula
 # number is the scatterplot, so that we can check whether one scapula has
 # frequently unusual data associated with it.
-chooseT$scapnum <- substring(chooseT$sampleName, first=3, last=4)
+chooseT$scapnum <- substring(chooseT$sampleName, first=2, last=2)
 
 
 ggplot(chooseT, aes(degdays, fracBySample)) +
