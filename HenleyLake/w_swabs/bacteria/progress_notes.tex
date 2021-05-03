@@ -204,8 +204,8 @@ analyses in the Forger et al.~ paper, but I'm open to revisiting it.
 
   \noindent Number of taxa utilized in random forest models:
   \begin{itemize}
-    \item Ribs: 21 taxa (vs.\ 24 used for bone analysis)
-    \item Scapulae: 37 taxa (vs.\ 34 used for bone analysis')
+    \item Ribs: 21 taxa (vs.\ 24 used for earlier bone analysis)
+    \item Scapulae: 37 taxa (vs.\ 34 used for earlier bone analysis)
   \end{itemize}
 
 
@@ -229,9 +229,11 @@ observations.
 
 \vspace{0.1in}
 
-If we run the model without the baseline observations, we have:
-\noindent RMSE: ? $\pm$  ? \hspace{0.05in}  Explained variation: ?\%
-$\pm$ ?\%
+If we run the model without the baseline observations, we have:\\
+\noindent RMSE: 609.2 $\pm$ 11.1 \hspace{0.05in}  Explained variation: 77.9\%
+$\pm$ 0.8\%\\
+\vspace{0.05in}
+The following graphs are from the model using baseline observations.
 
 \end{frame}
 
@@ -241,23 +243,22 @@ $\pm$ ?\%
 
   \begin{center}
     \begin{figure}
-      \includegraphics[width=3.25in]
-      {use_families/w_ribs/w_baseline/families_rib_PercIncMSE_barchart}
+      \includegraphics[width=3.25in]{use_families/w_ribs/w_baseline/families_rib_PercIncMSE_barchart}
     \end{figure}
   \end{center}
   \vspace{-0.1in}
-  {\scriptsize
+  \scriptsize{
   \begin{itemize}
-  \item The measure of importance is the mean percentage increase in the
+    \item The measure of importance is the mean percentage increase in the
     mean-square error of model predictions when the variable is left out of the
     model. 
-  \item I've shown the top 15 because they'd fit, but 24 were used in the model.
-  \item The first four taxa are noticeably more influential than those that
-  follow.
+    \item I've shown the top 15 because they'd fit, but 21 were used in the
+    model.
   \end{itemize}
   }
 
 \end{frame}
+
 
 
 \begin{frame}{Scatterplots for influential taxa}
@@ -268,18 +269,16 @@ $\pm$ ?\%
     \end{figure}
   \end{center}
   \vspace{-0.25in}
-  {\scriptsize
+  \scriptsize{
   \begin{itemize}
-  \item I've only shown top 6 because more than that is hard to fit.
-  \item Note that the y-axes have differing scales.
-  \item Fractions of Comamonadaceae and Rhodocyclaceae are very low.
+    \item I've only shown top 6 due to spacing constraints.
+    \item Note that the y-axes have differing scales.
+    \item Fractions of Sediment\_4, Comamonadaceae, and Spirochaetaceae are very
+    low.
   \end{itemize}
   }
 
 \end{frame}
-
-
-\end{document}
 
 
 
@@ -306,27 +305,28 @@ $\pm$ ?\%
 \end{frame}
 
 
+
 \begin{frame}{Residual plot to get sense of "real-life" model fit}
 
   \begin{center}
     \begin{figure}
-      \includegraphics[width=2.2in]{use_families/w_ribs/leave_out_one_rib_and_one_day_residuals}
+      \includegraphics[width=2.2in]{use_families/w_ribs/w_baseline/leave_out_one_rib_and_one_day_residuals}
       \caption{Residuals when leaving out one rib and one ADD at a time}
     \end{figure}
   \end{center}
   \vspace{-0.1in}
-{\scriptsize
+\scriptsize{
 \begin{itemize}
-  \item This RMSE is 743.9, which is higher than the RMSE for the full
-  dataset (as you'd expect).  We have less data available for each run, and we're predicting for an
-  ADD value which we have no information about.
+  \item This RMSE is about 926, which is higher than the RMSE for the full
+  dataset (as expected).  We have less data available for each run, and we're
+  predicting for an ADD value which we have no information about.
   \item The errors tend to be larger at the extremes.
 \end{itemize}
 }
 
 \end{frame}
 %% %%%%%%%%%%%%%
-
+\end{document}
 
 
 %% %%%%%%%%%%%%%
@@ -367,7 +367,7 @@ using scapulae.
     \end{figure}
   \end{center}
   \vspace{-0.1in}
-  {\scriptsize
+  \scriptsize{
   \begin{itemize}
   \item I've shown 15 because they would fit, but 34 were used in the model.
   \item The first 7-8 taxa are noticeably more influential than those that
@@ -387,7 +387,7 @@ using scapulae.
     \end{figure}
   \end{center}
   \vspace{-0.25in}
-  {\scriptsize
+  \scriptsize{
   \begin{itemize}
   \item I've only shown top 6 because more than that is hard to fit.
   \item Note that the y-axes have differing scales.
@@ -409,7 +409,7 @@ using scapulae.
     \end{figure}
   \end{center}
   \vspace{-0.1in}
-{\scriptsize
+\scriptsize{
 \begin{itemize}
   \item This RMSE is 452.7, which is higher than the RMSE for the full
   dataset (as you'd expect).  We have less data available for each run, and we're predicting for an
@@ -478,7 +478,7 @@ $\pm$ 0.3\%
     \end{figure}
   \end{center}
   \vspace{-0.1in}
-  {\scriptsize
+  \scriptsize{
   \begin{itemize}
   \item The measure of importance is the mean percentage increase in the
     mean-square error of model predictions when the variable is left out of the
@@ -498,7 +498,7 @@ $\pm$ 0.3\%
     \end{figure}
   \end{center}
   \vspace{-0.25in}
-  {\scriptsize
+  \scriptsize{
   \begin{itemize}
   \item I've only shown top 6 because more than that is hard to fit.
   \item Note that the y-axes have differing scales.
@@ -519,7 +519,7 @@ $\pm$ 0.3\%
     \end{figure}
   \end{center}
   \vspace{-0.1in}
-{\scriptsize
+\scriptsize{
 \begin{itemize}
   \item This RMSE is about 808, which is higher than the RMSE for the full
   dataset (as you'd expect).
@@ -559,7 +559,7 @@ $\pm$ 0.1\%
     \end{figure}
   \end{center}
   \vspace{-0.1in}
-  {\scriptsize
+  \scriptsize{
   \begin{itemize}
   \item The 12 most influential taxa used in the analysis are shown (all 17 wouldn't
   fit).)
@@ -577,7 +577,7 @@ $\pm$ 0.1\%
     \end{figure}
   \end{center}
   \vspace{-0.25in}
-  {\scriptsize
+  \scriptsize{
   \begin{itemize}
   \item I've only shown top 6 because more than that is hard to fit.
   \item Note that the y-axes have differing scales.
@@ -598,7 +598,7 @@ $\pm$ 0.1\%
     \end{figure}
   \end{center}
   \vspace{-0.1in}
-{\scriptsize
+\scriptsize{
 \begin{itemize}
   \item This RMSE is about 499, which is higher than the RMSE for the full
   dataset (as you'd expect).
