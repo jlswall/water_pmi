@@ -247,7 +247,7 @@ chooseT$taxon <- factor(chooseT$taxon, levels=topChoices)
 # From sampleName variable, extract the rib number.  Include the rib
 # number is the scatterplot, so that we can check whether one rib has
 # frequently unusual data associated with it.
-chooseT$ribnum <- substring(chooseT$sampleName, first=3, last=4)
+chooseT$ribnum <- substring(chooseT$sampleName, first=2, last=2)
 
 
 ggplot(chooseT, aes(degdays, fracBySample)) +
