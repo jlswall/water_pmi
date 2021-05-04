@@ -177,12 +177,7 @@
   \end{itemize}
   }
 \end{frame}
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section[Family-level taxa]{Working with family-level taxa}
 
 \begin{frame}{Which taxa were included?}
 
@@ -210,20 +205,23 @@ analyses in the Forger et al.~ paper, but I'm open to revisiting it.
 
 
 \end{frame}
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
-%% %%%%%%%%%%%%%
-\subsection[Ribs]{Working with rib samples}
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section[Rib swabs]{Working with swabs from ribs}
+
 
 \begin{frame}{Implementing the random forest model for ribs}
 
 Full model using baseline observations (ADD 0):
 \begin{itemize}
-\item Utilized 21 family-level taxa.
-\item RMSE: 577.5 $\pm$  11.4 \hspace{0.05in}  Explained variation: 83.9\%
+  \item Utilized 21 family-level taxa.
+  \item RMSE: 577.5 $\pm$  11.4
+  \item Explained variation: 83.9\%
 $\pm$ 0.6\%
-\item Not as precise as the analysis for rib bones - maybe due to fewer
+  \item Not as precise as the analysis for rib bones - maybe due to fewer
 observations.
 \end{itemize}
 
@@ -265,7 +263,8 @@ The following graphs are from the model using baseline observations.
 
   \begin{center}
     \begin{figure}
-      \includegraphics[width=4.75in]{use_families/w_ribs/w_baseline/infl_rib_family_scatter}
+      \includegraphics[width=4.75in]
+        {use_families/w_ribs/w_baseline/infl_rib_family_scatter}
     \end{figure}
   \end{center}
   \vspace{-0.25in}
@@ -310,7 +309,8 @@ The following graphs are from the model using baseline observations.
 
   \begin{center}
     \begin{figure}
-      \includegraphics[width=2.2in]{use_families/w_ribs/w_baseline/leave_out_one_rib_and_one_day_residuals}
+      \includegraphics[width=2.2in]
+        {use_families/w_ribs/w_baseline/leave_out_one_rib_and_one_day_residuals}
       \caption{Residuals when leaving out one rib and one ADD at a time}
     \end{figure}
   \end{center}
@@ -325,38 +325,34 @@ The following graphs are from the model using baseline observations.
 }
 
 \end{frame}
-%% %%%%%%%%%%%%%
-\end{document}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%% %%%%%%%%%%%%%
-\subsection[Scapulae]{Working with scapula samples}
 
-\begin{frame}{Implementing the random forest model}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section[Scapula swabs]{Working with swabs from scapulae}
+
+\begin{frame}{Implementing the random forest model for scapulae}
 
 \begin{itemize}
-\item The model utilized 34 family-level taxa.
-\item Cross-validation was used to determine that the best number of taxa to
-consider at each "branching" was about 20.
-\item If we were to change our criteria and reduce the number of taxa which are
-considered plentiful enough to be considered, then we would need to do
-cross-validation again (as we might expect it to be lower than 20.)
+  \item The model utilized 37 family-level taxa.
+  \item RMSE: 589.5 $\pm$ 18.3
+  \item Explained variation: 81.2\% $\pm$ 1.2\%
 \end{itemize}
 
 \vspace{0.1in}
 
-\noindent For the fitted model (using all available scapula data):\\
-\noindent RMSE: 334.2 $\pm$ 4.4 \hspace{0.05in}  Explained variation: 95.3\%
-$\pm$ 0.1\%
-
-\vspace{0.1in}
-
-\noindent There are more missing observations for ribs (18) than for scapulae
-(11).  This may be part of the reason we see better performance for the model
-using scapulae.
+If we run the model without the baseline observations, we have:\\
+\noindent RMSE: 522.0 $\pm$ 13.0 \hspace{0.05in}  Explained variation: 82.7\%
+$\pm$ 0.9\%\\
+\vspace{0.05in}
+The following graphs are from the model using baseline observations.
 
 \end{frame}
 
+
+\end{document}
 
 
 \begin{frame}{Which taxa are influential in the random forest model?}
@@ -418,194 +414,6 @@ using scapulae.
 \end{itemize}
 }
 \end{frame}
-%% %%%%%%%%%%%%%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section[Class-level taxa]{Working with class-level taxa}
-
-\begin{frame}{Which taxa were included?}
-
-  \noindent For each sample, we calculated the total counts of all classified,
-class-level taxa.  Then, for each sample, we calculated the fraction of counts
-associated with each class-level taxa.  (Raw counts were \textbf{not} used.)
-
-  \vspace{0.1in}
-
-  \noindent As we did for the family-level analysis, we require that a taxon
-  makes up more than 1\% of the total counts for at least 2 samples.
-
-  \vspace{0.1in}
-
-  \noindent Number of taxa utilized in random forest models:
-  \begin{itemize}
-    \item Ribs: 11 taxa
-    \item Scapulae: 17 taxa
-    %% \item Water: ? taxa
-  \end{itemize}
-
-\end{frame}
-
-
-
-%% %%%%%%%%%%%%%
-\subsection[Ribs]{Working with rib samples}
-
-\begin{frame}{Implementing the random forest model for ribs}
-
-\begin{itemize}
-\item The model utilized 11 class-level taxa.
-\item Cross-validation was used to determine that the best number of taxa to
-consider at each "branching" was 5.
-\end{itemize}
-
-\vspace{0.1in}
-
-\noindent For the fitted model (using all available rib data):\\
-\noindent RMSE: 624 $\pm$ 6.8  \hspace{0.05in}  Explained variation: 84.7\%
-$\pm$ 0.3\%
-
-\end{frame}
-
-
-\begin{frame}{Which taxa are influential in the random forest model?}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=3.25in]{use_classes/w_ribs/classes_rib_PercIncMSE_barchart}
-    \end{figure}
-  \end{center}
-  \vspace{-0.1in}
-  \scriptsize{
-  \begin{itemize}
-  \item The measure of importance is the mean percentage increase in the
-    mean-square error of model predictions when the variable is left out of the
-    model. 
-  \item All 11 taxa used in the analysis are shown (since they fit).
-  \end{itemize}
-  }
-
-\end{frame}
-
-
-\begin{frame}{Scatterplots for influential taxa}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=4.75in]{use_classes/w_ribs/infl_rib_class_scatter}
-    \end{figure}
-  \end{center}
-  \vspace{-0.25in}
-  \scriptsize{
-  \begin{itemize}
-  \item I've only shown top 6 because more than that is hard to fit.
-  \item Note that the y-axes have differing scales.
-  \item Fractions of Ignavibacteria, 4C0d-2, and Betaproteobacteria are very
-  low.
-  \end{itemize}
-  }
-
-\end{frame}
-
-
-\begin{frame}{Residual plot to get sense of "real-life" model fit}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=2.2in]{use_classes/w_ribs/classes_leave_out_one_rib_and_one_day_residuals}
-      \caption{Residuals when leaving out one rib and one ADD at a time}
-    \end{figure}
-  \end{center}
-  \vspace{-0.1in}
-\scriptsize{
-\begin{itemize}
-  \item This RMSE is about 808, which is higher than the RMSE for the full
-  dataset (as you'd expect).
-  \item The errors tend to be larger at the upper extreme.
-\end{itemize}
-}
-
-\end{frame}
-%% %%%%%%%%%%%%%
-
-
-%% %%%%%%%%%%%%%
-\subsection[Scapulae]{Working with scapula samples}
-
-\begin{frame}{Implementing the random forest model for scapulae}
-
-\begin{itemize}
-\item The model utilized 17 class-level taxa.
-\item Cross-validation was used to determine that the best number of taxa to
-consider at each "branching" was 7.
-\end{itemize}
-
-\vspace{0.1in}
-
-\noindent For the fitted model (using all available rib data):\\
-\noindent RMSE: 360 $\pm$ 4.6  \hspace{0.05in}  Explained variation: 94.6\%
-$\pm$ 0.1\%
-
-\end{frame}
-
-
-\begin{frame}{Which taxa are influential in the random forest model?}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=3.25in]{use_classes/w_scapulae/classes_scapula_PercIncMSE_barchart}
-    \end{figure}
-  \end{center}
-  \vspace{-0.1in}
-  \scriptsize{
-  \begin{itemize}
-  \item The 12 most influential taxa used in the analysis are shown (all 17 wouldn't
-  fit).)
-  \end{itemize}
-  }
-
-\end{frame}
-
-
-\begin{frame}{Scatterplots for influential taxa}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=4.75in]{use_classes/w_scapulae/infl_scapula_class_scatter}
-    \end{figure}
-  \end{center}
-  \vspace{-0.25in}
-  \scriptsize{
-  \begin{itemize}
-  \item I've only shown top 6 because more than that is hard to fit.
-  \item Note that the y-axes have differing scales.
-  \item Fractions of Planctomycetia, Leptospirae, and Anaerolineae are very
-  low.
-  \end{itemize}
-  }
-
-\end{frame}
-
-
-\begin{frame}{Residual plot to get sense of "real-life" model fit}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=2.2in]{use_classes/w_scapulae/leave_out_one_scapula_and_one_day_residuals}
-      \caption{Residuals when leaving out one rib and one ADD at a time}
-    \end{figure}
-  \end{center}
-  \vspace{-0.1in}
-\scriptsize{
-\begin{itemize}
-  \item This RMSE is about 499, which is higher than the RMSE for the full
-  dataset (as you'd expect).
-\end{itemize}
-}
-
-\end{frame}
-%% %%%%%%%%%%%%%
 
 \end{document}
