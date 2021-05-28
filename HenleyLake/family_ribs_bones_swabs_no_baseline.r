@@ -21,8 +21,8 @@ allT <- read_csv(paste0("w_bones/bacteria/", taxalevel, "_massaged.csv"))
 # which doesn't have the prefix.
 allT$taxon <- str_remove(allT$taxon, "f__")
 
-# Filter data to just ribs.
-bonesT <- allT %>% filter(type=="Rib")
+# Filter data to just ribs and no baseline observations.
+bonesT <- allT %>% filter( (type=="Rib") & (degdays > 0))
 
 # Remove "Rare" taxa category and put into the wide format which was used by the
 # random forest model.
@@ -51,8 +51,8 @@ allT <- read_csv(paste0("w_swabs/bacteria/", taxalevel, "_massaged.csv"))
 # which doesn't have the prefix.
 allT$taxon <- str_remove(allT$taxon, "f__")
 
-# Filter data to just ribs.
-swabsT <- allT %>% filter(type=="Rib")
+# Filter data to just ribs and no baseline observations.
+swabsT <- allT %>% filter( (type=="Rib") & (degdays > 0))
 
 # For both datasets, remove "Rare" taxa category and put into the wide format
 # which was used by the random forest model.
@@ -70,13 +70,13 @@ rm(allT)
 # ##################################################
 # Read in the final fitted models for both.
 
-load("w_bones/bacteria/use_families/w_ribs/w_baseline/families_ribs_rfmodel.RData")
+load("w_bones/bacteria/use_families/w_ribs/no_baseline/families_ribs_rfmodel.RData")
 # The object was named "rf", but we don't want to mix up the 2 models being
 # compared.  So we re-name it.
 wBonesRF <- rf
 rm(rf)
 
-load("w_swabs/bacteria/use_families/w_ribs/w_baseline/families_ribs_rfmodel.RData")
+load("w_swabs/bacteria/use_families/w_ribs/no_baseline/families_ribs_rfmodel.RData")
 # As before, we give the saved object a more specific name.
 wSwabsRF <- rf
 rm(rf)
@@ -245,7 +245,7 @@ summTopT <- chooseT %>%
 # dev.new(width=4.5, height=4)
 wBonesLinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon), show.legend=FALSE) +
-  scale_y_continuous(limits=c(0, 35), expand=c(0,0)) +
+  scale_y_continuous(limits=c(0, 75), expand=c(0,0)) +
   theme_minimal() +
   #  labs(x="Accumulated Degree Days", y="Relative Abundance") +
   labs(x="", y="Relative Abundance") +
@@ -288,7 +288,7 @@ summTopT <- chooseT %>%
 # dev.new(width=4.5, height=4)
 wSwabsLinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon), show.legend=FALSE) +
-  scale_y_continuous(limits=c(0, 35), expand=c(0,0)) +
+  scale_y_continuous(limits=c(0, 75), expand=c(0,0)) +
   theme_minimal() +
   labs(x="Accumulated Degree Days", y="Relative Abundance") +
   theme(axis.title.x = element_text(size=10),
@@ -303,7 +303,7 @@ wSwabsLinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)
 plotrow1 <- plot_grid(wBonesbarPanel, wBonesLinePanel, rel_widths=c(1, 2),
   nrow=1)
 plotrow1 <- annotate_figure(plotrow1,
-  left=text_grob("Using bones, with baseline obs", face="bold", rot=90,
+  left=text_grob("Using bones, without baseline obs", face="bold", rot=90,
       size=10))
 
 # Second row shows info about taxa in second analysis (bar chart, relative
@@ -311,13 +311,13 @@ plotrow1 <- annotate_figure(plotrow1,
 plotrow2 <- plot_grid(wSwabsbarPanel, wSwabsLinePanel, rel_widths=c(1, 2),
   nrow=1)
 plotrow2 <- annotate_figure(plotrow2,
-  left=text_grob("Using swabs, with baseline obs", face="bold", rot=90,
+  left=text_grob("Using swabs, without baseline obs", face="bold", rot=90,
       size=10))
 
 # Put the rows together to make 4-panel figure.
 plot_grid(plotrow1, plotrow2, nrow=2)
 
-ggsave(file="hl_rib_bones_vs_swabs_with_baseline_4panels.pdf", height=5, width=7.5,
+ggsave(file="hl_rib_bones_vs_swabs_no_baseline_4panels.pdf", height=5, width=7.5,
   units="in")
 # ########################
 # ##################################################
@@ -359,7 +359,7 @@ wBonesScatterPanel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
     y="Predicted Accumulated Degree Days")
 
 wBonesScatterPanel <- annotate_figure(wBonesScatterPanel,
-  top=text_grob("Using bones, with baseline obs", face="bold", size=14, vjust=1))
+  top=text_grob("Using bones, without baseline obs", face="bold", size=14, vjust=1))
 # ########################
 
 
@@ -387,14 +387,14 @@ wSwabsScatterPanel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
   labs(x="Actual Accumulated Degree Days", y="")
 
 wSwabsScatterPanel <- annotate_figure(wSwabsScatterPanel,
-  top=text_grob("Using swabs, with baseline obs", face="bold", size=14, vjust=1))
+  top=text_grob("Using swabs, without baseline obs", face="bold", size=14, vjust=1))
 # ########################
 
 
 # ########################
 plot_grid(wBonesScatterPanel, wSwabsScatterPanel, nrow=1)
 
-ggsave(file="hl_rib_bones_vs_swabs_with_baseline_predicted_vs_actual_ADD.pdf",
+ggsave(file="hl_rib_bones_vs_swabs_no_baseline_predicted_vs_actual_ADD.pdf",
   height=4, width=7.5, units="in")
 # ########################
 # ##################################################
