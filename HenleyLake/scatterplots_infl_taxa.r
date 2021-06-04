@@ -53,64 +53,71 @@ rm(allT)
 
 
 # ##################################################
-# Read in the final fitted models for both.
-
-load("w_bones/bacteria/use_families/w_ribs/w_baseline/families_ribs_rfmodel.RData")
-# The object was named "rf", but we don't want to mix up the 2 models being
-# compared.  So we re-name it.
-wBonesRF <- rf
-rm(rf)
-
-load("w_swabs/bacteria/use_families/w_ribs/w_baseline/families_ribs_rfmodel.RData")
-# As before, we give the saved object a more specific name.
-wSwabsRF <- rf
-rm(rf)
-# ##################################################
-
-
-
-# ##################################################
-# Find influential taxa for both analyses, and set colors for these to be used
-# consistently across plot panels.
-
-
-# ########################
-# Get top n influential taxa for first analysis.
+# Get top influential taxa (based on %IncMSE) for all models which used bones.
 
 # Get the top "n" (whether 8, 10, whatever) influential taxa.
-n <- 10
-
-# Turn importance measures into a tibble, sorted by IncNodePurity in
-# increasing order.
-wBonesImportT <- importance(wBonesRF) %>%
-  as.data.frame() %>% 
-  rownames_to_column("family") %>%
-  as_tibble() %>%
-  top_n(n, wt=`%IncMSE`) %>%
-  arrange(`%IncMSE`)
-# Remove the "f__" from the family taxon names.
-wBonesImportT$family <- str_remove(wBonesImportT$family, "f__")
-# ########################
+n <- 5
 
 
-# ########################
-# Get top n influential taxa for second analysis.
+# ##########
+# Make a list of all the files containing all the models of interest.
+# For analyses using bones:
+#   For ribs, with and without baseline observations.
+modelFiles <- c(
+  "w_bones/bacteria/use_families/w_ribs/w_baseline/families_ribs_rfmodel.RData",
+  "w_bones/bacteria/use_families/w_ribs/no_baseline/families_ribs_rfmodel.RData"
+)
+#   For scapulae, with and without baseline observations.
+modelFiles <- c(
+  modelFiles,
+  "w_bones/bacteria/use_families/w_scapulae/w_baseline/families_scapulae_rfmodel.RData",
+  "w_bones/bacteria/use_families/w_scapulae/no_baseline/families_scapulae_rfmodel.RData"
+)
 
-# Get the top "n" (whether 8, 10, whatever) influential taxa.
-n <- 10
+# For analyses using swabs:
+#   For ribs, with and without baseline observations.
+modelFiles <- c(
+  modelFiles,
+  "w_swabs/bacteria/use_families/w_ribs/w_baseline/families_ribs_rfmodel.RData",
+  "w_swabs/bacteria/use_families/w_ribs/no_baseline/families_ribs_rfmodel.RData"
+)
+#   For scapulae, with and without baseline observations.
+modelFiles <- c(
+  modelFiles,
+  "w_swabs/bacteria/use_families/w_scapulae/w_baseline/families_scapulae_rfmodel.RData",
+  "w_swabs/bacteria/use_families/w_scapulae/no_baseline/families_scapulae_rfmodel.RData"
+)
+# ##########
 
-# Turn importance measures into a tibble, sorted by IncNodePurity in
-# increasing order.
-wSwabsImportT <- importance(wSwabsRF) %>%
-  as.data.frame() %>% 
-  rownames_to_column("family") %>%
-  as_tibble() %>%
-  top_n(n, wt=`%IncMSE`) %>%
-  arrange(`%IncMSE`)
-# Remove the "f__" from the family taxon names.
-wSwabsImportT$family <- str_remove(wSwabsImportT$family, "f__")
-# ########################
+
+# ##########
+# For each model, read in top n most influential taxa, based on "%IncMSE".
+
+# We store the list of taxa name as we go through the loop in this object:
+infltaxa <- NULL
+
+for (iFile in modelFiles){
+  
+  # Load file containing each fitted model in turn.
+  load(iFile)
+
+  # The fitted model is named "rf" in each file.
+  top5 <- importance(rf) %>%
+    as.data.frame() %>% 
+    rownames_to_column("family") %>%
+    as_tibble() %>%
+    top_n(n, wt=`%IncMSE`) %>%
+    pull(family)
+
+  # Append these taxa to the list for all the models which came before.
+  infltaxa <- c(infltaxa, top5)
+}
+
+rm(rf, top5, iFile)
+# ##########
+
 # ##################################################
+
 
 
 
