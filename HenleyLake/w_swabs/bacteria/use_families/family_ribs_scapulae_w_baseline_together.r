@@ -115,19 +115,25 @@ scapimportT$family <- str_remove(scapimportT$family, "f__")
 # panels. For the taxa displayed in relative abundance plots, use the
 # same colors for the bar charts showing the mean % decrease in MSE.
 
-# Will assign colors to "m" most influential taxa for both ribs and
-# scapula; some taxa may be influential to both.
+# Read in colors assigned to most influential taxa to keep colors the same
+# across plots.
+colorpaletteDF <- read.csv("../../../color_table_infl_taxa.csv")
+assignedColors <- colorpaletteDF$taxaColors
+names(assignedColors) <- colorpaletteDF$"taxon"
+rm(colorpaletteDF)
+
+# Identify "m" most influential taxa for both ribs and scapula; some taxa may be
+# influential to both.
 m <- 5
 mostinfl <- sort( unique( c(
     ribimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family),
     scapimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family)
 ) ) )
 
-# The most influential taxa will get colors.  Taxa which are less
-# influential, and don not appear in the top "m" taxa for either ribs
-# or scapulae, will have bars plotted in gray.
-infltaxaColors <- c(hue_pal()(length(mostinfl)))
-names(infltaxaColors) <- mostinfl
+# The most influential taxa will get the previously determined colors.  Taxa
+# which are less influential, and don not appear in the top "m" taxa for either
+# ribs or scapulae, will have bars plotted in gray.
+infltaxaColors <- assignedColors[mostinfl]
 
 graytaxaNames <- c(ribimportT$family, scapimportT$family)[!c(ribimportT$family,
   scapimportT$family) %in% mostinfl]
