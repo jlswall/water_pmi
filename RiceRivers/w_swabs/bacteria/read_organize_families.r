@@ -29,15 +29,14 @@ rawIndivT <- rawAllT %>%
 
 # ##################################################
 # Read information about collections, sample types, ADD, etc. from
-# sheet "ADD_Collections".
+# Excel file "SAR_2019_RiceRiversCenter_SampleSheet.xlsx".
 
-fileNm <- "orig_data_files/HVJ_HL_Taxonomy.xlsx"
-rawsamplingT <- read_excel(fileNm, sheet="ADD_Collections")
+fileNm <- "orig_data_files/SAR_2019_RiceRiversCenter_SampleSheet.xlsx"
+rawsamplingT <- read_excel(fileNm)
 
-# We only need the actual ADD and the codes for the rib ane scapula samples
-# (e.g., "R1B", "R1C2", "S1C17")
-rawsamplingT <- rawsamplingT %>% select(`Actual ADD`, `Rib Swab Samples`,
-              `Scapulae Swab Samples`)
+# We don't need the dates, location, season, or extraction method columns.
+rawsamplingT <- rawsamplingT %>% select(ActualCollectedADD, SampleType,
+              SampleName)
 # Separate the `Rib Swab Samples` column, which has 3 codes listed for each
 # collection day, so that each code is listed in its own column.
 rawsamplingT <- rawsamplingT %>% separate(`Rib Swab Samples`,
