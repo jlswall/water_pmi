@@ -29,7 +29,8 @@ rawIndivT <- rawAllT %>%
 
 # ##################################################
 # Read information about collections, sample types, ADD, etc. from
-# Excel file "SAR_2019_RiceRiversCenter_SampleSheet.xlsx".
+# Excel file "SAR_2019_RiceRiversCenter_SampleSheet.xlsx".  Only collections
+# corresponding to swabs are included in this file.
 
 fileNm <- "orig_data_files/SAR_2019_RiceRiversCenter_SampleSheet.xlsx"
 rawsamplingT <- read_excel(fileNm)
@@ -37,6 +38,27 @@ rawsamplingT <- read_excel(fileNm)
 # We don't need the dates, location, season, or extraction method columns.
 rawsamplingT <- rawsamplingT %>% select(ActualCollectedADD, SampleType,
               SampleName)
+
+# The sample names in this file include only samples corresponding to swabs,
+# with naming convention of the form SARR*.  However, the taxonomy data we read
+# in above includes information from bones and from swabs. So, we should be able
+# to use a join to match the ADD with each sample and to retain only the samples
+# that correspond to swabs.  
+samplingT <- rawIndivT %>%
+              inner_join(rawsamplingT, by=c("sampleName" = "SampleName"))
+# SOMETHING NOT RIGHT HERE!  Some rows in taxonomy file do not have a matching
+# sampleName value in this sample sheet.
+
+# r$> dim(rawIndivT)                                                                                         
+# [1] 50760     3
+
+# r$> with(rawIndivT, table(substring(sampleName, first=1, last=1)))                                         
+
+#     R     S 
+# 32148 18612 
+
+
+
 # Separate the `Rib Swab Samples` column, which has 3 codes listed for each
 # collection day, so that each code is listed in its own column.
 rawsamplingT <- rawsamplingT %>% separate(`Rib Swab Samples`,
