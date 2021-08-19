@@ -19,11 +19,25 @@ rm(fileNm)
 # 6:95).  So, we can delete the "total" column, as well.
 rawAllT <- rawAllT %>% select(-taxlevel, -rankID, -daughterlevels, -total)
 
+# The "SARMOCK" column represents a "mock-positive sample and can be excluded"
+# (confirmed in Sarah's email of 2021-08-03).
+rawAllT <- rawAllT %>% select(-SARMOCK)
+
 # Go from wide to long format.
 rawIndivT <- rawAllT %>%
   gather(sampleName, counts, -taxon)
-# ##################################################
 
+
+# Note that this taxonomy file contains both bone and swab data.  This analysis
+# focuses on swabs.  The merge in the next section should take care of this.
+# This is the breakdown of how many collections of each type we have.  "RR"
+# represent bone collections; "SA" are swab collections.
+with(rawIndivT, table(substring(unique(sampleName), first=1, last=2))) 
+# RR SA 
+# 57 32
+
+rm(rawAllT)
+# ##################################################
 
 
 
@@ -39,24 +53,29 @@ collectInfoT <- read_excel(fileNm)
 collectInfoT <- collectInfoT %>%
                   select(ActualCollectedADD, SampleType, SampleName) %>%
                   rename(degdays=ActualCollectedADD, sampleName=SampleName)
+# How many swab collections are listed in this table?
+length(unique(collectInfoT$sampleName))                                                                                            
+# 55
 
-# The sample names in this file include only samples corresponding to swabs,
-# with naming convention of the form SARR*.  However, the taxonomy data we read
-# in above includes information from bones and from swabs. So, we should be able
-# to use a join to match the ADD with each sample and to retain only the samples
-# that correspond to swabs.  
+# The collection names in this file include only samples corresponding to swabs,
+# with naming convention of the form SARR*.  This includes even those swab
+# collections which didn't amplify.  In contrast, the taxonomy data we read in
+# above includes bones and from swabs, and correspond to the 32 collections that
+# did "amplify". After the join, we need to check that we have the collections
+# corresponding to swabs which did "amplify". 
 samplingT <- rawIndivT %>%
               inner_join(collectInfoT)
-# SOMETHING NOT RIGHT HERE!  Some rows in taxonomy file do not have a matching
-# sampleName value in this sample sheet.
 
-# r$> dim(rawIndivT)                                                                                         
-# [1] 50760     3
+# To get the list of the 23 collections from swabs which didn't "amplify" can be
+# found using:
+collectInfoT$sampleName[!(collectInfoT$sampleName %in% samplingT$sampleName)]                                     
+# These collections were: SARRRS1B, SARRRS1C2, SARRRR1C4, SARRRR3C4, SARRRS2C4,
+# SARRRR1C6, SARRRS2C6, SARRRR2C8, SARRRR3C8, SARRRS1C8, SARRRS2C8, SARRRR1C9,
+# SARRRR3C9, SARRRS1C9, SARRRS2C9, SARRRS3C9, SARRRR1C11, SARRRS1C11,
+# SARRRR3C15, SARRRS3C15, SARRRS1C17, SARRRS2C17, SARRRS3C17
 
-# r$> with(rawIndivT, table(substring(sampleName, first=1, last=1)))                                         
 
-#     R     S 
-# 32148 18612 
+# #########  AM WORKING HERE!
 
 
 
@@ -78,7 +97,7 @@ samplingT <- rawsamplingT %>% gather(RiOrSc, sampleName, -`Actual ADD`) %>%
               rename(degdays=`Actual ADD`) %>%
               drop_na(sampleName)
 
-# Make "type" variable to make it easy to tell which came from ribs and which
+# Make "type,variable to make it easy to tell which came from ribs and which
 # came from scapulae.  This is also consistent with how I set up the dataset for
 # the analysis with bones (rather than swabs).
 samplingT$type <- ifelse(substring(samplingT$sampleName, first=1, last=1)=="S",
