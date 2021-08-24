@@ -52,7 +52,8 @@ collectInfoT <- read_excel(fileNm)
 # We don't need the dates, location, season, or extraction method columns.
 collectInfoT <- collectInfoT %>%
                   select(ActualCollectedADD, SampleType, SampleName) %>%
-                  rename(degdays=ActualCollectedADD, sampleName=SampleName)
+                  rename(degdays=ActualCollectedADD, sampleName=SampleName,
+                  sampleType=SampleType)
 # How many swab collections are listed in this table?
 length(unique(collectInfoT$sampleName))                                                                                            
 # 55
@@ -77,25 +78,6 @@ collectInfoT$sampleName[!(collectInfoT$sampleName %in% samplingT$sampleName)]
 
 # #########  AM WORKING HERE!
 
-
-
-# Separate the `Rib Swab Samples` column, which has 3 codes listed for each
-# collection day, so that each code is listed in its own column.
-rawsamplingT <- rawsamplingT %>% separate(`Rib Swab Samples`,
-              into=c("R1", "R2", "R3")) 
-# Do the same thing for the scapula samples.  However, the first and last
-# collection days are missing one sample each.  This means we'll have two
-# missing values and a warning message.
-rawsamplingT <- rawsamplingT %>% separate(`Scapulae Swab Samples`,
-              into=c("S1", "S2", "S3")) 
-
-# Now, we go from wide to long format.  There are 2 rows with missing values,
-# from the missing scapula swabs on the first and last days, and we drop those.
-samplingT <- rawsamplingT %>% gather(RiOrSc, sampleName, -`Actual ADD`) %>%
-              select(-RiOrSc) %>%
-              arrange(`Actual ADD`) %>%
-              rename(degdays=`Actual ADD`) %>%
-              drop_na(sampleName)
 
 # Make "type,variable to make it easy to tell which came from ribs and which
 # came from scapulae.  This is also consistent with how I set up the dataset for
