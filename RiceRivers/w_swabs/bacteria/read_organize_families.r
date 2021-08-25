@@ -53,7 +53,7 @@ collectInfoT <- read_excel(fileNm)
 collectInfoT <- collectInfoT %>%
                   select(ActualCollectedADD, SampleType, SampleName) %>%
                   rename(degdays=ActualCollectedADD, sampleName=SampleName,
-                  sampleType=SampleType)
+                  type=SampleType)
 # How many swab collections are listed in this table?
 length(unique(collectInfoT$sampleName))                                                                                            
 # 55
@@ -64,41 +64,19 @@ length(unique(collectInfoT$sampleName))
 # above includes bones and from swabs, and correspond to the 32 collections that
 # did "amplify". After the join, we need to check that we have the collections
 # corresponding to swabs which did "amplify". 
-samplingT <- rawIndivT %>%
+indivT <- rawIndivT %>%
               inner_join(collectInfoT)
 
 # To get the list of the 23 collections from swabs which didn't "amplify" can be
 # found using:
-collectInfoT$sampleName[!(collectInfoT$sampleName %in% samplingT$sampleName)]                                     
+collectInfoT$sampleName[!(collectInfoT$sampleName %in% indivT$sampleName)]                                     
 # These collections were: SARRRS1B, SARRRS1C2, SARRRR1C4, SARRRR3C4, SARRRS2C4,
 # SARRRR1C6, SARRRS2C6, SARRRR2C8, SARRRR3C8, SARRRS1C8, SARRRS2C8, SARRRR1C9,
 # SARRRR3C9, SARRRS1C9, SARRRS2C9, SARRRS3C9, SARRRR1C11, SARRRS1C11,
 # SARRRR3C15, SARRRS3C15, SARRRS1C17, SARRRS2C17, SARRRS3C17
 
-
-# #########  AM WORKING HERE!
-
-
-# Make "type,variable to make it easy to tell which came from ribs and which
-# came from scapulae.  This is also consistent with how I set up the dataset for
-# the analysis with bones (rather than swabs).
-samplingT$type <- ifelse(substring(samplingT$sampleName, first=1, last=1)=="S",
-  "Scapula", "Rib") 
-
-rm(rawsamplingT)
+rm(rawIndivT, collectInfoT)
 # ##################################################
-
-
-
-
-# ##################################################
-# Join the sampling information with ADD to the taxa counts.
-
-indivT <- rawIndivT %>%
-  inner_join(samplingT)
-rm(rawIndivT, rawAllT, samplingT)
-# ##################################################
-
 
 
 
@@ -120,7 +98,7 @@ indivT$taxLvl <- ordered(indivT$taxLvl,
 
 
 # Find percentage of counts can be classified down to the family
-# level, across all types.  We see that about 85.1% of the counts can
+# level, across all types.  We see that about 80.4% of the counts can
 # be attributed at the family level.
 indivT %>%
   group_by(taxLvl) %>%
@@ -137,12 +115,12 @@ indivT %>%
             summarize(sumCountsByType=sum(counts))
             ) %>%
   mutate(perc=100*sumCountsByTypeTaxLvl/sumCountsByType)
-# Percentages classified to family level: 86.8% (ribs), 83.2%
+# Percentages classified to family level: 83.3% (ribs), 77.5%
 # (scapulae)
 
 
-## For each sample, what percentage of counts can be classified to the
-## each level?
+# For each sample, what percentage of counts can be classified to the
+# each level?
 percTaxLvlBySampleT <- indivT %>%
   group_by(degdays, type, sampleName, taxLvl) %>%
   summarize(sumTaxLvlCts=sum(counts)) %>%
@@ -152,8 +130,8 @@ percTaxLvlBySampleT <- indivT %>%
   mutate(percTaxLvlCts = 100*sumTaxLvlCts/sampleTotals)
 
 
-## For each sample, plot percentage classified at each level
-## (e.g. family, phylum, etc.) by type (rib, scapula, water) and ADD.
+# For each sample, plot percentage classified at each level
+# (e.g. family, phylum, etc.) by type (rib, scapula, water) and ADD.
 ggplot(percTaxLvlBySampleT) +
   geom_point(aes(x=degdays, y=percTaxLvlCts, color=taxLvl)) +
   facet_wrap(~type) +
@@ -161,7 +139,7 @@ ggplot(percTaxLvlBySampleT) +
 ggsave("swabs_family_perc_classif_by_add_type.pdf", width=8.5, height=6,
   units="in")
 dev.off()
-## ##################################################
+# ##################################################
 
 
 
@@ -197,8 +175,8 @@ indivT %>%
   summarize(n=n())
 #  type        n
 #  <chr>   <int>
-# Rib       172
-# Scapula   191
+# Rib       214
+# Scapula   217
 
 
 # For use in graphs and in calculating percentages later, we need
@@ -223,8 +201,8 @@ ctBySampleT <- indivT %>%
 # sample.
 freqCutoff <- 0.01
 
-# Get list of maximum taxa percentages for various types (rib,
-# scapula, water) sorted in descending order:
+# Get list of maximum taxa percentages for various types (rib, scapula) sorted
+# in descending order:
 # indivT %>%
 #   left_join(ctBySampleT) %>%
 #   mutate(fracBySubjDay = counts/totals) %>%
@@ -246,15 +224,15 @@ freqTaxaByTypeT <- indivT %>%
   group_by(type, taxon) %>%
   summarize(numExceed = sum(isExceed)) %>%
   filter(numExceed > 1) %>%
-  ## arrange(type, desc(numExceed)) %>%
+  # arrange(type, desc(numExceed)) %>%
   select(type, taxon)
 
 # For each type, how many taxa meet the cutoff?
 freqTaxaByTypeT %>% group_by(type) %>% summarize(n=n())
 #   type        n
 #   <chr>   <int>
-# 1 Rib        21
-# 2 Scapula    37
+# 1 Rib        46
+# 2 Scapula    53
 # Save list of frequent taxa by type to a CSV file.
 write.csv(freqTaxaByTypeT, file="family_freq_taxa_by_type.csv", row.names=F)
 
