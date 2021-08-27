@@ -48,10 +48,15 @@ wideT <- taxaT %>%
 numBtSamps <- 3000
 
 # Repeated cross-validation runs (1000 of them), leaving out 20% of the
-# observations at a time, indicated that the number of variables to consider at
-# each split is about 12 (but 11 and 13 are very close) for the response
-# variable in the original units.
-numVarSplit <- 12
+# observations at a time, did not agree on how many splits to consider at each
+# branching.  The lower 75% of the avgcvMSE values were quite close together and
+# hard to distingush.  Some of the values that did well as far as avgcvMSE
+# didn't do wel for avgcvErrFrac.  Given the small number of observations (over
+# all, and only 3 in the validation set), I'm going to favor the avgcvMSE
+# values, since they have the extra sensitivity through the SSTot values.  It
+# looks the best values are roughtly between about 30-45.  I'm going to go with
+# 37, since it performed best when we using 3000 bootstrap samples.
+numVarSplit <- 37
 ## ##################################################
 
 
@@ -94,8 +99,8 @@ for (i in 1:numRepeat)
 ## ###########################
 ## Now, fit random forests to the full dataset over and over.
 
-set.seed(382040)
-fullResultsL <- mclapply(repDataL, mc.cores=6, fitFullDataF, mtry=numVarSplit,
+set.seed(782042)
+fullResultsL <- mclapply(repDataL, mc.cores=4, fitFullDataF, mtry=numVarSplit,
   ntree=numBtSamps)
 
 ## Calculate the RMSE and pseudo-Rsquared for these runs with the full
@@ -131,9 +136,9 @@ fullImportanceT %>%
 
 ## Get summary statistics for report.
 c(mean(fullRMSE), 1.96*sd(fullRMSE))
-## RMSE: 609.16593  11.09638
+## RMSE: 671.41825  17.17016
 c(mean(fullRsq), 1.96*sd(fullRsq))
-## Rsq: 0.7788026 0.0080632
+## Rsq: 0.71949847 0.01434416
 
 write_csv(data.frame(fullRMSE, fullRsq),
     file="cvstats_w_full_dataset_final_params.csv")
@@ -146,7 +151,7 @@ rm(fullRMSE, fullRsq)
 # ##################################################
 # Fit the final random forest with all the data (no cross-validation).
 
-set.seed(1940635)
+set.seed(9946615)
 
 # Fit the random forest model on all the data (no cross-validation).
 rf <- randomForest(degdays ~ . , data=wideT, mtry=numVarSplit,
@@ -162,12 +167,12 @@ resids <- rf$predicted - wideT$degdays
 
 # Print out RMSE:
 sqrt( mean( resids^2 ) )
-# RMSE: 609.5565
+# RMSE: 675.4662
 
 # Estimate of explained variance, which R documentation calls "pseudo
 # R-squared"
 1 - ( sum(resids^2)/sum( (wideT$degdays - mean(wideT$degdays))^2 ) )
-# Expl. frac.: 0.7785379
+# Expl. frac.: 0.7161542
 
 # Save the fitted model so that we can re-create graphics and summary
 # statistics without running it again.
@@ -249,7 +254,7 @@ chooseT$taxon <- factor(chooseT$taxon, levels=topChoices)
 # From sampleName variable, extract the rib number.  Include the rib
 # number is the scatterplot, so that we can check whether one rib has
 # frequently unusual data associated with it.
-chooseT$ribnum <- substring(chooseT$sampleName, first=2, last=2)
+chooseT$ribnum <- substring(chooseT$sampleName, first=7, last=7)
 
 
 ggplot(chooseT, aes(degdays, fracBySample)) +
