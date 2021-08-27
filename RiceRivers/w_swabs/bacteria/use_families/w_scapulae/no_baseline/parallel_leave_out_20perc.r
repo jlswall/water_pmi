@@ -62,19 +62,12 @@ combos <- expand.grid(numBtSamps=numBtSampsVec, numVarSplit=numVarSplitVec)
 ## Do cross-validation over and over, leaving out a different 20% of
 ## the observations each time.
 
-set.seed(77632582)
+set.seed(37542082)
 
 ## Number of times to do cross-validation.
 numCVs <- 1000
-# How many observations to reserve for testing each time.  There should be at
-# least 4 validation observations in order for the validation statistics to be
-# at all meaningfull.
+# How many observations to reserve for testing each time.
 numLeaveOut <- round(0.20 * nrow(wideT))
-if (numLeaveOut < 4){
-  numLeaveOut <- 4
-  warning("Requiring 4 obs for validation, which is more than 20% of the total
-    number of obs")
-}
 
 ## For matrix to hold cross-validation results.
 cvMSE <- matrix(NA, nrow(combos), ncol=numCVs)
@@ -146,8 +139,14 @@ for (i in 1:numCVs){
   # Get the validation set for this run from the list.
   validT <- crossvalidL[[i]][["validT"]]
 
-  # Calculate SSTotal for the cross-validation set.
+  # Calculate SSTotal for the cross-validation set.  If the validation
+  # observations are all from the same day, then SSTot is 0.  This will only
+  # happen if validations subset is at least as small as the number of
+  # observations per day.
   SSTot <- sum( (validT$degdays-mean(validT$degdays))^2 )
+  if (SSTot == 0)
+    warning(paste("In validation subset", i, "SSTot is 0.  All degdays are",
+      unique(validT$degdays), sep=" "))
   
   for (j in 1:nrow(combos)){
      
@@ -155,7 +154,12 @@ for (i in 1:numCVs){
     # validation data in the original units.
     resid <- origFitL[[j]][[i]] - validT$degdays
     cvMSE[j,i] <- mean(resid^2)
-    cvErrFrac[j,i] <- sum(resid^2)/SSTot
+    # If the validation observations are all from the same days, then SSTot is
+    # 0. Avoid divide by 0.
+    if (SSTot > 0)
+      cvErrFrac[j,i] <- sum(resid^2)/SSTot
+    else
+      cvErrFrac[j,i] <- NA
     rm(resid)
   
     # Calculate the MSE and error fraction of the SS Total for the
@@ -175,7 +179,8 @@ rm(i, j, validT, SSTot)
 
 
 combos$avgcvMSE <- apply(cvMSE, 1, mean)
-combos$avgcvErrFrac <- apply(cvErrFrac, 1, mean)
+## There may be NAs here if SSTot was 0.  See comments above.
+combos$avgcvErrFrac <- apply(cvErrFrac, 1, mean, na.rm=T)
 
 # combos$avgsqrtcvMSE <- apply(sqrtcvMSE, 1, mean)
 # combos$avgsqrtcvErrFrac <- apply(sqrtcvErrFrac, 1, mean)

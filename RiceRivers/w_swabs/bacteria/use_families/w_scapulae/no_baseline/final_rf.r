@@ -49,9 +49,10 @@ numBtSamps <- 3000
 
 # Repeated cross-validation runs (1000 of them), leaving out 20% of the
 # observations at a time, indicated that the number of variables to consider at
-# each split is about 19 (but 22 and 21 are close) for the response variable in
-# the original units.
-numVarSplit <- 19
+# each split is somewhere in the teens, but the results are all over the place
+# (probably due to small sample size and super small validation set).  We go
+# with 16 as a decent compromise between avgcvMSE and avgcvErrFrac.
+numVarSplit <- 16
 ## ##################################################
 
 
@@ -94,8 +95,8 @@ for (i in 1:numRepeat)
 ## ###########################
 ## Now, fit random forests to the full dataset over and over.
 
-set.seed(387045)
-fullResultsL <- mclapply(repDataL, mc.cores=6, fitFullDataF, mtry=numVarSplit,
+set.seed(987445)
+fullResultsL <- mclapply(repDataL, mc.cores=4, fitFullDataF, mtry=numVarSplit,
   ntree=numBtSamps)
 
 ## Calculate the RMSE and pseudo-Rsquared for these runs with the full
@@ -131,9 +132,9 @@ fullImportanceT %>%
 
 ## Get summary statistics for report.
 c(mean(fullRMSE), 1.96*sd(fullRMSE))
-## RMSE: 521.95793  12.97127
+## RMSE: 771.19953  14.45596
 c(mean(fullRsq), 1.96*sd(fullRsq))
-## Rsq: 0.827283672 0.008583558
+## Rsq: 0.59757752  0.01507476
 
 write_csv(data.frame(fullRMSE, fullRsq),
     file="cvstats_w_full_dataset_final_params.csv")
@@ -146,7 +147,7 @@ rm(fullRMSE, fullRsq)
 # ##################################################
 # Fit the final random forest with all the data (no cross-validation).
 
-set.seed(2920675)
+set.seed(8940695)
 
 # Fit the random forest model on all the data (no cross-validation).
 rf <- randomForest(degdays ~ . , data=wideT, mtry=numVarSplit,
@@ -162,12 +163,12 @@ resids <- rf$predicted - wideT$degdays
 
 # Print out RMSE:
 sqrt( mean( resids^2 ) )
-# RMSE: 526.454
+# RMSE: 783.0737
 
 # Estimate of explained variance, which R documentation calls "pseudo
 # R-squared"
 1 - ( sum(resids^2)/sum( (wideT$degdays - mean(wideT$degdays))^2 ) )
-# Expl. frac.: 0.8243236
+# Expl. frac.:  0.5851278
 
 # Save the fitted model so that we can re-create graphics and summary
 # statistics without running it again.
@@ -250,7 +251,7 @@ chooseT$taxon <- factor(chooseT$taxon, levels=topChoices)
 # From sampleName variable, extract the scapulanumber.  Include the scapula
 # number is the scatterplot, so that we can check whether one scapula has
 # frequently unusual data associated with it.
-chooseT$scapnum <- substring(chooseT$sampleName, first=2, last=2)
+chooseT$scapnum <- substring(chooseT$sampleName, first=7, last=7)
 
 
 ggplot(chooseT, aes(degdays, fracBySample)) +
