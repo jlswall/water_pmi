@@ -5,7 +5,7 @@ library("stringr")
 
 # ##################################################
 # Read in family-level taxonomic data from Excel sheet.
-fileNm <- "orig_data_files/RoseRiceRiversTaxonomy.xls"
+fileNm <- "orig_data_files/rose_rice_rivers_taxonomy.xlsx"
 
 # It looks like sheet "5" is the one that contains the family-level breakdown.
 # Row 1 contains the header info.  Column "CQ" is the last column with data.
