@@ -12,16 +12,18 @@ fileNm <- "orig_data_files/rose_rice_rivers_taxonomy.xlsx"
 rawAllT <- read_excel(path=fileNm, sheet="5")
 rm(fileNm)
 
+# Note that the totals column does not always equal the actual sum of the
+# columns.  I've confirmed that the actual sum is correct (not the totals
+# column) with Sarah (email 2021-10-11).  This had to do with the fact that she
+# deleted the negative controls, etc.
+# actualSum <- apply(rawAllT[6:ncol(rawAllT)], 1, sum)
+# cbind(rawAllT %>% select(taxon, total), actualSum)[actualSum != rawAllT$total,]
+
 # For all observations, the value of "taxlevel" is 5 (denoting family-level), so
 # we remove this column.  We also remove the "rankID" and "daughterlevels"
-# columns, since we're not using them. I've confirmed that the "total" column is
-# exactly what it seems; i.e. the totals in each row over columns F:CQ (columns
-# 6:95).  So, we can delete the "total" column, as well.
+# columns, since we're not using them.  The total column is not quite accurate
+# (see note above), so we remove that.
 rawAllT <- rawAllT %>% select(-taxlevel, -rankID, -daughterlevels, -total)
-
-# The "SARMOCK" column represents a "mock-positive sample and can be excluded"
-# (confirmed in Sarah's email of 2021-08-03).
-rawAllT <- rawAllT %>% select(-SARMOCK)
 
 # Go from wide to long format.
 rawIndivT <- rawAllT %>%
@@ -34,7 +36,7 @@ rawIndivT <- rawAllT %>%
 # represent bone collections; "SA" are swab collections.
 with(rawIndivT, table(substring(unique(sampleName), first=1, last=2))) 
 # RR SA 
-# 57 32
+# 61 35 
 
 rm(rawAllT)
 # ##################################################
