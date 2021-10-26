@@ -69,13 +69,13 @@ length(unique(collectInfoT$sampleName))
 indivT <- rawIndivT %>%
               inner_join(collectInfoT)
 
-# To get the list of the 23 collections from swabs which didn't "amplify" can be
+# To get the list of the 20 collections from swabs which didn't "amplify" can be
 # found using:
 collectInfoT$sampleName[!(collectInfoT$sampleName %in% indivT$sampleName)]                                     
-# These collections were: SARRRS1B, SARRRS1C2, SARRRR1C4, SARRRR3C4, SARRRS2C4,
-# SARRRR1C6, SARRRS2C6, SARRRR2C8, SARRRR3C8, SARRRS1C8, SARRRS2C8, SARRRR1C9,
-# SARRRR3C9, SARRRS1C9, SARRRS2C9, SARRRS3C9, SARRRR1C11, SARRRS1C11,
-# SARRRR3C15, SARRRS3C15, SARRRS1C17, SARRRS2C17, SARRRS3C17
+# These collections were: "SARRRS1C2"  "SARRRR3C4"  "SARRRS2C4"  "SARRRR1C6"
+# "SARRRS2C6"  "SARRRR2C8"  "SARRRR3C8"  "SARRRS1C8"  "SARRRS2C8"  "SARRRR1C9"
+# "SARRRR3C9"  "SARRRS1C9"  "SARRRS2C9"  "SARRRS3C9"  "SARRRS1C11" "SARRRR3C15"
+# "SARRRS3C15" "SARRRS1C17" "SARRRS2C17" "SARRRS3C17"
 
 rm(rawIndivT, collectInfoT)
 # ##################################################
@@ -106,6 +106,13 @@ indivT %>%
   group_by(taxLvl) %>%
   summarize(sumCounts=sum(counts),
             percCounts=100*sum(counts)/sum(indivT$counts))
+#  taxLvl  sumCounts percCounts
+# 1 family     293334      80.7 
+# 2 order       37836      10.4 
+# 3 class       15112       4.16
+# 4 phylum      10412       2.86
+# 5 kingdom      6816       1.88
+
 
 # Find percentage of counts which can be classified down to the
 # family level, type by type.
@@ -117,7 +124,7 @@ indivT %>%
             summarize(sumCountsByType=sum(counts))
             ) %>%
   mutate(perc=100*sumCountsByTypeTaxLvl/sumCountsByType)
-# Percentages classified to family level: 83.3% (ribs), 77.5%
+# Percentages classified to family level: 83.6% (ribs), 77.9%
 # (scapulae)
 
 
@@ -177,8 +184,8 @@ indivT %>%
   summarize(n=n())
 #  type        n
 #  <chr>   <int>
-# Rib       214
-# Scapula   217
+# Rib       231
+# Scapula   230
 
 
 # For use in graphs and in calculating percentages later, we need
@@ -233,7 +240,7 @@ freqTaxaByTypeT <- indivT %>%
 freqTaxaByTypeT %>% group_by(type) %>% summarize(n=n())
 #   type        n
 #   <chr>   <int>
-# 1 Rib        46
+# 1 Rib        49
 # 2 Scapula    53
 # Save list of frequent taxa by type to a CSV file.
 write.csv(freqTaxaByTypeT, file="family_freq_taxa_by_type.csv", row.names=F)
