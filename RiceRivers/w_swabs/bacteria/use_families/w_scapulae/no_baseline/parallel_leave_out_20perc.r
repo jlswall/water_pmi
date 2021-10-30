@@ -1,33 +1,36 @@
 library("tidyverse")
 library("randomForest")
 library("figdim")
-library("parallel")
+# library("parallel")
+
+library("future.apply")
+plan(multisession, workers=5)
 
 
-## ##################################################
-## Are we dealing with phlya, orders, or families?
+# ##################################################
+# Are we dealing with phlya, orders, or families?
 taxalevel <- "families"
 
-## Read in cleaned-up phyla, orders, or families taxa.
+# Read in cleaned-up phyla, orders, or families taxa.
 allT <- read_csv(paste0("../../../", taxalevel, "_massaged.csv"))
-## ##################################################
+# ##################################################
 
 
-## ##################################################
-## Are we dealing with ribs, scapulae, or water observations?
+# ##################################################
+# Are we dealing with ribs, scapulae, or water observations?
 obstype <- "Scapula"
 
-## Filter the data to just that type.
+# Filter the data to just that type.
 taxaT <- allT %>% filter((type==obstype) & (degdays>0))
 rm(allT)
-## ##################################################
+# ##################################################
 
 
 
-## ##################################################
-## Put the data in wide format; remove days, subj, and rare taxa.
+# ##################################################
+# Put the data in wide format; remove days, subj, and rare taxa.
 
-## Move back to wide format.
+# Move back to wide format.
 wideT <- taxaT %>%
   filter(taxon!="Rare") %>%
   select(degdays, sampleName, taxon, fracBySample) %>%
@@ -35,41 +38,41 @@ wideT <- taxaT %>%
   select(-sampleName)
 
 rm(taxaT)
-## ##################################################
+# ##################################################
 
 
 
-## ##################################################
-## Try random forests for regression using "degdays" as the response
-## variable.
+# ##################################################
+# Try random forests for regression using "degdays" as the response
+# variable.
 
-## #########
-## How many predictors?  (All columns except response: "degdays").
+# #########
+# How many predictors?  (All columns except response: "degdays").
 numPredictors <- ncol(wideT) - 1
 
-## Try different numbers of bootstrap samples.
+# Try different numbers of bootstrap samples.
 numBtSampsVec <- c(600, 1500, 2100, 3000)
 
-## Try different values for mtry (which represents how many variables
-## can be chosen from at each split of the tree).
+# Try different values for mtry (which represents how many variables
+# can be chosen from at each split of the tree).
 numVarSplitVec <- seq(2, numPredictors, by=1)
 
-## Form matrix with all combinations of these.
+# Form matrix with all combinations of these.
 combos <- expand.grid(numBtSamps=numBtSampsVec, numVarSplit=numVarSplitVec)
 
 
-## ###########################
-## Do cross-validation over and over, leaving out a different 20% of
-## the observations each time.
+# ###########################
+# Do cross-validation over and over, leaving out a different 20% of
+# the observations each time.
 
-set.seed(37542082)
+# set.seed(37542082)
 
-## Number of times to do cross-validation.
+# Number of times to do cross-validation.
 numCVs <- 1000
 # How many observations to reserve for testing each time.
 numLeaveOut <- round(0.20 * nrow(wideT))
 
-## For matrix to hold cross-validation results.
+# For matrix to hold cross-validation results.
 cvMSE <- matrix(NA, nrow(combos), ncol=numCVs)
 cvErrFrac <- matrix(NA, nrow(combos), ncol=numCVs)
 # origUnitsqrtcvMSE <- matrix(NA, nrow(combos), ncol=numCVs)
@@ -103,6 +106,7 @@ origUnitsF <- function(x, jCombo){
 # #########################################
 # Get set up for cross-validation.
 crossvalidL <- vector("list", numCVs)
+set.seed(37542082)
 for (i in 1:numCVs){
   lvOut <- sample(1:nrow(wideT), size=numLeaveOut, replace=F)
   trainT <- wideT[-lvOut,]
@@ -114,8 +118,12 @@ rm(i, lvOut, trainT, validT)
 
 # Try using lapply to fit the random forests.
 origFitL <- vector("list", nrow(combos))
+myseeds <- future_lapply(crossvalidL, FUN = function(x) .Random.seed,
+  future.seed=48L)
 for (j in 1:nrow(combos)){
-  origFitL[[j]] <- mclapply(crossvalidL, mc.cores=4, origUnitsF, jCombo=j)
+  # origFitL[[j]] <- mclapply(crossvalidL, mc.cores=4, origUnitsF, jCombo=j)
+  origFitL[[j]] <- future_lapply(crossvalidL, FUN=origUnitsF, jCombo=j,
+    future.seed=myseeds)
   if (j %% 2 == 0)
     print(paste0("In orig units, finished combo number ", j))
 }    
@@ -179,7 +187,7 @@ rm(i, j, validT, SSTot)
 
 
 combos$avgcvMSE <- apply(cvMSE, 1, mean)
-## There may be NAs here if SSTot was 0.  See comments above.
+# There may be NAs here if SSTot was 0.  See comments above.
 combos$avgcvErrFrac <- apply(cvErrFrac, 1, mean, na.rm=T)
 
 # combos$avgsqrtcvMSE <- apply(sqrtcvMSE, 1, mean)
@@ -190,16 +198,22 @@ combos$avgcvErrFrac <- apply(cvErrFrac, 1, mean, na.rm=T)
 write_csv(combos, file="parallel_leave_out_20perc.csv")
 
 
-ggplot(data=combos, aes(x=numBtSamps, y=avgcvMSE, color=as.factor(numVarSplit))) + geom_line()
-## X11()
-# ggplot(data=combos, aes(x=numBtSamps, y=avgsqrtcvMSE, color=as.factor(numVarSplit))) + geom_line()
-# ## X11()
-# ggplot(data=combos, aes(x=numBtSamps, y=avgorigUnitsqrtcvMSE, color=as.factor(numVarSplit))) + geom_line()
+ggplot(data=combos, aes(x=numBtSamps, y=avgcvMSE,
+  color=as.factor(numVarSplit))) + geom_line()
+# X11()
+# ggplot(data=combos, aes(x=numBtSamps, y=avgsqrtcvMSE,
+# color=as.factor(numVarSplit))) + geom_line()
+# # X11()
+# ggplot(data=combos, aes(x=numBtSamps, y=avgorigUnitsqrtcvMSE,
+# color=as.factor(numVarSplit))) + geom_line()
 
 
-ggplot(data=combos, aes(x=numBtSamps, y=avgcvErrFrac, color=as.factor(numVarSplit))) + geom_line()
-## X11()
-# ggplot(data=combos, aes(x=numBtSamps, y=avgsqrtcvErrFrac, color=as.factor(numVarSplit))) + geom_line()
-# ## X11()
-# ggplot(data=combos, aes(x=numBtSamps, y=avgorigUnitsqrtcvErrFrac, color=as.factor(numVarSplit))) + geom_line()
+ggplot(data=combos, aes(x=numBtSamps, y=avgcvErrFrac,
+  color=as.factor(numVarSplit))) + geom_line()
+# X11()
+# ggplot(data=combos, aes(x=numBtSamps, y=avgsqrtcvErrFrac,
+# color=as.factor(numVarSplit))) + geom_line()
+# # X11()
+# ggplot(data=combos, aes(x=numBtSamps, y=avgorigUnitsqrtcvErrFrac,
+# color=as.factor(numVarSplit))) + geom_line()
 # ####################
