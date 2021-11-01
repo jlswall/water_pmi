@@ -21,8 +21,8 @@ allT <- read_csv(paste0("../../../", taxalevel, "_massaged.csv"))
 # Are we dealing with ribs, scapulae, or water observations?
 obstype <- "Rib"
 
-# Filter the data to just that type.
-taxaT <- allT %>% filter((type==obstype) & (degdays>0))
+# Filter the data to just that type, leaving in baseline observations (day 0).
+taxaT <- allT %>% filter(type==obstype)
 rm(allT)
 # ##################################################
 
@@ -51,9 +51,8 @@ wideT <- taxaT %>%
 numBtSamps <- 3000
 
 # Repeated cross-validation runs (1000 of them), leaving out 20% of the
-# observations at a time, seemed to indicate that 2-3 ws the best number of
-# variables to consider at each split.  This is surprising because it was 37
-# before Sarah and B. updated the dataset.
+# observations at a time, seemed to indicate that 2-3 is the best number of
+# variables to consider at each split. 
 numVarSplit <- 2
 ## ##################################################
 
@@ -101,7 +100,7 @@ for (i in 1:numRepeat)
 # fullResultsL <- mclapply(repDataL, mc.cores=4, fitFullDataF, mtry=numVarSplit,
 #   ntree=numBtSamps)
 fullResultsL <- future_lapply(repDataL, FUN=fitFullDataF, mtry=numVarSplit,
-  ntree=numBtSamps, future.seed=as.integer(782042))
+  ntree=numBtSamps, future.seed=as.integer(989042))
 
 ## Calculate the RMSE and pseudo-Rsquared for these runs with the full
 ## dataset.
@@ -136,9 +135,9 @@ fullImportanceT %>%
 
 ## Get summary statistics for report.
 c(mean(fullRMSE), 1.96*sd(fullRMSE))
-## RMSE: 635.21077  13.46897
+## RMSE: 606.5729  14.5342
 c(mean(fullRsq), 1.96*sd(fullRsq))
-## Rsq: 0.73697035 0.01114191
+## Rsq: 0.818815909 0.008679789
 
 write_csv(data.frame(fullRMSE, fullRsq),
     file="cvstats_w_full_dataset_final_params.csv")
@@ -151,7 +150,7 @@ rm(fullRMSE, fullRsq)
 # ##################################################
 # Fit the final random forest with all the data (no cross-validation).
 
-set.seed(9946615)
+set.seed(71946615)
 
 # Fit the random forest model on all the data (no cross-validation).
 rf <- randomForest(degdays ~ . , data=wideT, mtry=numVarSplit,
@@ -167,12 +166,12 @@ resids <- rf$predicted - wideT$degdays
 
 # Print out RMSE:
 sqrt( mean( resids^2 ) )
-# RMSE: 642.6764
+# RMSE: 600.6259
 
 # Estimate of explained variance, which R documentation calls "pseudo
 # R-squared"
 1 - ( sum(resids^2)/sum( (wideT$degdays - mean(wideT$degdays))^2 ) )
-# Expl. frac.: 0.7307827
+# Expl. frac.: 0.8223777
 
 # Save the fitted model so that we can re-create graphics and summary
 # statistics without running it again.
@@ -227,7 +226,7 @@ ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
   coord_flip() +
   geom_col() +
   labs(x="Ribs: family-level taxa", y="Mean % increase in MSE when excluded")
-ggsave(filename="families_rib_swab_no_baseline_PercIncMSE_barchart.pdf",
+ggsave(filename="families_rib_swab_w_baseline_PercIncMSE_barchart.pdf",
   height=4.5, width=6, units="in")
 # ##################################################
 
@@ -266,6 +265,6 @@ ggplot(chooseT, aes(degdays, fracBySample)) +
   # Allow diff. y-scales across panels.
     facet_wrap(~taxon, ncol=3, scales="free_y") 
   # facet_wrap(~taxon, ncol=3)  ## Keep y-scales same across panels.
-ggsave("infl_rib_swab_no_baseline_family_scatter.pdf",
+ggsave("infl_rib_swab_w_baseline_family_scatter.pdf",
   width=8, height=4, units="in")
 # ##################################################

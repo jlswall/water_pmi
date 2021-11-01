@@ -1,7 +1,10 @@
 library("tidyverse")
 library("randomForest")
 library("figdim")
-library("parallel")
+# library("parallel")
+
+library("future.apply")
+plan(multisession, workers=5)
 
 
 # ##################################################
@@ -49,10 +52,10 @@ numBtSamps <- 3000
 
 # Repeated cross-validation runs (1000 of them), leaving out 20% of the
 # observations at a time, indicated that the number of variables to consider at
-# each split is somewhere in the teens, but the results are all over the place
+# each split is anywhere from 7-26, but the results are all over the place
 # (probably due to small sample size and super small validation set).  We go
-# with 16 as a decent compromise between avgcvMSE and avgcvErrFrac.
-numVarSplit <- 16
+# with 11 as a decent compromise between avgcvMSE and avgcvErrFrac.
+numVarSplit <- 11
 ## ##################################################
 
 
@@ -70,7 +73,7 @@ fitFullDataF <- function(x, mtry, ntree){
   ## Order the taxa according to decreasing values of the scaled
   ## importance %IncMSE.  Return as a tibble, with %IncMSE column
   ## renamed to PercIncMSE.
-  importanceT <- as.tibble(importance(rf), rownames="taxa") %>%
+  importanceT <- as_tibble(importance(rf), rownames="taxa") %>%
         rename(PercIncMSE=`%IncMSE`) %>%
         arrange(desc(PercIncMSE))
 
@@ -95,9 +98,11 @@ for (i in 1:numRepeat)
 ## ###########################
 ## Now, fit random forests to the full dataset over and over.
 
-set.seed(987445)
-fullResultsL <- mclapply(repDataL, mc.cores=4, fitFullDataF, mtry=numVarSplit,
-  ntree=numBtSamps)
+# set.seed(987445)
+# fullResultsL <- mclapply(repDataL, mc.cores=4, fitFullDataF, mtry=numVarSplit,
+#   ntree=numBtSamps)
+fullResultsL <- future_lapply(repDataL, FUN=fitFullDataF, mtry=numVarSplit,
+  ntree=numBtSamps, future.seed=as.integer(889031))
 
 ## Calculate the RMSE and pseudo-Rsquared for these runs with the full
 ## dataset.
@@ -124,17 +129,17 @@ rm(i, iTmp, resids)
 ## See summary of %IncMSE (measure of importance) over all model runs.
 fullImportanceT %>%
   group_by(taxa) %>%
-  summarize(meanPercIncMSE=mean(PercIncMSE),
-    lbPercIncMSE=quantile(PercIncMSE, 0.025),
-    ubPercIncMSE=quantile(PercIncMSE, 0.975)
+  summarize(meanPercIncMSE=mean(PercIncMSE, na.rm=T),
+    lbPercIncMSE=quantile(PercIncMSE, 0.025, na.rm=T),
+    ubPercIncMSE=quantile(PercIncMSE, 0.975, na.rm=T)
     ) %>%
   arrange(desc(meanPercIncMSE))
 
 ## Get summary statistics for report.
 c(mean(fullRMSE), 1.96*sd(fullRMSE))
-## RMSE: 771.19953  14.45596
+## RMSE: 786.01961  15.22603
 c(mean(fullRsq), 1.96*sd(fullRsq))
-## Rsq: 0.59757752  0.01507476
+## Rsq: 0.58195966 0.01618622
 
 write_csv(data.frame(fullRMSE, fullRsq),
     file="cvstats_w_full_dataset_final_params.csv")
@@ -147,7 +152,7 @@ rm(fullRMSE, fullRsq)
 # ##################################################
 # Fit the final random forest with all the data (no cross-validation).
 
-set.seed(8940695)
+set.seed(4440595)
 
 # Fit the random forest model on all the data (no cross-validation).
 rf <- randomForest(degdays ~ . , data=wideT, mtry=numVarSplit,
@@ -163,12 +168,12 @@ resids <- rf$predicted - wideT$degdays
 
 # Print out RMSE:
 sqrt( mean( resids^2 ) )
-# RMSE: 783.0737
+# RMSE: 800.8791
 
 # Estimate of explained variance, which R documentation calls "pseudo
 # R-squared"
 1 - ( sum(resids^2)/sum( (wideT$degdays - mean(wideT$degdays))^2 ) )
-# Expl. frac.:  0.5851278
+# Expl. frac.: 0.5660467
 
 # Save the fitted model so that we can re-create graphics and summary
 # statistics without running it again.
@@ -223,8 +228,8 @@ ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
   coord_flip() +
   geom_col() +
   labs(x="Scapulae: family-level taxa", y="Mean % increase in MSE when excluded")
-ggsave(filename="families_scapula_PercIncMSE_barchart.pdf", height=4.5, width=6,
-  units="in")
+ggsave(filename="families_scapula_swab_no_baseline_PercIncMSE_barchart.pdf",
+  height=4.5, width=6, units="in")
 # ##################################################
 
 
@@ -262,5 +267,6 @@ ggplot(chooseT, aes(degdays, fracBySample)) +
   # Allow diff. y-scales across panels.
     facet_wrap(~taxon, ncol=3, scales="free_y") 
   # facet_wrap(~taxon, ncol=3)  ## Keep y-scales same across panels.
-ggsave("infl_scapula_family_scatter.pdf", width=8, height=4, units="in")
+ggsave("infl_scapula_swab_no_baseline_family_scatter.pdf",
+  width=8, height=4, units="in")
 # ##################################################

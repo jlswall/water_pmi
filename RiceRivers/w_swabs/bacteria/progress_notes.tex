@@ -93,7 +93,7 @@
 
 %% \date[Short Occasion] % (optional)
 %% {Date / Occasion}
-\date{August 2021}
+\date{November 2021}
 
 %% \subject{Talks}
 % This is only inserted into the PDF information catalog. Can be left
@@ -172,8 +172,8 @@
   {\footnotesize
   Fractions classified to family level:
   \begin{itemize}
-    \item Ribs: 83.3\% (vs.\ 83.8\% for bones)
-    \item Scapulae: 77.5\% (vs.\ 78.9\% for bones)
+    \item Ribs: 83.6\% (vs.\ 83.8\% for bones)
+    \item Scapulae: 77.9\% (vs.\ 78.9\% for bones)
   \end{itemize}
   }
 \end{frame}
@@ -199,7 +199,7 @@ analyses in the Forger et al.~ paper, but I'm open to revisiting it.
 
   \noindent Number of taxa utilized in random forest models:
   \begin{itemize}
-    \item Ribs: 46 taxa (vs.\ 41 used for earlier bone analysis)
+    \item Ribs: 49 taxa (vs.\ 41 used for earlier bone analysis)
     \item Scapulae: 53 taxa (vs.\ 55 used for earlier bone analysis)
   \end{itemize}
 
@@ -213,19 +213,38 @@ analyses in the Forger et al.~ paper, but I'm open to revisiting it.
 \section[Rib swabs]{Working with swabs from ribs}
 
 
-\begin{frame}{Implementing the random forest model for ribs}
-
+\begin{frame}{Implementing the random forest model for ribs (omitting baseline obs)}
 
   \noindent Full model omitting baseline observations (not using ADD 0):
   \begin{itemize}
-    \item Utilized 46 family-level taxa.
-    \item RMSE: 671.4 $\pm$ 17.2
-    \item Explained variation: 71.9\% $\pm$ 1.4\%
+    \item Utilized 49 family-level taxa.
+    \item RMSE: $\approx$ 642.7  
+    \item Explained variation: $\approx$ 73.1\%
   \end{itemize}
-
+  % RMSE went down from about 670 and expl. variation up from about 72 after
+  % dataset updated.
   \vspace{0.1in}
 
-  \noindent We have 13 observations for the rib swabs when we exclude the
+  \noindent We have 15 observations for the rib swabs when we exclude the
+  baseline observations (as compared with 13 before the dataset was updated).
+  % Compared with 13 observations before dataset updated.
+
+\end{frame}
+
+
+
+\begin{frame}{Implementing the random forest model for ribs (using baseline obs)}
+
+  \noindent Full model using baseline observations (using ADD 0):
+  \begin{itemize}
+    \item Utilized 49 family-level taxa.
+    \item RMSE: $\approx$ 600.6  
+    \item Explained variation: $\approx$ 82.2\%
+  \end{itemize}
+  
+  \vspace{0.1in}
+
+  \noindent We have 18 observations for the rib swabs when we include the
   baseline observations.
 
 \end{frame}
@@ -237,19 +256,36 @@ analyses in the Forger et al.~ paper, but I'm open to revisiting it.
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section[Scapula swabs]{Working with swabs from scapulae}
 
-\begin{frame}{Implementing the random forest model for scapulae}
+\begin{frame}{Implementing the random forest model for scapulae (omitting baseline obs)}
 
   \noindent Full model omitting baseline observations (not using ADD 0):
   \begin{itemize}
-    \item The model utilized 53 family-level taxa.
-    \item RMSE: 771.2 $\pm$ 14.5
-    \item Explained variation: 59.8\% $\pm$ 1.5\%\\
+    \item The model utilized 53 family-level taxa. % same as before update
+    \item RMSE: $\approx$ 800.9
+    \item Explained variation: $\approx$ 56.6\%
   \end{itemize}
-
+  % RMSE is up from 771.2.  Expl. variation is down from 59.8.
   \vspace{0.1in}
 
   \noindent We have 14 observations for the scapula swabs when baseline
   observations are excluded.
+  % Also had 14 observations before dataset was updated.
+
+\end{frame}
+
+
+\begin{frame}{Implementing the random forest model for scapulae (using baseline obs)}
+
+  \noindent Full model omitting baseline observations (using ADD 0):
+  \begin{itemize}
+    \item The model utilized ? family-level taxa. 
+    \item RMSE: $\approx$ ?
+    \item Explained variation: $\approx$ ?\%
+  \end{itemize}
+  \vspace{0.1in}
+
+  \noindent We have ? observations for the scapula swabs when we include the
+  baseline observations.
 
 \end{frame}
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
