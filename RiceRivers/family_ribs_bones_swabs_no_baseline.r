@@ -251,7 +251,7 @@ summTopT <- chooseT %>%
 # dev.new(width=4.5, height=4)
 wBonesLinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon), show.legend=FALSE) +
-  scale_y_continuous(limits=c(0, 25), expand=c(0,0)) +
+  scale_y_continuous(limits=c(0, 15), expand=c(0,0)) +
   theme_minimal() +
   #  labs(x="Accumulated Degree Days", y="Relative Abundance") +
   labs(x="", y="Relative Abundance") +
@@ -294,7 +294,7 @@ summTopT <- chooseT %>%
 # dev.new(width=4.5, height=4)
 wSwabsLinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon), show.legend=FALSE) +
-  scale_y_continuous(limits=c(0, 25), expand=c(0,0)) +
+  scale_y_continuous(limits=c(0, 15), expand=c(0,0)) +
   theme_minimal() +
   labs(x="Accumulated Degree Days", y="Relative Abundance") +
   theme(axis.title.x = element_text(size=10),
