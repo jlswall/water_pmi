@@ -1,6 +1,3 @@
-# RIGHT NOW THE COLOR PALETTE ONLY USES THE RESULTS FROM RUNS WITH NO BASELINE
-# OBSERVATIONS INCLUDED
-
 library("tidyverse")
 library("figdim")
 library("randomForest")
@@ -22,13 +19,13 @@ n <- 5
 # For analyses using bones:
 #   For ribs, with and without baseline observations.
 modelFiles <- c(
-  #"w_bones/bacteria/use_families/w_ribs/w_baseline/families_ribs_rfmodel.RData",
+  "w_bones/bacteria/use_families/w_ribs/w_baseline/families_ribs_rfmodel.RData",
   "w_bones/bacteria/use_families/w_ribs/no_baseline/families_ribs_rfmodel.RData"
 )
 #   For scapulae, with and without baseline observations.
 modelFiles <- c(
   modelFiles,
-  #"w_bones/bacteria/use_families/w_scapulae/w_baseline/families_scapulae_rfmodel.RData",
+  "w_bones/bacteria/use_families/w_scapulae/w_baseline/families_scapulae_rfmodel.RData",
   "w_bones/bacteria/use_families/w_scapulae/no_baseline/families_scapulae_rfmodel.RData"
 )
 
@@ -36,13 +33,13 @@ modelFiles <- c(
 #   For ribs, with and without baseline observations.
 modelFiles <- c(
   modelFiles,
-  #"w_swabs/bacteria/use_families/w_ribs/w_baseline/families_ribs_rfmodel.RData",
+  "w_swabs/bacteria/use_families/w_ribs/w_baseline/families_ribs_rfmodel.RData",
   "w_swabs/bacteria/use_families/w_ribs/no_baseline/families_ribs_rfmodel.RData"
 )
 #   For scapulae, with and without baseline observations.
 modelFiles <- c(
   modelFiles,
-  # "w_swabs/bacteria/use_families/w_scapulae/w_baseline/families_scapulae_rfmodel.RData",
+  "w_swabs/bacteria/use_families/w_scapulae/w_baseline/families_scapulae_rfmodel.RData",
   "w_swabs/bacteria/use_families/w_scapulae/no_baseline/families_scapulae_rfmodel.RData"
 )
 # ##########
