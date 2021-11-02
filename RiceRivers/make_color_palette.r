@@ -1,3 +1,4 @@
+
 library("tidyverse")
 library("figdim")
 library("randomForest")
@@ -84,10 +85,11 @@ rm(rf, top5, iFile)
 # Set up colors for each of the influential taxa.
 
 # taxaColors <- c(hue_pal()(length(infltaxa)))
-## Get full set of 26 colors from the "alphabet2" palette in pals package.
+# Get full set of 26 colors from the "alphabet2" palette in pals package.
 fullSetColors <- alphabet2()
-## Now remove some colors which could be hard to distinguish.
-excludeColors <- c("amethyst", "honey", "iron", "jade", "pink", "quagmire", "sea")
+# Now remove some colors which could be hard to distinguish.
+# excludeColors <- c("amethyst", "honey", "iron", "jade", "pink", "quagmire", "sea")
+excludeColors <- c("honey", "iron", "jade", "pink", "quagmire", "sea")
 fullSetColors <- fullSetColors[-which(names(fullSetColors) %in% excludeColors)]
 taxaColors <- fullSetColors[1:length(infltaxa)]
 names(taxaColors) <- infltaxa
