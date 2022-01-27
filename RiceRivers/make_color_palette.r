@@ -92,7 +92,12 @@ fullSetColors <- alphabet2()
 excludeColors <- c("honey", "iron", "jade", "pink", "quagmire", "sea")
 fullSetColors <- fullSetColors[-which(names(fullSetColors) %in% excludeColors)]
 taxaColors <- fullSetColors[1:length(infltaxa)]
-names(taxaColors) <- infltaxa
+
+# Randomly shuffle these colors, then assign them to the influential taxa.
+# Hopefully, this makes it less likely that similar colors will be assigned to
+# taxa in the same plot.
+set.seed(416409)
+names(taxaColors) <- sample(infltaxa)
 
 # Write these out in case we want to use them later in other plots to ensure
 # consistent colors.
