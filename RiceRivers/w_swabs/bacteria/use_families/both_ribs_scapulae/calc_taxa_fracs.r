@@ -21,16 +21,17 @@ allT %>% select(type) %>% distinct()
 
 
 # ##################################################
-# Put the data in wide format; remove days, subj, and rare taxa.
+# When we put together the "massaged" data, we only kept taxa which 
+# met the 1% cutoff for more than 1 sample for the particular type (ribs or
+# scapulae.)  Let's take a look at the prevalence of taxa which met the
+# requirement for either ribs or scapulae but not both.
 
-# Move back to wide format.
-wideT <- allT %>%
-  filter(taxon!="Rare") %>%
-  select(degdays, sampleName, taxon, fracBySample) %>%
-  spread(taxon, fracBySample) %>%
-  select(-sampleName)
-
-rm(taxaT)
+table(freqTaxaT$type)
+length(unique(freqTaxaT$taxon))
+ribtaxa <- freqTaxaT %>% filter(type=="Rib") %>% pull(taxon)                                                     
+scaptaxa <- freqTaxaT %>% filter(type!="Rib") %>% pull(taxon)                                                    
+ribtaxa[!(ribtaxa %in% scaptaxa)]                                                                                
+scaptaxa[!(scaptaxa %in% ribtaxa)] 
 # ##################################################
 
 
