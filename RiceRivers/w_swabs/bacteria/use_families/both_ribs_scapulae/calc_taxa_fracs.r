@@ -26,12 +26,22 @@ allT %>% select(type) %>% distinct()
 # scapulae.)  Let's take a look at the prevalence of taxa which met the
 # requirement for either ribs or scapulae but not both.
 
-table(freqTaxaT$type)
-length(unique(freqTaxaT$taxon))
-ribtaxa <- freqTaxaT %>% filter(type=="Rib") %>% pull(taxon)                                                     
-scaptaxa <- freqTaxaT %>% filter(type!="Rib") %>% pull(taxon)                                                    
-ribtaxa[!(ribtaxa %in% scaptaxa)]                                                                                
-scaptaxa[!(scaptaxa %in% ribtaxa)] 
+allT %>% group_by(type) %>% summarize(uniqtaxa=n_distinct(taxon))
+
+# Identify taxa which have sufficient numbers for both ribs and scapulae.
+bothtaxaT <- allT %>% filter(type=="Rib") %>% distinct(taxon) %>%
+    inner_join(allT %>% filter(type=="Scapula") %>% distinct(taxon))
+
+# Take a look at the counts for taxa which have sufficient numbers for just one
+# type.  After the baseline (day 0), these taxa are not present in large
+# quantities.
+allT %>% anti_join(bothtaxaT) %>% arrange(desc(fracBySample)) %>% print(n=20)
+
+# Need to re-classify the taxa with insufficient numbers into the "Rare
+# category".  If we just subset to include only these taxa which have sufficient
+# numbers then the fractions for each sample won't sum up to one.
+# freqtaxaT <- allT %>% inner_join(bothtaxaT)
+newtaxon <- ifelse(allT$taxon %in% (bothtaxaT %>% pull(taxon)), allT$taxon, "Rare")
 # ##################################################
 
 
