@@ -1,5 +1,4 @@
 library("tidyverse")
-library("figdim")
 
 
 # ##################################################
@@ -29,6 +28,7 @@ allT %>% select(type) %>% distinct()
 allT %>% group_by(type) %>% summarize(uniqtaxa=n_distinct(taxon))
 
 # Identify taxa which have sufficient numbers for both ribs and scapulae.
+# There are 38 such taxa (not including the "Rare" group).
 bothtaxaT <- allT %>% filter(type=="Rib") %>% distinct(taxon) %>%
     inner_join(allT %>% filter(type=="Scapula") %>% distinct(taxon))
 
@@ -62,3 +62,5 @@ rm(newtaxon, bothtaxaT)
 # Save the tibble to a file for use in separate code for graphing and analysis.
 
 write.csv(allT, file="combine_rib_scapula_massaged.csv", row.names=FALSE)
+# ##################################################
+
