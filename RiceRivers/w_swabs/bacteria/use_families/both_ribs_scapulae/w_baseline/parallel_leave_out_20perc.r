@@ -1,10 +1,9 @@
 library("tidyverse")
 library("randomForest")
-library("figdim")
 # library("parallel")
 
 library("future.apply")
-plan(multisession, workers=3)
+plan(multisession, workers=5)
 
 
 # ##################################################
@@ -45,7 +44,7 @@ numBtSampsVec <- c(600, 1500, 2100, 3000)
 
 # Try different values for mtry (which represents how many variables
 # can be chosen from at each split of the tree).
-numVarSplitVec <- seq(2, numPredictors, by=5)
+numVarSplitVec <- seq(2, numPredictors, by=1)
 
 # Form matrix with all combinations of these.
 combos <- expand.grid(numBtSamps=numBtSampsVec, numVarSplit=numVarSplitVec)
@@ -94,7 +93,7 @@ origUnitsF <- function(x, jCombo){
 # #########################################
 # Get set up for cross-validation.
 crossvalidL <- vector("list", numCVs)
-set.seed(3856283)
+set.seed(4972283)
 for (i in 1:numCVs){
   lvOut <- sample(1:nrow(wideT), size=numLeaveOut, replace=F)
   trainT <- wideT[-lvOut,]
@@ -109,7 +108,7 @@ origFitL <- vector("list", nrow(combos))
 for (j in 1:nrow(combos)){
   # origFitL[[j]] <- mclapply(crossvalidL, mc.cores=4, origUnitsF, jCombo=j)
     origFitL[[j]] <- future_lapply(crossvalidL, FUN=origUnitsF, jCombo=j,
-      future.seed=as.integer(5417732))
+      future.seed=as.integer(9719032))
   if (j %% 2 == 0)
     print(paste0("In orig units, finished combo number ", j))
 }    
