@@ -215,7 +215,7 @@ ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
   coord_flip() +
   geom_col() +
   labs(x="Ribs and scapulae: family-level taxa", y="Mean % increase in MSE when excluded")
-ggsave(filename="families_combined_swab_no_baseline_PercIncMSE_barchart.pdf",
+ggsave(filename="families_combined_swab_w_baseline_PercIncMSE_barchart.pdf",
   height=4.5, width=6, units="in")
 # ##################################################
 
@@ -248,6 +248,6 @@ ggplot(chooseT, aes(degdays, fracBySample)) +
   # Allow diff. y-scales across panels.
     facet_wrap(~taxon, ncol=3, scales="free_y") 
   # facet_wrap(~taxon, ncol=3)  ## Keep y-scales same across panels.
-ggsave("infl_combined_swab_no_baseline_family_scatter.pdf",
+ggsave("infl_combined_swab_w_baseline_family_scatter.pdf",
   width=8, height=4, units="in")
 # ##################################################
