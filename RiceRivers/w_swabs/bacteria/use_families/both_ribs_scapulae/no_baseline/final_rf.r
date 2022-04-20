@@ -24,6 +24,7 @@ allT <- allT %>% filter(degdays > 0)
 # Put the data in wide format; remove days, subj, and rare taxa.
 
 # Move back to wide format.
+# In total, there are 38 taxa considered in this model. There are 29 samples.
 wideT <- allT %>%
   filter(taxon!="Rare") %>%
   select(degdays, sampleName, taxon, fracBySample) %>%
@@ -158,12 +159,12 @@ resids <- rf$predicted - wideT$degdays
 
 # Print out RMSE:
 sqrt( mean( resids^2 ) )
-# RMSE: 621.0575
+# RMSE: 618.4809
 
 # Estimate of explained variance, which R documentation calls "pseudo
 # R-squared"
 1 - ( sum(resids^2)/sum( (wideT$degdays - mean(wideT$degdays))^2 ) )
-# Expl. frac.: 0.7441174
+# Expl. frac.: 0.7462361
 
 # Save the fitted model so that we can re-create graphics and summary
 # statistics without running it again.
@@ -245,7 +246,7 @@ chooseT$taxon <- factor(chooseT$taxon, levels=topChoices)
 
 ggplot(chooseT, aes(degdays, fracBySample)) +
   geom_point(aes(color=type)) +
-  labs(x="Degree days", y="Fraction", color="Rib") +
+  labs(x="Degree days", y="Fraction", color="Type") +
   theme(legend.title=element_text(size=rel(0.8)),
     legend.text=element_text(size=rel(0.8))) + 
   # Allow diff. y-scales across panels.
