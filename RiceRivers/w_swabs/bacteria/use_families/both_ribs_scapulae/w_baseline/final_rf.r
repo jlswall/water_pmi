@@ -21,6 +21,8 @@ allT <- read_csv("../combine_rib_scapula_massaged.csv")
 # Put the data in wide format; remove days, subj, and rare taxa.
 
 # Move back to wide format.
+# In total, there are 38 taxa considered in this model. There are 35 samples;
+# this includes the baseline samples (ADD 0).
 wideT <- allT %>%
   filter(taxon!="Rare") %>%
   select(degdays, sampleName, taxon, fracBySample) %>%
@@ -242,7 +244,7 @@ chooseT$taxon <- factor(chooseT$taxon, levels=topChoices)
 
 ggplot(chooseT, aes(degdays, fracBySample)) +
   geom_point(aes(color=type)) +
-  labs(x="Degree days", y="Fraction", color="Rib") +
+  labs(x="Degree days", y="Fraction", color="Type") +
   theme(legend.title=element_text(size=rel(0.8)),
     legend.text=element_text(size=rel(0.8))) + 
   # Allow diff. y-scales across panels.
