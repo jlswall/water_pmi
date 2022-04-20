@@ -21,6 +21,8 @@ allT <- read_csv("../bones_combine_rib_scapula_massaged.csv")
 # Put the data in wide format; remove days, subj, and rare taxa.
 
 # Move back to wide format.
+# In total, there are 38 taxa considered in this model. There are 199 samples;
+# this includes the baseline samples (ADD 0).
 wideT <- allT %>%
   filter(taxon!="Rare") %>%
   select(degdays, sampleName, taxon, fracBySample) %>%
