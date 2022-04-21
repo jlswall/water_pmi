@@ -114,7 +114,8 @@ rm(colorpaletteDF)
 m <- 5
 mostinfl <- sort( unique( c(
     ribimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family),
-    scapimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family)
+    scapimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family),
+    bothimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family)
 ) ) )
 
 # The most influential taxa will get the previously determined colors.  Taxa
@@ -136,8 +137,10 @@ taxaColors <- c(infltaxaColors, graytaxaColors)
 # Set up range for the bars in the bar chart so that axes can be
 # consistent between bar charts for ribs and scapulae.
 
-barMax <- ceiling(max(c(ribimportT %>% pull(`%IncMSE`), scapimportT %>%
-  pull(`%IncMSE`))))
+barMax <- ceiling( max( c( ribimportT %>% pull(`%IncMSE`),
+                           scapimportT %>% pull(`%IncMSE`),
+                           bothimportT %>% pull(`%IncMSE`)
+                          )))
 # ########################
 
 
@@ -176,6 +179,25 @@ scapbarPanel <- ggplot(scapimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
   theme(axis.title.x = element_text(size=10)) +
   scale_fill_manual(values=taxaColors)
 # ########################
+
+
+# ########################
+# Combined ribs/scapulae: Make graph of just %IncMSE alone.
+
+# Turn family names into factors, so that we can make the bar chart
+# with the bars in decreasing order.
+bothimportT$family <- factor(bothimportT$family, levels=bothimportT$family)
+
+bothbarPanel <- ggplot(bothimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
+  theme_minimal() +
+  scale_y_continuous(limits=c(0, barMax), expand=c(0,0)) +
+  coord_flip() +
+  geom_col(show.legend=FALSE) +
+  labs(x=NULL, y="Mean % Decrease in MSE") +
+  theme(axis.title.x = element_text(size=10)) +
+  scale_fill_manual(values=taxaColors)
+# ########################
+
 
 
 # ########################

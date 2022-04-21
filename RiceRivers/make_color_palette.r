@@ -1,4 +1,3 @@
-
 library("tidyverse")
 library("figdim")
 library("randomForest")
@@ -29,6 +28,12 @@ modelFiles <- c(
   "w_bones/bacteria/use_families/w_scapulae/w_baseline/families_scapulae_rfmodel.RData",
   "w_bones/bacteria/use_families/w_scapulae/no_baseline/families_scapulae_rfmodel.RData"
 )
+#   For combined ribs/scapulae, with and without baseline observations.
+modelFiles <- c(
+  modelFiles,
+  "w_bones/bacteria/use_families/both_ribs_scapulae/w_baseline/families_combined_rfmodel.RData",
+  "w_bones/bacteria/use_families/both_ribs_scapulae/no_baseline/families_combined_rfmodel.RData"
+)
 
 # For analyses using swabs:
 #   For ribs, with and without baseline observations.
@@ -42,6 +47,12 @@ modelFiles <- c(
   modelFiles,
   "w_swabs/bacteria/use_families/w_scapulae/w_baseline/families_scapulae_rfmodel.RData",
   "w_swabs/bacteria/use_families/w_scapulae/no_baseline/families_scapulae_rfmodel.RData"
+)
+#   For combined ribs/scapulae, with and without baseline observations.
+modelFiles <- c(
+  modelFiles,
+  "w_swabs/bacteria/use_families/both_ribs_scapulae/w_baseline/families_combined_rfmodel.RData",
+  "w_swabs/bacteria/use_families/both_ribs_scapulae/no_baseline/families_combined_rfmodel.RData"
 )
 # ##########
 
@@ -86,18 +97,20 @@ rm(rf, top5, iFile)
 
 # taxaColors <- c(hue_pal()(length(infltaxa)))
 # Get full set of 26 colors from the "alphabet2" palette in pals package.
-fullSetColors <- alphabet2()
+# fullSetColors <- alphabet2()
 # Now remove some colors which could be hard to distinguish.
-# excludeColors <- c("amethyst", "honey", "iron", "jade", "pink", "quagmire", "sea")
-excludeColors <- c("honey", "iron", "jade", "pink", "sea", "wine")
-fullSetColors <- fullSetColors[-which(names(fullSetColors) %in% excludeColors)]
-taxaColors <- fullSetColors[1:length(infltaxa)]
-
+# excludeColors <- c("honey", "iron", "jade", "pink", "sea", "wine")
+# fullSetColors <- fullSetColors[-which(names(fullSetColors) %in% excludeColors)]
 # Randomly shuffle these colors, then assign them to the influential taxa.
 # Hopefully, this makes it less likely that similar colors will be assigned to
 # taxa in the same plot.
-set.seed(813409)
-names(taxaColors) <- sample(infltaxa)
+# set.seed(813409)
+# names(taxaColors) <- sample(infltaxa)
+
+# Get full set of 36 colors from the "polychrome" palette in pals package.
+fullSetColors <- polychrome()
+taxaColors <- fullSetColors[1:length(infltaxa)]
+names(taxaColors) <- infltaxa
 
 # Write these out in case we want to use them later in other plots to ensure
 # consistent colors.
