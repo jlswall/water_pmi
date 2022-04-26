@@ -118,18 +118,25 @@ mostinfl <- sort( unique( c(
     bothimportT %>% top_n(m, wt=`%IncMSE`) %>% pull(family)
 ) ) )
 
+
 # The most influential taxa will get the previously determined colors.  Taxa
 # which are less influential, and do not appear in the top "m" taxa for either
-# ribs or scapulae, will have bars plotted in gray.
-infltaxaColors <- assignedColors[mostinfl]
+# ribs or scapulae, will have bars plotted in white with black outlines.
+taxaColors <- assignedColors[mostinfl]
 
-graytaxaNames <- c(ribimportT$family, scapimportT$family)[!c(ribimportT$family,
-  scapimportT$family) %in% mostinfl]
-graytaxaColors <- rep("#999999", length(graytaxaNames))
-names(graytaxaColors) <- graytaxaNames
 
-# Combine gray and colored taxa into one vector of colors.
-taxaColors <- c(infltaxaColors, graytaxaColors)
+# # The most influential taxa will get the previously determined colors.  Taxa
+# # which are less influential, and do not appear in the top "m" taxa for either
+# # ribs or scapulae, will have bars plotted in gray.
+# infltaxaColors <- assignedColors[mostinfl]
+
+# graytaxaNames <- c(ribimportT$family, scapimportT$family)[!c(ribimportT$family,
+#   scapimportT$family) %in% mostinfl]
+# graytaxaColors <- rep("#999999", length(graytaxaNames))
+# names(graytaxaColors) <- graytaxaNames
+
+# # Combine gray and colored taxa into one vector of colors.
+# taxaColors <- c(infltaxaColors, graytaxaColors)
 # ########################
 
 
@@ -151,7 +158,7 @@ barMax <- ceiling( max( c( ribimportT %>% pull(`%IncMSE`),
 # with the bars in decreasing order.
 ribimportT$family <- factor(ribimportT$family, levels=ribimportT$family)
 
-ribbarPanel <- ggplot(ribimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
+ribbarPanel <- ggplot(ribimportT, aes(x=family, y=`%IncMSE`, fill=family, color=family)) +
   theme_minimal() +
   scale_y_continuous(limits=c(0, barMax), expand=c(0,0)) +
   coord_flip() +
@@ -159,7 +166,10 @@ ribbarPanel <- ggplot(ribimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
   #  labs(x=NULL, y="Mean % Decrease in MSE") +
   labs(x=NULL, y="") +
   theme(axis.title.x = element_text(size=10)) +
-  scale_fill_manual(values=taxaColors)
+  scale_fill_manual(values=taxaColors, na.value = "white") + 
+  scale_color_manual(values=taxaColors, na.value = "black")
+
+
 # ########################
 
 
@@ -196,6 +206,41 @@ bothbarPanel <- ggplot(bothimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
   labs(x=NULL, y="Mean % Decrease in MSE") +
   theme(axis.title.x = element_text(size=10)) +
   scale_fill_manual(values=taxaColors)
+# ########################
+
+
+
+# ########################
+# Build function to find sample averages by degday for each of the influential
+# taxa.
+
+calcAvgByTaxaDay <- function(importT, countsT, m){
+
+  # Save the names of the families that are in the top m in terms of %IncMSE.
+  topChoices <- as.character(importT %>% top_n(m, wt=`%IncMSE`) %>% pull(family))
+
+  # Find the percentages for these taxa.
+  chooseT <- countsT %>%
+    filter(taxon %in% topChoices)
+
+  # Average the value across samples for each taxa and each day.
+  summTopT <- chooseT %>%
+    group_by(taxon, degdays) %>%
+    summarize(meanPercByDay=100*mean(fracBySample),
+      medianPercByDay=100*median(fracBySample))
+
+  return(summTopT)
+}
+
+# Call this function for ribs, scapula, and combined ribs/scapulae.  Set the
+# upper y-axis limit for the line plots to accomodate the highest average.
+ribSummTopT <- calcAvgByTaxaDay(ribimportT, ribT)
+scapSummTopT <- calcAvgByTaxaDay(scapimportT, scapT)
+bothSummTopT <- calcAvgByTaxaDay(bothimportT, bothT)
+
+lineMax <- max(ribSummTopT$meanPercByDay,
+              scapSummTopT$meanPercByDay,
+              bothSummTopT$meanPercByDay)
 # ########################
 
 
