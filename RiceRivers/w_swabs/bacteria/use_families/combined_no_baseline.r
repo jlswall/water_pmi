@@ -180,14 +180,16 @@ ribbarPanel <- ggplot(ribimportT, aes(x=family, y=`%IncMSE`, fill=family, color=
 # with the bars in decreasing order.
 scapimportT$family <- factor(scapimportT$family, levels=scapimportT$family)
 
-scapbarPanel <- ggplot(scapimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
+scapbarPanel <- ggplot(scapimportT, aes(x=family, y=`%IncMSE`, fill=family, color=family)) +
   theme_minimal() +
   scale_y_continuous(limits=c(0, barMax), expand=c(0,0)) +
   coord_flip() +
   geom_col(show.legend=FALSE) +
-  labs(x=NULL, y="Mean % Decrease in MSE") +
+  # labs(x=NULL, y="Mean % Decrease in MSE") +
+  labs(x=NULL, y="") +
   theme(axis.title.x = element_text(size=10)) +
-  scale_fill_manual(values=taxaColors)
+  scale_fill_manual(values=taxaColors, na.value = "white") + 
+  scale_color_manual(values=taxaColors, na.value = "black")
 # ########################
 
 
@@ -198,14 +200,15 @@ scapbarPanel <- ggplot(scapimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
 # with the bars in decreasing order.
 bothimportT$family <- factor(bothimportT$family, levels=bothimportT$family)
 
-bothbarPanel <- ggplot(bothimportT, aes(x=family, y=`%IncMSE`, fill=family)) +
+bothbarPanel <- ggplot(bothimportT, aes(x=family, y=`%IncMSE`, fill=family, color=family)) +
   theme_minimal() +
   scale_y_continuous(limits=c(0, barMax), expand=c(0,0)) +
   coord_flip() +
   geom_col(show.legend=FALSE) +
   labs(x=NULL, y="Mean % Decrease in MSE") +
   theme(axis.title.x = element_text(size=10)) +
-  scale_fill_manual(values=taxaColors)
+  scale_fill_manual(values=taxaColors, na.value = "white") + 
+  scale_color_manual(values=taxaColors, na.value = "black")
 # ########################
 
 
@@ -227,16 +230,17 @@ calcAvgByTaxaDay <- function(importT, countsT, m){
   summTopT <- chooseT %>%
     group_by(taxon, degdays) %>%
     summarize(meanPercByDay=100*mean(fracBySample),
-      medianPercByDay=100*median(fracBySample))
+      medianPercByDay=100*median(fracBySample)) %>%
+    ungroup()
 
   return(summTopT)
 }
 
 # Call this function for ribs, scapula, and combined ribs/scapulae.  Set the
 # upper y-axis limit for the line plots to accomodate the highest average.
-ribSummTopT <- calcAvgByTaxaDay(ribimportT, ribT)
-scapSummTopT <- calcAvgByTaxaDay(scapimportT, scapT)
-bothSummTopT <- calcAvgByTaxaDay(bothimportT, bothT)
+ribSummTopT <- calcAvgByTaxaDay(ribimportT, ribT, m)
+scapSummTopT <- calcAvgByTaxaDay(scapimportT, scapT, m)
+bothSummTopT <- calcAvgByTaxaDay(bothimportT, bothT, m)
 
 lineMax <- max(ribSummTopT$meanPercByDay,
               scapSummTopT$meanPercByDay,
@@ -246,97 +250,50 @@ lineMax <- max(ribSummTopT$meanPercByDay,
 
 
 # ########################
-# Ribs: Show line plot of changing relative abundance for the top 5 taxa.
+# Show line plots of changing relative abundance for the top m taxa.
 
 # #####
-# For the rib family-level taxa, it looks like the first 4 taxa are
-# the most influential.  However, for consistency with the way we did
-# this plot for the Forger et al (2019) paper, I'm going to draw the
-# top m taxa, as measured by %IncMSE.
-
-# Save the names of the families that are in the top m in terms of
-# %IncMSE.
-topChoices <- as.character(ribimportT %>% top_n(m, wt=`%IncMSE`) %>%
-  pull(family))
-
-# Find the percentages for these taxa.
-chooseT <- ribT %>%
-  filter(taxon %in% topChoices)
-# #####
-
-
-# #####
-# Average the value across samples for each taxa and each day.
-# Remove day 0 from figures.
-summTopT <- chooseT %>%
-  filter(degdays > 0) %>%  # For analyses which don't use baseline obs
-  group_by(taxon, degdays) %>%
-  summarize(meanPercByDay=100*mean(fracBySample),
-    medianPercByDay=100*median(fracBySample))
-# #####
-
-
-# #####
-# Draw plot of average relative abundance vs. time for these five
-# influential taxa.
-# dev.new(width=4.5, height=4)
-riblinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
+# Draw plot of average relative abundance vs. time for the top m influential
+# taxa for ribs.
+riblinePanel <- ggplot(ribSummTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon), show.legend=FALSE) +
-  scale_y_continuous(limits=c(0, 25), expand=c(0,0)) +
+  scale_y_continuous(limits=c(0, lineMax), expand=c(0,0)) +
   theme_minimal() +
   #  labs(x="Accumulated Degree Days", y="Relative Abundance") +
   labs(x="", y="Relative Abundance") +
   theme(axis.title.x = element_text(size=10),
     axis.title.y = element_text(size=10)) +
   scale_color_manual(values=taxaColors)
-# ########################
-
-
-# ########################
-# Scapulae: Show line plot of changing relative abundance for the top 5 taxa.
-
-# #####
-# For the scapulae family-level taxa, it looks like the first taxa is
-# most influential, with the next 6 gradually decreasing in
-# importance.  Then, there's another break between the 7th and 8th
-# taxa. However, for consistency with the way we did this plot for
-# the Forger et al (2019) paper, I'm going to draw the top m taxa, as
-# measured by %IncMSE.
-
-# Save the names of the families that are in the top 10 in
-# terms of %IncMSE.
-topChoices <- as.character(scapimportT %>% top_n(m, wt=`%IncMSE`) %>%
-  pull(family))
-
-# Find the percentages for these taxa.
-chooseT <- scapT %>%
-  filter(taxon %in% topChoices)
 # #####
 
 
 # #####
-# Average the value across samples for each taxa and each day.
-# Remove day 0 from figures.
-summTopT <- chooseT %>%
-  filter(degdays > 0) %>% # For analyses which don't use baseline obs
-  group_by(taxon, degdays) %>%
-  summarize(meanPercByDay=100*mean(fracBySample),
-    medianPercByDay=100*median(fracBySample))
-# #####
-
-
-# #####
-# Draw plot of average relative abundance vs. time for these five
-# influential taxa.
-# dev.new(width=4.5, height=4)
-scaplinePanel <- ggplot(summTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
+# Draw plot of average relative abundance vs. time for the top m influential
+# taxa for scapulae.
+scaplinePanel <- ggplot(scapSummTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
   geom_line(size=1.25, aes(color=taxon), show.legend=FALSE) +
-  scale_y_continuous(limits=c(0, 25), expand=c(0,0)) +
+  scale_y_continuous(limits=c(0, lineMax), expand=c(0,0)) +
+  theme_minimal() +
+  # labs(x="Accumulated Degree Days", y="Relative Abundance") +
+  labs(x="", y="Relative Abundance") +
+  theme(axis.title.x = element_text(size=10),
+    axis.title.y = element_text(size=10)) +
+  scale_color_manual(values=taxaColors)
+# #####
+
+
+# #####
+# Draw plot of average relative abundance vs. time for the top m influential
+# taxa for ribs and scapulae combined.
+bothlinePanel <- ggplot(bothSummTopT, aes(x=degdays, y=meanPercByDay, group=taxon)) +
+  geom_line(size=1.25, aes(color=taxon), show.legend=FALSE) +
+  scale_y_continuous(limits=c(0, lineMax), expand=c(0,0)) +
   theme_minimal() +
   labs(x="Accumulated Degree Days", y="Relative Abundance") +
   theme(axis.title.x = element_text(size=10),
     axis.title.y = element_text(size=10)) +
   scale_color_manual(values=taxaColors)
+# #####
 # ########################
 
 
@@ -346,15 +303,20 @@ plotrow1 <- plot_grid(ribbarPanel, riblinePanel, rel_widths=c(1, 2), nrow=1)
 plotrow1 <- annotate_figure(plotrow1, left=text_grob("Ribs", face="bold",
   rot=90, size=14))
 
-# First row shows info about rib taxa (bar chart, relative abundance graphs).
+# Next show info about scapulae taxa (bar chart, relative abundance graphs).
 plotrow2 <- plot_grid(scapbarPanel, scaplinePanel, rel_widths=c(1, 2), nrow=1)
 plotrow2 <- annotate_figure(plotrow2, left=text_grob("Scapulae", face="bold",
   rot=90, size=14))
 
-# Put the rows together to make 4-panel figure.
-plot_grid(plotrow1, plotrow2, nrow=2)
+# Next show info about scapulae taxa (bar chart, relative abundance graphs).
+plotrow3 <- plot_grid(bothbarPanel, bothlinePanel, rel_widths=c(1, 2), nrow=1)
+plotrow3 <- annotate_figure(plotrow3, left=text_grob("Ribs & scapulae", face="bold",
+  rot=90, size=14))
 
-ggsave(file="rr_swabs_rib_scapula_family_no_baseline_4panels.pdf", height=5,
+# Put the rows together to make figure.
+plot_grid(plotrow1, plotrow2, plotrow3, nrow=3)
+
+ggsave(file="rr_combined_family_no_baseline_6panels.pdf", height=7.5,
   width=7.5, units="in")
 # ########################
 # ##################################################
