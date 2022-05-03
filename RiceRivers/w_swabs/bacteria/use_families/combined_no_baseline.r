@@ -313,6 +313,20 @@ ggsave(file="rr_combined_family_no_baseline_6panels.pdf", height=7.5,
 
 
 # ########################
+# Build tibble for each of the models, containing predicted and actual columns.
+# Then, for scatterplots with consistent axes, calculate the range of values.
+
+ribpredvactT <- as_tibble(data.frame(predicted=ribRF$predicted, actual=ribRF$y))
+scappredvactT <- as_tibble(data.frame(predicted=scapRF$predicted, actual=scapRF$y))
+bothpredvactT <- as_tibble(data.frame(predicted=bothRF$predicted, actual=bothRF$y))
+
+# Find maximum value across all models.  This allows us to set axis range to
+# be the same for all plots.
+maxAxis <- max(ribpredvactT, scappredvactT, bothpredvactT)
+# ########################
+
+
+# ########################
 # Ribs: Predicted vs. actual ADD
 
 # Make a tibble of actual and predicted values for each observation.
