@@ -123,26 +123,12 @@ mostinfl <- sort( unique( c(
 # which are less influential, and do not appear in the top "m" taxa for either
 # ribs or scapulae, will have bars plotted in white with black outlines.
 taxaColors <- assignedColors[mostinfl]
-
-
-# # The most influential taxa will get the previously determined colors.  Taxa
-# # which are less influential, and do not appear in the top "m" taxa for either
-# # ribs or scapulae, will have bars plotted in gray.
-# infltaxaColors <- assignedColors[mostinfl]
-
-# graytaxaNames <- c(ribimportT$family, scapimportT$family)[!c(ribimportT$family,
-#   scapimportT$family) %in% mostinfl]
-# graytaxaColors <- rep("#999999", length(graytaxaNames))
-# names(graytaxaColors) <- graytaxaNames
-
-# # Combine gray and colored taxa into one vector of colors.
-# taxaColors <- c(infltaxaColors, graytaxaColors)
 # ########################
 
 
 # ########################
 # Set up range for the bars in the bar chart so that axes can be
-# consistent between bar charts for ribs and scapulae.
+# consistent between bar charts.
 
 barMax <- ceiling( max( c( ribimportT %>% pull(`%IncMSE`),
                            scapimportT %>% pull(`%IncMSE`),
@@ -168,8 +154,6 @@ ribbarPanel <- ggplot(ribimportT, aes(x=family, y=`%IncMSE`, fill=family, color=
   theme(axis.title.x = element_text(size=10)) +
   scale_fill_manual(values=taxaColors, na.value = "white") + 
   scale_color_manual(values=taxaColors, na.value = "black")
-
-
 # ########################
 
 
@@ -324,10 +308,8 @@ ggsave(file="rr_combined_family_no_baseline_6panels.pdf", height=7.5,
 
 
 # ##################################################
-# Make two-panel figure showing predicted vs. actual ADD for ribs and
-# scapulae.
-# This panel is based on Fig. 6c from Forger et al. (2019).  That
-# figure was based on Fig. 1c from Pechal et al. (2015).
+# Make three-panel figure showing predicted vs. actual ADD for ribs, scapulae,
+# and combined ribs/scapulae.
 
 
 # ########################
