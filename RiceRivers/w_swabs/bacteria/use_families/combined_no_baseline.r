@@ -316,9 +316,13 @@ ggsave(file="rr_combined_family_no_baseline_6panels.pdf", height=7.5,
 # Build tibble for each of the models, containing predicted and actual columns.
 # Then, for scatterplots with consistent axes, calculate the range of values.
 
-ribpredvactT <- as_tibble(data.frame(predicted=ribRF$predicted, actual=ribRF$y))
-scappredvactT <- as_tibble(data.frame(predicted=scapRF$predicted, actual=scapRF$y))
-bothpredvactT <- as_tibble(data.frame(predicted=bothRF$predicted, actual=bothRF$y))
+
+ribpredvactT <- with(ribRF, as_tibble(data.frame(actual=y, predicted=predicted,
+  resids=y-predicted)))
+scappredvactT <- with(scapRF, as_tibble(data.frame(actual=y, predicted=predicted,
+  resids=y-predicted)))
+bothpredvactT <- with(bothRF, as_tibble(data.frame(actual=y, predicted=predicted,
+  resids=y-predicted)))
 
 # Find maximum value across all models.  This allows us to set axis range to
 # be the same for all plots.
@@ -329,22 +333,22 @@ maxAxis <- max(ribpredvactT, scappredvactT, bothpredvactT)
 # ########################
 # Ribs: Predicted vs. actual ADD
 
-# Make a tibble of actual and predicted values for each observation.
-predvactT <- as_tibble(data.frame(predicted=ribRF$predicted, actual=ribRF$y))
-predvactT$resids <- with(predvactT, actual - predicted)
 # Force Rsq to be printed to 2 decmial places.
-Rsq <- with(predvactT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
+Rsq <- with(ribpredvactT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
 # RMSE around 1:1 line, not regression line.
-RMSE <- round(sqrt(mean(predvactT$resids^2)), 2)  
-ribscatterPanel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
+RMSE <- round(sqrt(mean(ribpredvactT$resids^2)), 2)
+ribscatterPanel <- ggplot(ribpredvactT, aes(x=actual, y=predicted)) +
   geom_point() +
   geom_abline(slope=1, intercept=0) +
-  annotate("text", x=50, y=3600, hjust=0, label=paste("R^2  ==", deparse(Rsq)),
-    parse=T) +
-  annotate("text", x=50, y=3300, hjust=0, label=paste("RMSE = ", RMSE)) + 
+  # annotate("text", x=50, y=3600, hjust=0, label=paste("R^2  ==", deparse(Rsq)),
+  #  parse=T) +
+  lims(x=c(0, maxAxis), y=c(0, maxAxis)) +
+  annotate("text", x=0.02*maxAxis, y=0.95*maxAxis, hjust=0,
+    label=paste("R^2  ==", deparse(Rsq)), parse=T) +
+  annotate("text", x=0.02*maxAxis, y=0.88*maxAxis, hjust=0,
+    label=paste("RMSE = ", RMSE)) + 
   coord_fixed(ratio=1) +
   theme_bw() + 
-  lims(x=c(0, max(as.vector(predvactT))), y=c(0, max(as.vector(predvactT)))) +
   theme(axis.title.x = element_text(size=10),
     axis.title.y = element_text(size=10)) +
   labs(x="Actual Accumulated Degree Days",
@@ -358,22 +362,20 @@ ribscatterPanel <- annotate_figure(ribscatterPanel, top=text_grob("Ribs",
 # ########################
 # Scapulae: Predicted vs. actual ADD
 
-# Make a tibble of actual and predicted values for each observation.
-predvactT <- as_tibble(data.frame(predicted=scapRF$predicted, actual=scapRF$y))
-predvactT$resids <- with(predvactT, actual - predicted)
 # Force Rsq to be printed to 2 decmial places.
-Rsq <- with(predvactT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
+Rsq <- with(scappredvactT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
 # RMSE around 1:1 line, not regression line.
-RMSE <- round(sqrt(mean(predvactT$resids^2)), 2)  
-scapscatterPanel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
+RMSE <- round(sqrt(mean(scappredvactT$resids^2)), 2)  
+scapscatterPanel <- ggplot(scappredvactT, aes(x=actual, y=predicted)) +
   geom_point() +
   geom_abline(slope=1, intercept=0) +
-  annotate("text", x=50, y=3600, hjust=0, label=paste("R^2  ==", deparse(Rsq)),
-    parse=T) +
-  annotate("text", x=50, y=3300, hjust=0, label=paste("RMSE = ", RMSE)) + 
+  lims(x=c(0, maxAxis), y=c(0, maxAxis)) +
+  annotate("text", x=0.02*maxAxis, y=0.95*maxAxis, hjust=0,
+    label=paste("R^2  ==", deparse(Rsq)), parse=T) +
+  annotate("text", x=0.02*maxAxis, y=0.88*maxAxis, hjust=0,
+    label=paste("RMSE = ", RMSE)) + 
   coord_fixed(ratio=1) +
   theme_bw() + 
-  lims(x=c(0, max(as.vector(predvactT))), y=c(0, max(as.vector(predvactT)))) +
   theme(axis.title.x = element_text(size=10),
     axis.title.y = element_text(size=10)) +
   #  labs(x="Actual Accumulated Degree Days", y="Predicted Accumulated Degree Days")
@@ -385,9 +387,36 @@ scapscatterPanel <- annotate_figure(scapscatterPanel, top=text_grob("Scapulae",
 
 
 # ########################
-plot_grid(ribscatterPanel, scapscatterPanel, nrow=1)
+# Both ribs and scapulae: Predicted vs. actual ADD
 
-ggsave(file="rr_swabs_rib_scapula_family_no_baseline_predicted_vs_actual_ADD.pdf",
-  height=4, width=7.5, units="in")
+# Force Rsq to be printed to 2 decmial places.
+Rsq <- with(bothpredvactT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
+# RMSE around 1:1 line, not regression line.
+RMSE <- round(sqrt(mean(bothpredvactT$resids^2)), 2)  
+bothscatterPanel <- ggplot(bothpredvactT, aes(x=actual, y=predicted)) +
+  geom_point() +
+  geom_abline(slope=1, intercept=0) +
+  lims(x=c(0, maxAxis), y=c(0, maxAxis)) +
+  annotate("text", x=0.02*maxAxis, y=0.95*maxAxis, hjust=0,
+    label=paste("R^2  ==", deparse(Rsq)), parse=T) +
+  annotate("text", x=0.02*maxAxis, y=0.88*maxAxis, hjust=0,
+    label=paste("RMSE = ", RMSE)) + 
+  coord_fixed(ratio=1) +
+  theme_bw() + 
+  theme(axis.title.x = element_text(size=10),
+    axis.title.y = element_text(size=10)) +
+  labs(x="Actual Accumulated Degree Days", y="Predicted Accumulated Degree Days")
+
+bothscatterPanel <- annotate_figure(bothscatterPanel,
+  top=text_grob("Combined ribs and scapulae", face="bold", size=14, vjust=1))
+# ########################
+
+
+# ########################
+topRowPlots <- plot_grid(ribscatterPanel, scapscatterPanel, nrow=1)
+plot_grid(topRowPlots, bothscatterPanel, nrow=2)
+
+ggsave(file="rr_combined_family_no_baseline_predicted_vs_actual_ADD.pdf",
+  height=7, width=7, units="in")
 # ########################
 # ##################################################
