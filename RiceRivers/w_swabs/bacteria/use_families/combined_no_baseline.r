@@ -350,12 +350,11 @@ ribscatterPanel <- ggplot(ribpredvactT, aes(x=actual, y=predicted)) +
   coord_fixed(ratio=1) +
   theme_bw() + 
   theme(axis.title.x = element_text(size=10),
-    axis.title.y = element_text(size=10)) +
+    axis.title.y = element_text(size=10),
+    plot.title=element_text(hjust=0.5, face="bold")) +
   labs(x="Actual Accumulated Degree Days",
-    y="Predicted Accumulated Degree Days")
-
-ribscatterPanel <- annotate_figure(ribscatterPanel, top=text_grob("Ribs",
-  face="bold", size=14, vjust=1))
+    y="Predicted Accumulated Degree Days",
+    title="Ribs")
 # ########################
 
 
@@ -377,12 +376,12 @@ scapscatterPanel <- ggplot(scappredvactT, aes(x=actual, y=predicted)) +
   coord_fixed(ratio=1) +
   theme_bw() + 
   theme(axis.title.x = element_text(size=10),
-    axis.title.y = element_text(size=10)) +
+    axis.title.y = element_text(size=10),
+    plot.title=element_text(hjust=0.5, face="bold")) +
   #  labs(x="Actual Accumulated Degree Days", y="Predicted Accumulated Degree Days")
-  labs(x="Actual Accumulated Degree Days", y="")
-
-scapscatterPanel <- annotate_figure(scapscatterPanel, top=text_grob("Scapulae",
-  face="bold", size=14, vjust=1))
+  labs(x="Actual Accumulated Degree Days",
+    y="",
+    title="Scapulae")
 # ########################
 
 
@@ -404,11 +403,11 @@ bothscatterPanel <- ggplot(bothpredvactT, aes(x=actual, y=predicted)) +
   coord_fixed(ratio=1) +
   theme_bw() + 
   theme(axis.title.x = element_text(size=10),
-    axis.title.y = element_text(size=10)) +
-  labs(x="Actual Accumulated Degree Days", y="Predicted Accumulated Degree Days")
-
-bothscatterPanel <- annotate_figure(bothscatterPanel,
-  top=text_grob("Combined ribs and scapulae", face="bold", size=14, vjust=1))
+    axis.title.y = element_text(size=10),
+    plot.title=element_text(hjust=0.5, face="bold")) +
+  labs(x="Actual Accumulated Degree Days",
+    y="Predicted Accumulated Degree Days",
+    title="Ribs & scapulae")
 # ########################
 
 
