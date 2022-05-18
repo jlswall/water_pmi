@@ -22,9 +22,9 @@ allT <- read_csv(paste0("../", taxalevel, "_massaged.csv"))
 allT$taxon <- str_remove(allT$taxon, "f__")
 
 # Filter data to just ribs, and then store.  Then, do the same for scapulae.
-ribT <- allT %>% filter( (type=="Rib") & (degdays > 0) )
-scapT <- allT %>% filter( (type=="Scapula") & (degdays > 0) )
-bothT <- allT %>% filter(degdays > 0)
+ribT <- allT %>% filter(type=="Rib")
+scapT <- allT %>% filter(type=="Scapula")
+bothT <- allT
 
 rm(allT)
 # ##################################################
@@ -35,18 +35,18 @@ rm(allT)
 # Read in the final fitted models for ribs, scapulae, and for ribs/scapulae
 # combined.
 
-load("w_ribs/no_baseline/families_ribs_rfmodel.RData")
+load("w_ribs/w_baseline/families_ribs_rfmodel.RData")
 # The object was named "rf", but we don't want to mix up the model
 # for ribs with the one for scapulae.  So we re-name it.
 ribRF <- rf
 rm(rf)
 
-load("w_scapulae/no_baseline/families_scapulae_rfmodel.RData")
+load("w_scapulae/w_baseline/families_scapulae_rfmodel.RData")
 # As with the model for ribs, we give it a more specific name.
 scapRF <- rf
 rm(rf)
 
-load("both_ribs_scapulae/no_baseline/families_combined_rfmodel.RData")
+load("both_ribs_scapulae/w_baseline/families_combined_rfmodel.RData")
 # As with the previous models, we give it a more specific name.
 bothRF <- rf
 rm(rf)
@@ -307,7 +307,7 @@ plotrow3 <- annotate_figure(plotrow3, left=text_grob("Ribs & scapulae", face="bo
 # Put the rows together to make figure.
 plot_grid(plotrow1, plotrow2, plotrow3, nrow=3)
 
-ggsave(file="rr_combined_family_no_baseline_6panels.pdf", height=7.5,
+ggsave(file="rr_combined_family_w_baseline_6panels.pdf", height=7.5,
   width=7.5, units="in")
 # ########################
 # ##################################################
@@ -422,7 +422,7 @@ bothscatterPanel <- ggplot(bothpredvactT, aes(x=actual, y=predicted)) +
 topRowPlots <- plot_grid(ribscatterPanel, scapscatterPanel, nrow=1)
 plot_grid(topRowPlots, bothscatterPanel, nrow=2)
 
-ggsave(file="rr_combined_family_no_baseline_predicted_vs_actual_ADD.pdf",
+ggsave(file="rr_combined_family_w_baseline_predicted_vs_actual_ADD.pdf",
   height=7, width=7, units="in")
 # ########################
 # ##################################################
