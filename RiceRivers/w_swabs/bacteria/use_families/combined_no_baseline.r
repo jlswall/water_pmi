@@ -379,8 +379,6 @@ ribscatterPanel <- ggplot(ribpredvactT, aes(x=actual, y=predicted)) +
 # ########################
 
 
-# FIX COLORS AND SYMBOLS on next 2 plots.
-
 
 # ########################
 # Scapulae: Predicted vs. actual ADD
@@ -390,7 +388,9 @@ Rsq <- with(scappredvactT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
 # RMSE around 1:1 line, not regression line.
 RMSE <- round(sqrt(mean(scappredvactT$resids^2)), 2)  
 scapscatterPanel <- ggplot(scappredvactT, aes(x=actual, y=predicted)) +
-  geom_point() +
+  geom_point(aes(shape=type, color=type), show.legend=F) +
+  scale_color_manual(values=typeColors) +
+  scale_shape_manual(values=typeSymbols) +
   geom_abline(slope=1, intercept=0) +
   lims(x=c(0, maxAxis), y=c(0, maxAxis)) +
   annotate("text", x=0.02*maxAxis, y=0.95*maxAxis, hjust=0,
@@ -417,7 +417,9 @@ Rsq <- with(bothpredvactT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
 # RMSE around 1:1 line, not regression line.
 RMSE <- round(sqrt(mean(bothpredvactT$resids^2)), 2)  
 bothscatterPanel <- ggplot(bothpredvactT, aes(x=actual, y=predicted)) +
-  geom_point() +
+  geom_point(aes(shape=type, color=type)) +
+  scale_color_manual(values=typeColors) +
+  scale_shape_manual(values=typeSymbols) +
   geom_abline(slope=1, intercept=0) +
   lims(x=c(0, maxAxis), y=c(0, maxAxis)) +
   annotate("text", x=0.02*maxAxis, y=0.95*maxAxis, hjust=0,
@@ -428,7 +430,9 @@ bothscatterPanel <- ggplot(bothpredvactT, aes(x=actual, y=predicted)) +
   theme_bw() + 
   theme(axis.title.x = element_text(size=10),
     axis.title.y = element_text(size=10),
-    plot.title=element_text(hjust=0.5, face="bold")) +
+    plot.title=element_text(hjust=0.5, face="bold"),
+    # legend.position=c(0.8, 0.2),
+    legend.title=element_blank()) +
   labs(x="Actual Accumulated Degree Days",
     y="Predicted Accumulated Degree Days",
     title="Ribs & scapulae")
