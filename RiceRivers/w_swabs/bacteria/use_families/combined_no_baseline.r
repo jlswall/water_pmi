@@ -324,16 +324,28 @@ ggsave(file="rr_combined_family_no_baseline_6panels.pdf", height=7.5,
 # Then, for scatterplots with consistent axes, calculate the range of values.
 
 
-ribpredvactT <- with(ribRF, as_tibble(data.frame(actual=y, predicted=predicted,
-  resids=y-predicted)))
-scappredvactT <- with(scapRF, as_tibble(data.frame(actual=y, predicted=predicted,
-  resids=y-predicted)))
-bothpredvactT <- with(bothRF, as_tibble(data.frame(actual=y, predicted=predicted,
-  resids=y-predicted)))
+ribpredvactT <- with(ribRF, as_tibble(data.frame(type="Rib", actual=y,
+  predicted=predicted, resids=y-predicted)))
+scappredvactT <- with(scapRF, as_tibble(data.frame(type="Scapula", actual=y,
+  predicted=predicted, resids=y-predicted)))
+# For the combined model, we read in actual and predicted values for which
+# the type (rib or scapula) was saved for each sample.
+bothpredvactT <- read_csv("both_ribs_scapulae/no_baseline/predicted_actual_w_type.csv")
+bothpredvactT <- bothpredvactT %>% mutate(resids = actual - predicted)
 
-# Find maximum value across all models.  This allows us to set axis range to
-# be the same for all plots.
-maxAxis <- max(ribpredvactT, scappredvactT, bothpredvactT)
+# Find maximum value for actual or predicted values across all models.  This
+# allows us to set axis range to be the same for all plots.
+maxAxis <- max(ribpredvactT %>% select("actual", "predicted"),
+                scappredvactT %>% select("actual", "predicted"),
+                bothpredvactT %>% select("actual", "predicted"))
+
+
+# Assign different colors and symbols to ribs and scapula and use these for each
+# scatterplot.
+typeColors <- hue_pal()(2)  # Based on way ggplot assigns colors for categories
+names(typeColors) <- c("Rib", "Scapula")
+typeSymbols <- c("circle", "square")
+names(typeSymbols) <- c("Rib", "Scapula")
 # ########################
 
 
@@ -345,7 +357,9 @@ Rsq <- with(ribpredvactT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
 # RMSE around 1:1 line, not regression line.
 RMSE <- round(sqrt(mean(ribpredvactT$resids^2)), 2)
 ribscatterPanel <- ggplot(ribpredvactT, aes(x=actual, y=predicted)) +
-  geom_point() +
+  geom_point(aes(shape=type, color=type), show.legend=F) +
+  scale_color_manual(values=typeColors) +
+  scale_shape_manual(values=typeSymbols) +
   geom_abline(slope=1, intercept=0) +
   # annotate("text", x=50, y=3600, hjust=0, label=paste("R^2  ==", deparse(Rsq)),
   #  parse=T) +
@@ -363,6 +377,9 @@ ribscatterPanel <- ggplot(ribpredvactT, aes(x=actual, y=predicted)) +
     y="Predicted Accumulated Degree Days",
     title="Ribs")
 # ########################
+
+
+# FIX COLORS AND SYMBOLS on next 2 plots.
 
 
 # ########################
