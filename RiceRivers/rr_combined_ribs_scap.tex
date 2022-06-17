@@ -93,7 +93,7 @@
 
 %% \date[Short Occasion] % (optional)
 %% {Date / Occasion}
-\date{April 2022}
+\date{June 2022}
 
 %% \subject{Talks}
 % This is only inserted into the PDF information catalog. Can be left
@@ -181,9 +181,10 @@
     required that a taxon has a prevalence of at least 1\%  for at least 2
     samples in order to be included in the analysis.
     \item When doing the analysis using combined rib and scapula samples, we
-    require that the taxa must have met this standard for both ribs and scapulae to be
-    included.  This means that the number of taxa considered in the model is
-    smaller than the numbers used in the individual rib and scapula models.
+    require that the taxa must have met this standard for \textbf{both} ribs and
+    scapulae to be included.  This means that the number of taxa considered in
+    the model is smaller than the numbers used in the individual rib and scapula
+    models.
   \end{itemize}
 
 \end{frame}
@@ -198,13 +199,13 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Omitiing baseline observations (ADD 0)}
 
-\begin{frame}{Random forest model combining rib and scapula samples (omitting baseline obs)}
+\begin{frame}{Random forest model combining rib and scapula samples (omitting ADD 0)}
 
   \begin{tabular}{lrrrr}
     Type & \# samples & \# taxa & RMSE & Expl.\ variation\\ \hline
-    Ribs & 15 & 49 & 642.7 & $\approx$ 73.1\% \\
-    Scapulae & 14 & 53 & 800.9 &  $\approx$ 56.6\% \\
-    Combined & 29 & 38 & 618.5 &  $\approx$ 74.6\%
+    Ribs & 15 & 49 & 642.7 &      73.1\% \\
+    Scapulae & 14 & 53 & 800.9 &  56.6\% \\
+    Combined & 29 & 38 & 621.1 &  74.4\%
   \end{tabular}
   
   \vspace{0.1in}
@@ -212,9 +213,58 @@
 \end{frame}
 
 
+\begin{frame}{Pred.\ vs. actual ADD for swabs (without baseline obs.)}
 
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=3.1in]
+        {w_swabs/bacteria/use_families/rr_combined_family_no_baseline_predicted_vs_actual_ADD}
+    \end{figure}
+  \end{center}
+
+\end{frame}
+
+
+
+\begin{frame}{Influential taxa for swabs (omitting ADD 0)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=2.85in]
+        {w_swabs/bacteria/use_families/rr_combined_family_no_baseline_6panels}
+    \end{figure}
+  \end{center}
+
+\end{frame}
+
+
+\begin{frame}{Influential taxa are different}
+  
+  \begin{itemize}
+    \item The influential taxa are different for the analyses using (only) ribs,
+  (only) scapulae, and combined ribs and scapulae.
+    \item This is partly because, to be included in the combined rib/scapula
+    model, a taxon must have a prevalence of at least 1\% for at least 2 rib
+    samples \textbf{and} at least 2 swab samples.
+    \begin{itemize}
+      \item The following influential taxa in the rib model were not included in
+    the combined rib/scapula model:\\
+    Haliangiaceae and Rhodospirillaceae
+    \item The following influential taxa in the scapula model were not included
+    in the combined rib/scapula model:\\
+    Methylocystaceae and Tissierellaceae
+    \end{itemize}
+    \item These following taxa were in the "top 10" influential taxa for all
+    three models:\\
+    Enterobacteriaceae and Methylococcaceae
+  \end{itemize}
+
+\end{frame}
 
 \end{document}
+
+
+
 
 \subsection[Rib swabs]{Working with swabs from ribs}
 
