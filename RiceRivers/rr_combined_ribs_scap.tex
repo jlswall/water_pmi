@@ -58,7 +58,7 @@
 
 %% \title[Short Paper Title] % (optional, use only with long paper titles)
 %% {Presentation Title}
-\title[]{Modeling combining rib and scapula samples - Rice Rivers study}
+\title[]{Models combining rib and scapula samples - Rice Rivers study}
 %\subtitle {Eastern CASTNET sites, May-Sep.~2001} % (optional)
 
 %% \author[Author, Another] % (optional, use only with lots of authors)
@@ -93,7 +93,7 @@
 
 %% \date[Short Occasion] % (optional)
 %% {Date / Occasion}
-\date{June 2022}
+\date{July 2022}
 
 %% \subject{Talks}
 % This is only inserted into the PDF information catalog. Can be left
@@ -161,11 +161,12 @@
 
   \begin{itemize}
     \item I re-ran the random forest models using ribs and scapula samples combined.
-    \item The models don't distinguish between ribs and scapula, so they are
-    treated equivalently.
+    \item The models don't distinguish between ribs and scapula, so neither type
+   is given more weight than the other.
     \item In general, we expect improved overall model performance due to the
-    larger sample size.  This is particularly relevant for the models using
-    swabs, since the sample sizes are smaller than for the bone data.
+    larger sample sizes obtained by combining ribs and scapulae samples.  This
+    is particularly relevant for the models using swabs, since the sample sizes
+    are smaller than for the bone data.
     \item However, if there are notable differences in the rib and scapula
     samples, this could adversely affect model fit and interpretation.
   \end{itemize}
@@ -178,7 +179,7 @@
   
   \begin{itemize}
     \item In our previous separate analyses for ribs and scapulae, we have
-    required that a taxon has a prevalence of at least 1\%  for at least 2
+    required that a taxon must have a prevalence of at least 1\%  in at least 2
     samples in order to be included in the analysis.
     \item When doing the analysis using combined rib and scapula samples, we
     require that the taxa must have met this standard for \textbf{both} ribs and
@@ -241,10 +242,10 @@
 \begin{frame}{Influential taxa are different}
   
   \begin{itemize}
-    \item The influential taxa are different for the analyses using (only) ribs,
-  (only) scapulae, and combined ribs and scapulae.
+    \item The influential taxa are different for the analyses using ribs only,
+    scapulae only, and combined ribs and scapulae.
     \item This is partly because, to be included in the combined rib/scapula
-    model, a taxon must have a prevalence of at least 1\% for at least 2 rib
+    model, a taxon must have a prevalence of at least 1\% in at least 2 rib
     samples \textbf{and} at least 2 swab samples.
     \begin{itemize}
       \item The following influential taxa in the rib model were not included in
@@ -257,6 +258,68 @@
     \item These following taxa were in the "top 10" influential taxa for all
     three models:\\
     Enterobacteriaceae and Methylococcaceae
+  \end{itemize}
+
+\end{frame}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Including baseline observations (with ADD 0)}
+
+\begin{frame}{Random forest model combining rib and scapula samples (using ADD 0)}
+
+  \begin{tabular}{lrrrr}
+    Type & \# samples & \# taxa & RMSE & Expl.\ variation\\ \hline
+    Ribs & 18 & 49 & 607.8 & 81.8\% \\
+    Scapulae & 17 & 53 & 681.4 & 76.6\% \\
+    Combined & 35 & 38 & 580.2 & 83.2\%
+  \end{tabular}
+  
+  \vspace{0.1in}
+
+\end{frame}
+
+
+\begin{frame}{Pred.\ vs. actual ADD for swabs (with baseline obs.)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=3.1in]
+        {w_swabs/bacteria/use_families/rr_combined_family_w_baseline_predicted_vs_actual_ADD}
+    \end{figure}
+  \end{center}
+
+\end{frame}
+
+
+
+\begin{frame}{Influential taxa for swabs (with ADD 0)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=2.85in]
+        {w_swabs/bacteria/use_families/rr_combined_family_w_baseline_6panels}
+    \end{figure}
+  \end{center}
+
+\end{frame}
+
+
+\begin{frame}{Influential taxa are different}
+  %% Change this!
+  \begin{itemize}
+    \item Methylococcaceae is influential in each of the analyses.
+    \item The following influential taxa in the rib model were not included in
+    the combined rib/scapula model:\\
+    Rhodospirillaceae and Desulfobacteraceae
+    \item The following influential taxon in the scapula model was not included
+    in the combined rib/scapula model:\\
+    Methylocystaceae
+    \item The following taxa were in the "top 10" influential taxa for all
+    three models:\\
+    Methylococcaceae, Crenotrichaceae, Holophagaceae
   \end{itemize}
 
 \end{frame}
