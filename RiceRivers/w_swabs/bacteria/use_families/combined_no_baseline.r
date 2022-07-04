@@ -431,7 +431,6 @@ bothscatterPanel <- ggplot(bothpredvactT, aes(x=actual, y=predicted)) +
   theme(axis.title.x = element_text(size=10),
     axis.title.y = element_text(size=10),
     plot.title=element_text(hjust=0.5, face="bold"),
-    # legend.position=c(0.8, 0.2),
     legend.title=element_blank()) +
   labs(x="Actual Accumulated Degree Days",
     y="Predicted Accumulated Degree Days",
