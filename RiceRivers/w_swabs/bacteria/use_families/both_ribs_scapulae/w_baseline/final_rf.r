@@ -30,6 +30,21 @@ wideT <- allT %>%
   spread(taxon, fracBySample) %>%
   select(-sampleName)
 
+# For the combined rib/scapulae analyses taxa had to be present above the
+# baseline cutoff in both rib and scapula samples. This means some taxa that
+# were used in just rib or just scapula models aren't included here.
+# Taxa that appeared in rib analysis but not here:
+# f__Bradyrhizobiaceae  f__Campylobacteraceae f__Carnobacteriaceae
+# f__Desulfobacteraceae f__Haliangiaceae      f__Neisseriaceae
+# f__Polyangiaceae      f__Rhodospirillaceae  f__Sediment_4
+# f__Thiotrichaceae     f__Weeksellaceae
+# Taxa that appeared in scapula analysis but not here:
+# f__Chromatiaceae       f__Geobacteraceae       f__Hydrogenophilaceae  
+# f__Lachnospiraceae     f__Marinilabiaceae      f__mb2424              
+# f__Methylocystaceae    f__Mogibacteriaceae     f__Oxalobacteraceae    
+# f__Procabacteriaceae   f__Rhizobiaceae         f__Spirochaetaceae     
+# f__Syntrophaceae       f__Syntrophobacteraceae f__Tissierellaceae 
+
 # rm(allT)  ## Use to make plot of influential taxa at finish.
 # ##################################################
 
@@ -255,9 +270,9 @@ ggplot(chooseT, aes(degdays, fracBySample)) +
   geom_point(aes(color=type)) +
   labs(x="Degree days", y="Fraction", color="Type") +
   theme(legend.title=element_text(size=rel(0.8)),
-    legend.text=element_text(size=rel(0.8))) + 
+    legend.text=element_text(size=rel(0.8))) +
   # Allow diff. y-scales across panels.
-    facet_wrap(~taxon, ncol=3, scales="free_y") 
+    facet_wrap(~taxon, ncol=3, scales="free_y")
   # facet_wrap(~taxon, ncol=3)  ## Keep y-scales same across panels.
 ggsave("infl_combined_swab_w_baseline_family_scatter.pdf",
   width=8, height=4, units="in")
