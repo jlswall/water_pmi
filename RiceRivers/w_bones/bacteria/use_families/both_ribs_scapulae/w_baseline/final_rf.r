@@ -23,7 +23,7 @@ allT <- read_csv("../bones_combine_rib_scapula_massaged.csv")
 # Move back to wide format.  Leave in "type" variable so that we know which
 # observations are associated with ribs and which with scapulae.
 # In total, there are 38 taxa considered in this model. There are 199 samples;
-# this includes the baseline samples (ADD 0).
+# this includes 8 baseline samples (ADD 0).
 wideT <- allT %>%
   filter(taxon!="Rare") %>%
   select(degdays, sampleName, type, taxon, fracBySample) %>%
@@ -171,12 +171,12 @@ resids <- rf$predicted - wideT$degdays
 
 # Print out RMSE:
 sqrt( mean( resids^2 ) )
-# RMSE: 556.4027
+# RMSE: 560.9243
 
 # Estimate of explained variance, which R documentation calls "pseudo
 # R-squared"
 1 - ( sum(resids^2)/sum( (wideT$degdays - mean(wideT$degdays))^2 ) )
-# Expl. frac.: 0.9155039
+# Expl. frac.: 0.914125
 
 # Save the fitted model so that we can re-create graphics and summary
 # statistics without running it again.
