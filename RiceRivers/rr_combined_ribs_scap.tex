@@ -345,9 +345,35 @@
     Combined & 191 & 38 & 564.2 & 90.7\%
   \end{tabular}
   
-  \vspace{0.1in}
+  \vspace{0.2in}
+
+  \footnotesize{
+    \noindent It's interesting that the combined model doesn't perform as well
+    here as the other models.
+  }
 
 \end{frame}
+
+
+
+\begin{frame}{Differences in taxa prevalence between ribs and scapulae (omitting ADD 0)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=2.0in]
+        {w_bones/bacteria/use_families/both_ribs_scapulae/no_baseline/infl_combined_bone_no_baseline_family_scatter}
+    \end{figure}
+  \end{center}
+
+  \footnotesize{
+    \noindent For some of the taxa, it looks like their prevalence
+    for rib and scapula samples may be substantially different.  This may
+    "confuse" the combined model.  In the next slide, you can see that we seem
+    to be overpredicting more often for the scapulae.
+    }
+
+\end{frame}
+
 
 
 \begin{frame}{Pred.\ vs. actual ADD for bones (without baseline obs.)}
@@ -406,9 +432,33 @@
     Combined & 199 & 38 & 560.9 & 91.4\%
   \end{tabular}
   
-  \vspace{0.1in}
+  \vspace{0.2in}
+
+  \footnotesize{
+    \noindent Again, we see that the combined model doesn't perform quite as
+    well as the other two.
+  }
+
 
 \end{frame}
+
+
+\begin{frame}{Differences in taxa prevalence between ribs and scapulae (using ADD 0)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=2.0in]
+        {w_bones/bacteria/use_families/both_ribs_scapulae/w_baseline/infl_combined_bone_w_baseline_family_scatter}
+    \end{figure}
+  \end{center}
+
+  \footnotesize{
+    \noindent Again, it looks like the prevalences of some taxa may differ for
+    rib and scapula samples.
+    }
+
+\end{frame}
+
 
 
 \begin{frame}{Pred.\ vs. actual ADD for bones (with baseline obs.)}
