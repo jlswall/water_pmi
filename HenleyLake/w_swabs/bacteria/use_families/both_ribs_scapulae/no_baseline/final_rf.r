@@ -4,7 +4,7 @@ library("figdim")
 # library("parallel")
 
 library("future.apply")
-plan(multisession, workers=4)
+plan(multisession, workers=6)
 
 
 # ##################################################
@@ -23,10 +23,12 @@ allT <- allT %>% filter(degdays > 0)
 # ##################################################
 # Put the data in wide format; remove days, subj, and rare taxa.
 
-# Move back to wide format.
+# Move back to wide format.  Leave in "type" variable so that we know which
+# observations are associated with ribs and which with scapulae.  There are 53
+# samples and 17 taxa.
 wideT <- allT %>%
   filter(taxon!="Rare") %>%
-  select(degdays, sampleName, taxon, fracBySample) %>%
+  select(degdays, sampleName, type, taxon, fracBySample) %>%
   spread(taxon, fracBySample) %>%
   select(-sampleName)
 
@@ -58,7 +60,8 @@ numVarSplit <- 7
 ## Set up function for fitting random forest model using full dataset.
 fitFullDataF <- function(x, mtry, ntree){
 
-  rf <- randomForest(degdays ~ . , data=x, mtry=mtry, ntree=ntree, importance=T)
+  rf <- randomForest(degdays ~ . -type, data=x, mtry=mtry, ntree=ntree,
+          importance=T)
 
   ## Order the taxa according to decreasing values of the scaled
   ## importance %IncMSE.  Return as a tibble, with %IncMSE column
@@ -145,7 +148,7 @@ rm(fullRMSE, fullRsq)
 set.seed(5946625)
 
 # Fit the random forest model on all the data (no cross-validation).
-rf <- randomForest(degdays ~ . , data=wideT, mtry=numVarSplit,
+rf <- randomForest(degdays ~ . -type, data=wideT, mtry=numVarSplit,
                    ntree=numBtSamps, importance=T)
 
 ## init.fig.dimen(file=paste0("orig_units_all_data_families_imp_plot.pdf"), width=8, height=6)
@@ -168,6 +171,12 @@ sqrt( mean( resids^2 ) )
 # Save the fitted model so that we can re-create graphics and summary
 # statistics without running it again.
 save(rf, file="families_combined_rfmodel.RData")
+
+# Save the type (rib or scapula), the actual ADD (degdays), and the predicted
+# values from the random forest model so that we can use this info in graphics
+# later.
+write_csv(data.frame(type=wideT$type,actual=rf$y, predicted=rf$predicted),
+            file="predicted_actual_w_type.csv")
 # ##################################################
 
 
@@ -217,7 +226,8 @@ ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
        aes(x=family, y=`%IncMSE`)) +
   coord_flip() +
   geom_col() +
-  labs(x="Ribs and scapulae: family-level taxa", y="Mean % increase in MSE when excluded")
+  labs(x="Ribs and scapulae: family-level taxa",
+        y="Mean % increase in MSE when excluded")
 ggsave(filename="families_combined_swab_no_baseline_PercIncMSE_barchart.pdf",
   height=4.5, width=6, units="in")
 # ##################################################
@@ -245,7 +255,7 @@ chooseT$taxon <- factor(chooseT$taxon, levels=topChoices)
 
 ggplot(chooseT, aes(degdays, fracBySample)) +
   geom_point(aes(color=type)) +
-  labs(x="Degree days", y="Fraction", color="Rib") +
+  labs(x="Degree days", y="Fraction", color="Type") +
   theme(legend.title=element_text(size=rel(0.8)),
     legend.text=element_text(size=rel(0.8))) + 
   # Allow diff. y-scales across panels.
