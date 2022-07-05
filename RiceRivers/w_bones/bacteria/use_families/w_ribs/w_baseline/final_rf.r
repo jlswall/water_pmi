@@ -28,7 +28,8 @@ rm(allT)
 ## ##################################################
 ## Put the data in wide format; remove days, subj, and rare taxa.
 
-## Move back to wide format.
+# Move back to wide format.  There are 84 samples (including 3 at ADD 0)
+# and 41 taxa.
 wideT <- taxaT %>%
   filter(taxon!="Rare") %>%
   select(degdays, sampleName, taxon, fracBySample) %>%
@@ -152,12 +153,12 @@ resids <- rf$predicted - wideT$degdays
 
 ## Print out RMSE:
 sqrt( mean( resids^2 ) )
-## RMSE: 472.3084
+## RMSE: 473.3305
 
 ## Estimate of explained variance, which R documentation calls "pseudo
 ## R-squared"
 1 - ( sum(resids^2)/sum( (wideT$degdays - mean(wideT$degdays))^2 ) )
-## Expl. frac.: 0.9367924
+## Expl. frac.: 0.9365186
 
 ## Save the fitted model so that we can re-create graphics and summary
 ## statistics without running it again.
