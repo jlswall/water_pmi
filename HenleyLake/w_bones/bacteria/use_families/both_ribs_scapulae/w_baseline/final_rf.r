@@ -4,7 +4,7 @@ library("figdim")
 # library("parallel")
 
 library("future.apply")
-plan(multisession, workers=4)
+plan(multisession, workers=6)
 
 
 # ##################################################
@@ -12,7 +12,7 @@ plan(multisession, workers=4)
 taxalevel <- "families"
 
 # Read in combined rib/scapula dataset (families taxa).
-allT <- read_csv("../combine_rib_scapula_massaged.csv")
+allT <- read_csv("../bones_combine_rib_scapula_massaged.csv")
 # ##################################################
 
 
@@ -20,10 +20,12 @@ allT <- read_csv("../combine_rib_scapula_massaged.csv")
 # ##################################################
 # Put the data in wide format; remove days, subj, and rare taxa.
 
-# Move back to wide format.
+# Move back to wide format.  Leave in "type" variable so that we know which
+# observations are associated with ribs and which with scapulae.
+# There are 171 samples (including 7 at ADD 0) and 23 taxa.
 wideT <- allT %>%
   filter(taxon!="Rare") %>%
-  select(degdays, sampleName, taxon, fracBySample) %>%
+  select(degdays, sampleName, type, taxon, fracBySample) %>%
   spread(taxon, fracBySample) %>%
   select(-sampleName)
 
@@ -40,9 +42,9 @@ wideT <- allT %>%
 numBtSamps <- 3000
 
 # Repeated cross-validation runs (1000 of them), leaving out 20% of the
-# observations at a time, seemed to indicate that 7-8 was the best number of
-# variables to consider at each split.
-numVarSplit <- 8
+# observations at a time, seemed to indicate that 10 (closely followed by 9) was
+# the best number of variables to consider at each split.
+numVarSplit <- 10
 ## ##################################################
 
 
@@ -55,7 +57,8 @@ numVarSplit <- 8
 ## Set up function for fitting random forest model using full dataset.
 fitFullDataF <- function(x, mtry, ntree){
 
-  rf <- randomForest(degdays ~ . , data=x, mtry=mtry, ntree=ntree, importance=T)
+  rf <- randomForest(degdays ~ . -type, data=x, mtry=mtry, ntree=ntree,
+          importance=T)
 
   ## Order the taxa according to decreasing values of the scaled
   ## importance %IncMSE.  Return as a tibble, with %IncMSE column
@@ -89,7 +92,7 @@ for (i in 1:numRepeat)
 # fullResultsL <- mclapply(repDataL, mc.cores=4, fitFullDataF, mtry=numVarSplit,
 #   ntree=numBtSamps)
 fullResultsL <- future_lapply(repDataL, FUN=fitFullDataF, mtry=numVarSplit,
-  ntree=numBtSamps, future.seed=as.integer(993042))
+  ntree=numBtSamps, future.seed=as.integer(703642))
 
 ## Calculate the RMSE and pseudo-Rsquared for these runs with the full
 ## dataset.
@@ -124,9 +127,9 @@ fullImportanceT %>%
 
 ## Get summary statistics for report.
 c(mean(fullRMSE), 1.96*sd(fullRMSE))
-## RMSE: 630.513187   9.789977
+## RMSE: 529.139470   4.828988
 c(mean(fullRsq), 1.96*sd(fullRsq))
-## Rsq: 0.797746866 0.006280349
+## Rsq: 0.886990435 0.002061758
 
 write_csv(data.frame(fullRMSE, fullRsq),
     file="cvstats_w_full_dataset_final_params.csv")
@@ -139,10 +142,10 @@ rm(fullRMSE, fullRsq)
 # ##################################################
 # Fit the final random forest with all the data (no cross-validation).
 
-set.seed(3346628)
+set.seed(8347928)
 
 # Fit the random forest model on all the data (no cross-validation).
-rf <- randomForest(degdays ~ . , data=wideT, mtry=numVarSplit,
+rf <- randomForest(degdays ~ . -type, data=wideT, mtry=numVarSplit,
                    ntree=numBtSamps, importance=T)
 
 ## init.fig.dimen(file=paste0("orig_units_all_data_families_imp_plot.pdf"), width=8, height=6)
@@ -155,16 +158,22 @@ resids <- rf$predicted - wideT$degdays
 
 # Print out RMSE:
 sqrt( mean( resids^2 ) )
-# RMSE: 623.2411
+# RMSE: 530.0245
 
 # Estimate of explained variance, which R documentation calls "pseudo
 # R-squared"
 1 - ( sum(resids^2)/sum( (wideT$degdays - mean(wideT$degdays))^2 ) )
-# Expl. frac.: 0.8023978
+# Expl. frac.: 0.8866145
 
 # Save the fitted model so that we can re-create graphics and summary
 # statistics without running it again.
 save(rf, file="families_combined_rfmodel.RData")
+
+# Save the type (rib or scapula), the actual ADD (degdays), and the predicted
+# values from the random forest model so that we can use this info in graphics
+# later.
+write_csv(data.frame(type=wideT$type,actual=rf$y, predicted=rf$predicted),
+            file="predicted_actual_w_type.csv")
 # ##################################################
 
 
@@ -214,8 +223,9 @@ ggplot(importanceT %>% top_n(n, wt=`%IncMSE`),
        aes(x=family, y=`%IncMSE`)) +
   coord_flip() +
   geom_col() +
-  labs(x="Ribs and scapulae: family-level taxa", y="Mean % increase in MSE when excluded")
-ggsave(filename="families_combined_swab_w_baseline_PercIncMSE_barchart.pdf",
+  labs(x="Ribs and scapulae: family-level taxa",
+        y="Mean % increase in MSE when excluded")
+ggsave(filename="families_combined_bone_w_baseline_PercIncMSE_barchart.pdf",
   height=4.5, width=6, units="in")
 # ##################################################
 
@@ -242,12 +252,12 @@ chooseT$taxon <- factor(chooseT$taxon, levels=topChoices)
 
 ggplot(chooseT, aes(degdays, fracBySample)) +
   geom_point(aes(color=type)) +
-  labs(x="Degree days", y="Fraction", color="Rib") +
+  labs(x="Degree days", y="Fraction", color="Type") +
   theme(legend.title=element_text(size=rel(0.8)),
     legend.text=element_text(size=rel(0.8))) + 
   # Allow diff. y-scales across panels.
     facet_wrap(~taxon, ncol=3, scales="free_y") 
   # facet_wrap(~taxon, ncol=3)  ## Keep y-scales same across panels.
-ggsave("infl_combined_swab_w_baseline_family_scatter.pdf",
+ggsave("infl_combined_bone_w_baseline_family_scatter.pdf",
   width=8, height=4, units="in")
 # ##################################################
