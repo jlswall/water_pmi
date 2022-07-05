@@ -112,12 +112,12 @@
 
 % Delete this, if you do not want the table of contents to pop up at
 % the beginning of each subsection:
-\AtBeginSection[]
-{
-  \begin{frame}<beamer>{Outline}
-    \tableofcontents[currentsection,currentsubsection]
-  \end{frame}
-}
+% \AtBeginSection[]
+% {
+%  \begin{frame}<beamer>{Outline}
+%    \tableofcontents[currentsection,currentsubsection]
+%  \end{frame}
+% }
 
 
 % If you wish to uncover everything in a step-wise fashion, uncomment
@@ -194,11 +194,11 @@
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Using swab samples}
+\section{Using swabs}
 
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Omitiing baseline observations (ADD 0)}
+\subsection{Omiting baseline observations (ADD 0)}
 
 \begin{frame}{Random forest model combining rib and scapula samples (omitting ADD 0)}
 
@@ -255,7 +255,7 @@
     in the combined rib/scapula model:\\
     Methylocystaceae and Tissierellaceae
     \end{itemize}
-    \item These following taxa were in the "top 10" influential taxa for all
+    \item The following taxa were in the "top 10" influential taxa for all
     three models:\\
     Enterobacteriaceae and Methylococcaceae
   \end{itemize}
@@ -307,8 +307,8 @@
 \end{frame}
 
 
-\begin{frame}{Influential taxa are different}
-  %% Change this!
+\begin{frame}{Comments about influential taxa}
+
   \begin{itemize}
     \item Methylococcaceae is influential in each of the analyses.
     \item The following influential taxa in the rib model were not included in
@@ -323,286 +323,133 @@
   \end{itemize}
 
 \end{frame}
-
-\end{document}
-
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
-\subsection[Rib swabs]{Working with swabs from ribs}
 
 
-\begin{frame}{Implementing the random forest model for ribs (omitting baseline obs)}
-
-  \noindent Full model omitting baseline observations (not using ADD 0):
-  \begin{itemize}
-    \item Utilized 49 family-level taxa.
-    \item RMSE: $\approx$ 642.7  
-    \item Explained variation: $\approx$ 73.1\%
-  \end{itemize}
-  % RMSE went down from about 670 and expl. variation up from about 72 after
-  % dataset updated.
-  \vspace{0.1in}
-
-  \noindent We have 15 observations for the rib swabs when we exclude the
-  baseline observations (as compared with 13 before the dataset was updated).
-  % Compared with 13 observations before dataset updated.
-
-\end{frame}
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Using bones}
 
 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Omiting baseline observations (ADD 0)}
 
-\begin{frame}{Implementing the random forest model for ribs (using baseline obs)}
+\begin{frame}{Random forest model combining rib and scapula samples (omitting ADD 0)}
 
-  \noindent Full model using baseline observations (using ADD 0):
-  \begin{itemize}
-    \item Utilized 49 family-level taxa.
-    \item RMSE: $\approx$ 600.6  
-    \item Explained variation: $\approx$ 82.2\%
-  \end{itemize}
+  \begin{tabular}{lrrrr}
+    Type & \# samples & \# taxa & RMSE & Expl.\ variation\\ \hline
+    Ribs & 81 & 41 & 476.6 & 93.2\% \\
+    Scapulae & 110 & 55 & 500.7 &  92.8\% \\
+    Combined & 191 & 38 & 564.2 & 90.7\%
+  \end{tabular}
   
   \vspace{0.1in}
 
-  \noindent We have 18 observations for the rib swabs when we include the
-  baseline observations.
+\end{frame}
+
+
+\begin{frame}{Pred.\ vs. actual ADD for bones (without baseline obs.)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=3.1in]
+        {w_bones/bacteria/use_families/rr_combined_family_no_baseline_predicted_vs_actual_ADD}
+    \end{figure}
+  \end{center}
 
 \end{frame}
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
+\begin{frame}{Influential taxa for bones (omitting ADD 0)}
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section[Scapula swabs]{Working with swabs from scapulae}
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=2.85in]
+        {w_bones/bacteria/use_families/rr_combined_family_no_baseline_6panels}
+    \end{figure}
+  \end{center}
 
-\begin{frame}{Implementing the random forest model for scapulae (omitting baseline obs)}
+\end{frame}
 
-  \noindent Full model omitting baseline observations (not using ADD 0):
+
+\begin{frame}{Comments about influential taxa (omitting ADD 0)}
+  
   \begin{itemize}
-    \item The model utilized 53 family-level taxa. % same as before update
-    \item RMSE: $\approx$ 800.9
-    \item Explained variation: $\approx$ 56.6\%
+    \item The influential taxa are more similar in these analyses than they were
+    for the swabs.
+    \item The following influential taxa in the scapula model were not included
+    in the combined rib/scapula model:\\
+    Dethiosulfovibrionaceae, Syntrophaceae, Syntrophobacteraceae
+    \item The following taxa were in the "top 10" influential taxa for all
+    three models:\\
+    Rhodospirillaceae and Sediment\_4 \quad (Is the latter actually a taxon?) 
   \end{itemize}
-  % RMSE is up from 771.2.  Expl. variation is down from 59.8.
+
+\end{frame}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Including baseline observations (with ADD 0)}
+
+\begin{frame}{Random forest model combining rib and scapula samples (using ADD 0)}
+
+  \begin{tabular}{lrrrr}
+    Type & \# samples & \# taxa & RMSE & Expl.\ variation\\ \hline
+    Ribs & 84 & 41 & 473.3 & 93.7\% \\
+    Scapulae & 115 & 55 & 498.5 & 93.4\% \\
+    Combined & 199 & 38 & 560.9 & 91.4\%
+  \end{tabular}
+  
   \vspace{0.1in}
 
-  \noindent We have 14 observations for the scapula swabs when baseline
-  observations are excluded.
-  % Also had 14 observations before dataset was updated.
+\end{frame}
+
+
+\begin{frame}{Pred.\ vs. actual ADD for bones (with baseline obs.)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=3.1in]
+        {w_bones/bacteria/use_families/rr_combined_family_w_baseline_predicted_vs_actual_ADD}
+    \end{figure}
+  \end{center}
 
 \end{frame}
 
 
-\begin{frame}{Implementing the random forest model for scapulae (using baseline obs)}
 
-  \noindent Full model omitting baseline observations (using ADD 0):
+\begin{frame}{Influential taxa for bones (with ADD 0)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=2.85in]
+        {w_bones/bacteria/use_families/rr_combined_family_w_baseline_6panels}
+    \end{figure}
+  \end{center}
+
+\end{frame}
+
+
+\begin{frame}{Comments about influential taxa (with ADD 0)}
+  
   \begin{itemize}
-    \item The model utilized 53 family-level taxa. 
-    \item RMSE: $\approx$ 681.4
-    \item Explained variation: $\approx$ 76.6\%
+    \item We have more bone samples, so it doesn't make as much difference
+    whether we include ADD 0, compared to the results of the swab analyses.
+    \item The following influential taxa in the scapula model were not included
+    in the combined rib/scapula model:\\
+    Dethiosulfovibrionaceae, Syntrophaceae, Syntrophobacteraceae
+    \item The following taxa were in the "top 10" influential taxa for all
+    three models:\\
+    Rhodospirillaceae, Ruminococcaceae, Sediment\_4 \quad (Again, is the latter actually a taxon?) 
   \end{itemize}
-  \vspace{0.1in}
-
-  \noindent We have 17 observations for the scapula swabs when we include the
-  baseline observations.
-
-\end{frame}
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section[Swabs from ribs and scapulae]{Comparing rib and scapula models (swabs)}
-
-
-% %%%%%
-\subsection[No baseline]{Omitting baseline observations}
-
-\begin{frame}{Influential taxa for swabs (without baseline obs.)}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=4.25in]
-        {use_families/rr_swabs_rib_scapula_family_no_baseline_4panels}
-    \end{figure}
-  \end{center}
 
 \end{frame}
 
-
-\begin{frame}{Pred.\ vs. actual ADD for swabs (without baseline obs.)}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=4.75in]
-        {use_families/rr_swabs_rib_scapula_family_no_baseline_predicted_vs_actual_ADD}
-    \end{figure}
-  \end{center}
-
-\end{frame}
-% %%%%%
-
-
-% %%%%%
-\subsection[With baseline]{Using baseline observations}
-
-\begin{frame}{Influential taxa for swabs (with baseline obs.)}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=4.25in]
-        {use_families/rr_swabs_rib_scapula_family_w_baseline_4panels}
-    \end{figure}
-  \end{center}
-
-\end{frame}
-
-
-\begin{frame}{Pred.\ vs. actual ADD for swabs (with baseline obs.)}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=4.75in]
-        {use_families/rr_swabs_rib_scapula_family_w_baseline_predicted_vs_actual_ADD}
-    \end{figure}
-  \end{center}
-
-\end{frame}
-% %%%%%
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section[Bones vs.\ swabs]{Comparing models using bones vs.\ swabs}
-
-% %%%%%%%%%%
-% %%%%%
-\subsection[Ribs]{Using ribs}
-
-
-% %%%%%
-\subsubsection[No baseline]{Omitting baseline observations}
-
-\begin{frame}{Ribs: Influential taxa (no baseline obs.)}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=4.25in]
-        {../../rr_rib_bones_vs_swabs_no_baseline_4panels}
-    \end{figure}
-  \end{center}
-
-\end{frame}
-
-
-\begin{frame}{Ribs: Pred.\ vs. actual ADD (no baseline obs.)}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=4.75in]
-        {../../rr_rib_bones_vs_swabs_no_baseline_predicted_vs_actual_ADD}
-    \end{figure}
-  \end{center}
-
-\end{frame}
-% %%%%%
-
-
-% %%%%%
-\subsubsection[With baseline]{Using baseline observations}
-
-\begin{frame}{Ribs: Influential taxa (with baseline obs.)}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=4.25in]
-        {../../rr_rib_bones_vs_swabs_w_baseline_4panels}
-    \end{figure}
-  \end{center}
-
-\end{frame}
-
-
-\begin{frame}{Ribs: Pred.\ vs. actual ADD (with baseline obs.)}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=4.75in]
-        {../../rr_rib_bones_vs_swabs_w_baseline_predicted_vs_actual_ADD}
-    \end{figure}
-  \end{center}
-
-\end{frame}
-% %%%%%
-% %%%%%%%%%%
-
-
-
-% %%%%%%%%%%
-% %%%%%%%%%%
-% %%%%%
-\subsection[Scapulae]{Using scapulae}
-
-% %%%%%
-\subsubsection[No baseline]{Omitting baseline observations}
-
-\begin{frame}{Scapulae: Influential taxa (no baseline obs.)}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=4.25in]
-        {../../rr_scapula_bones_vs_swabs_no_baseline_4panels}
-    \end{figure}
-  \end{center}
-
-\end{frame}
-
-
-\begin{frame}{Scapulae: Pred.\ vs. actual ADD (no baseline obs.)}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=4.75in]
-        {../../rr_scapula_bones_vs_swabs_no_baseline_predicted_vs_actual_ADD}
-    \end{figure}
-  \end{center}
-
-\end{frame}
-% %%%%%
-
-
-% %%%%%
-\subsubsection[With baseline]{Using baseline observations}
-
-\begin{frame}{Scapulae: Influential taxa (with baseline obs.)}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=4.25in]
-        {../../rr_scapula_bones_vs_swabs_w_baseline_4panels}
-    \end{figure}
-  \end{center}
-
-\end{frame}
-
-
-\begin{frame}{Scapulae: Pred.\ vs. actual ADD (with baseline obs.)}
-
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=4.75in]
-        {../../rr_scapula_bones_vs_swabs_w_baseline_predicted_vs_actual_ADD}
-    \end{figure}
-  \end{center}
-
-\end{frame}
-% %%%%%
-
-
-
-% %%%%%%%%%%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \end{document}
