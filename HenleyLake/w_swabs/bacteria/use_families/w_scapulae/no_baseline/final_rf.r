@@ -28,7 +28,7 @@ rm(allT)
 # ##################################################
 # Put the data in wide format; remove days, subj, and rare taxa.
 
-# Move back to wide format.
+# Move back to wide format.  There are 26 samples and 37 taxa.
 wideT <- taxaT %>%
   filter(taxon!="Rare") %>%
   select(degdays, sampleName, taxon, fracBySample) %>%
