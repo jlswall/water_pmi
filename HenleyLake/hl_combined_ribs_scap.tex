@@ -205,7 +205,7 @@
 
 
 
-\begin{frame}{Prevalences of influential taxa (without baseline obs.)}
+\begin{frame}{Scatterplots of influential taxa (omitting ADD 0)}
 
   \begin{center}
     \begin{figure}
@@ -226,7 +226,7 @@
 
 
 
-\begin{frame}{Pred.\ vs. actual ADD for swabs (without baseline obs.)}
+\begin{frame}{Pred.\ vs. actual ADD for swabs (omitting ADD 0)}
 
   \begin{center}
     \begin{figure}
@@ -239,7 +239,7 @@
 
 
 
-\begin{frame}{Further comments (without baseline obs.)}
+\begin{frame}{Further comments (omitting ADD 0)}
   
   \begin{itemize}
     \item The following influential taxa in the scapula model were not included
@@ -295,7 +295,7 @@
 
 
 
-\begin{frame}{Prevalences of influential taxa (using ADD 0)}
+\begin{frame}{Scatterplots of influential taxa (using ADD 0)}
 
   \begin{center}
     \begin{figure}
@@ -386,7 +386,7 @@
 
 
 
-\begin{frame}{Prevalences of influential taxa (omitting ADD 0)}
+\begin{frame}{Scatterplots of influential taxa (omitting ADD 0)}
 
   \begin{center}
     \begin{figure}
@@ -407,7 +407,7 @@
 
 
 
-\begin{frame}{Pred.\ vs. actual ADD for bones (without baseline obs.)}
+\begin{frame}{Pred.\ vs. actual ADD for bones (omitting ADD 0)}
 
   \begin{center}
     \begin{figure}
@@ -440,7 +440,7 @@
 
 
 
-\begin{frame}{Influential taxa for scapula-only model}
+\begin{frame}{Scatterplots of influential taxa for scapula-only model}
 
   \begin{center}
     \begin{figure}
@@ -452,11 +452,11 @@
   \vspace{-0.05in}
 
   \footnotesize{ \noindent These are the top 6 most influential taxa for the
-    scapula-only model.  Look particularly at Pirellulaceae, Campylobacteraceae,
-    Crenotrichaceae, and Sediment\_4.  Even though their prevalences are very
-    low, they have definite patterns that seem to be strengthening the
-    scapula-only model. However, their prevalences in rib data are too low to
-    be included in the combined rib/scapula model.
+    \textbf{scapula-only} model.  Look particularly at Pirellulaceae,
+    Campylobacteraceae, Crenotrichaceae, and Sediment\_4.  Even though their
+    prevalences are very low, they have definite patterns that seem to be
+    strengthening the scapula-only model. However, their prevalences in rib data
+    are too low to be included in the combined rib/scapula model.
     }
 
 \end{frame}
@@ -469,7 +469,7 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Including baseline observations (with ADD 0)}
 
-\begin{frame}{Comparison of rib, scapula, and combined models (using ADD 0)}
+\begin{frame}{Comparison of rib, scapula, and combined models (bones, using ADD 0)}
 
   \begin{tabular}{lrrrr}
     Type & \# samples & \# taxa & RMSE & Expl.\ variation\\ \hline
@@ -480,11 +480,56 @@
   
   \vspace{0.2in}
 
-
+  \footnotesize{ \noindent As we might expect, the addition of the baseline
+    samples doesn't change the fact that the scapula-only model performs better
+    than the other two. }
 
 \end{frame}
 
 
 
+\begin{frame}{Influential taxa for bones (using ADD 0)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=2.85in]
+        {w_bones/bacteria/use_families/hl_combined_family_w_baseline_6panels}
+    \end{figure}
+  \end{center}
+
+\end{frame}
+
+
+
+\begin{frame}{Pred.\ vs. actual ADD for bones (using ADD 0)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=3.1in]
+        {w_bones/bacteria/use_families/hl_combined_family_w_baseline_predicted_vs_actual_ADD}
+    \end{figure}
+  \end{center}
+    
+\end{frame}
+
+
+
+\begin{frame}{Further comments (using ADD 0)}
+  
+  \begin{itemize}
+    \item The following taxa were in the "top 10" influential taxa for all
+    three models:\\
+    Syntrophomonadaceae, Comamonadaceae, Spirochaetaceae, Rhodocyclaceae, 
+    Pseudomonadaceae
+    \item As was the case in the bone models which didn't include baseline
+    samples, the following influential taxa in the scapula model were not
+    included in the combined rib/scapula model:\\
+    Pirellulaceae, Campylobacteraceae, Sediment\_4, Crenotrichaceae
+    \item Also as before, all four of the above taxa are in the top 5 most
+    influential taxa for the scapula-only model.
+    
+  \end{itemize}
+
+\end{frame}
 
 \end{document}
