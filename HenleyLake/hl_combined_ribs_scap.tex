@@ -112,12 +112,12 @@
 
 % Delete this, if you do not want the table of contents to pop up at
 % the beginning of each subsection:
-% \AtBeginSection[]
-% {
-%  \begin{frame}<beamer>{Outline}
-%    \tableofcontents[currentsection,currentsubsection]
-%  \end{frame}
-% }
+\AtBeginSection[]
+{
+ \begin{frame}<beamer>{Outline}
+   \tableofcontents[currentsection,currentsubsection]
+ \end{frame}
+}
 
 
 % If you wish to uncover everything in a step-wise fashion, uncomment
@@ -205,7 +205,7 @@
 
 
 
-\begin{frame}{Pred.\ vs. actual ADD for swabs (without baseline obs.)}
+\begin{frame}{Prevalences of influential taxa (without baseline obs.)}
 
   \begin{center}
     \begin{figure}
@@ -295,7 +295,7 @@
 
 
 
-\begin{frame}{Pred.\ vs. actual ADD for swabs (using ADD 0)}
+\begin{frame}{Prevalences of influential taxa (using ADD 0)}
 
   \begin{center}
     \begin{figure}
@@ -312,6 +312,19 @@
     scapula.
     }
 
+\end{frame}
+
+
+
+\begin{frame}{Pred.\ vs. actual ADD for swabs (using ADD 0)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=3.1in]
+        {w_swabs/bacteria/use_families/hl_combined_family_w_baseline_predicted_vs_actual_ADD}
+    \end{figure}
+  \end{center}
+    
 \end{frame}
 
 
@@ -360,16 +373,93 @@
 
 
 
-% \begin{frame}{Influential taxa for swabs (omitting ADD 0)}
+\begin{frame}{Influential taxa for swabs (omitting ADD 0)}
 
-%   \begin{center}
-%     \begin{figure}
-%       \includegraphics[height=2.85in]
-%         {w_bones/bacteria/use_families/hl_combined_family_no_baseline_6panels}
-%     \end{figure}
-%   \end{center}
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=2.85in]
+        {w_bones/bacteria/use_families/hl_combined_family_no_baseline_6panels}
+    \end{figure}
+  \end{center}
 
-% \end{frame}
+\end{frame}
+
+
+
+\begin{frame}{Prevalences of influential taxa (omitting ADD 0)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=2.1in]
+        {w_bones/bacteria/use_families/both_ribs_scapulae/no_baseline/infl_combined_bone_no_baseline_family_scatter}
+    \end{figure}
+  \end{center}
+
+  \vspace{0.1in}
+
+  \footnotesize{ \noindent These are the top 6 most influential taxa for the
+    combined rib/scapula model.  The scatterplots for Syntrophomonadaceae,
+    Rhodocyclaceae, and Holophagaceae show that prevalences on scapulae tend to
+    be higher.
+    }
+
+\end{frame}
+
+
+
+\begin{frame}{Pred.\ vs. actual ADD for bones (without baseline obs.)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=3.1in]
+        {w_bones/bacteria/use_families/hl_combined_family_no_baseline_predicted_vs_actual_ADD}
+    \end{figure}
+  \end{center}
+    
+\end{frame}
+
+
+
+
+\begin{frame}{Further comments (omitting ADD 0)}
+  
+  \begin{itemize}
+    \item The following taxa were in the "top 10" influential taxa for all
+    three models:\\
+    Syntrophomonadaceae, Comamonadaceae, Rhodocyclaceae, Holophagaceae,
+    Pseudomonadaceae
+    \item The following influential taxa in the scapula model were not included
+    in the combined rib/scapula model:\\
+    Pirellulaceae, Campylobacteraceae, Crenotrichaceae, Sediment\_4
+    \item All four of the above taxa are in the top 5 most influential taxa for
+    the scapula-only model.  (See graph on next slide.)
+    
+  \end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}{Influential taxa for scapula-only model}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=2.1in]
+        {w_bones/bacteria/use_families/w_scapulae/no_baseline/infl_scapula_family_no_baseline_scatter}
+    \end{figure}
+  \end{center}
+
+  \vspace{-0.05in}
+
+  \footnotesize{ \noindent These are the top 6 most influential taxa for the
+    scapula-only model.  Look particularly at Pirellulaceae, Campylobacteraceae,
+    Crenotrichaceae, and Sediment\_4.  Even though their prevalences are very
+    low, they have definite patterns that seem to be strengthening the
+    scapula-only model. However, their prevalences in rib data are too low to
+    be included in the combined rib/scapula model.
+    }
+
+\end{frame}
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
