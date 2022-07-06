@@ -164,7 +164,7 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Omiting baseline observations}
 
-\begin{frame}{Comparison of rib, scapula, and combined models (omitting ADD 0)}
+\begin{frame}{Comparison of rib, scapula, and combined models (swabs, omitting ADD 0)}
 
   \begin{tabular}{lrrrr}
     Type & \# samples & \# taxa & RMSE & Expl.\ variation\\ \hline
@@ -172,59 +172,90 @@
     Scapulae & 26 & 37 & 526.5 & 82.4\% \\
     Combined & 53 & 17 & 607.8 & 77.3\%
   \end{tabular}
-  
-  \vspace{0.1in}
+
+  \vspace{0.2in}
+
+  \footnotesize{
+    \noindent It's interesting that combining ribs and scapulae samples model
+    doesn't improve things here.\\
+
+    \vspace{0.2in}
+    
+    In the next plot, take a look at the prevalence of Clostridiaceae, which is
+    the only taxon in the top 5 most influential for both ribs-only models and
+    scapula-only models.  However, its prevalence pattern differs in ribs and
+    scapulae.  So in the combined model, it's much less useful.
+
+    }
 
 \end{frame}
 
 
-% \begin{frame}{Pred.\ vs. actual ADD for swabs (without baseline obs.)}
 
-%   \begin{center}
-%     \begin{figure}
-%       \includegraphics[height=3.1in]
-%         {w_swabs/bacteria/use_families/hl_combined_family_no_baseline_predicted_vs_actual_ADD}
-%     \end{figure}
-%   \end{center}
+\begin{frame}{Influential taxa for swabs (omitting ADD 0)}
 
-% \end{frame}
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=2.85in]
+        {w_swabs/bacteria/use_families/hl_combined_family_no_baseline_6panels}
+    \end{figure}
+  \end{center}
 
-
-
-% \begin{frame}{Influential taxa for swabs (omitting ADD 0)}
-
-%   \begin{center}
-%     \begin{figure}
-%       \includegraphics[height=2.85in]
-%         {w_swabs/bacteria/use_families/hl_combined_family_no_baseline_6panels}
-%     \end{figure}
-%   \end{center}
-
-% \end{frame}
+\end{frame}
 
 
-% \begin{frame}{Influential taxa are different}
+
+\begin{frame}{Pred.\ vs. actual ADD for swabs (without baseline obs.)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=2.1in]
+        {w_swabs/bacteria/use_families/both_ribs_scapulae/no_baseline/infl_combined_swab_no_baseline_family_scatter}
+    \end{figure}
+  \end{center}
+
+  \vspace{0.15in}
+
+  \footnotesize{ \noindent These are the top 6 most influential taxa for the
+    combined rib/scapula model.  The scatterplots for Syntrophomonadaceae,
+    Sediment\_4, and Spirochaetaceae show differing patterns for ribs and
+    scapula.
+    }
+
+\end{frame}
+
+
+
+\begin{frame}{Pred.\ vs. actual ADD for swabs (without baseline obs.)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=3.1in]
+        {w_swabs/bacteria/use_families/hl_combined_family_no_baseline_predicted_vs_actual_ADD}
+    \end{figure}
+  \end{center}
+    
+\end{frame}
+
+
+
+\begin{frame}{Further comments (without baseline obs.)}
   
-%   \begin{itemize}
-%     \item The influential taxa are different for the analyses using ribs only,
-%     scapulae only, and combined ribs and scapulae.
-%     \item This is partly because, to be included in the combined rib/scapula
-%     model, a taxon must have a prevalence of at least 1\% in at least 2 rib
-%     samples \textbf{and} at least 2 swab samples.
-%     \begin{itemize}
-%       \item The following influential taxa in the rib model were not included in
-%     the combined rib/scapula model:\\
-%     Haliangiaceae and Rhodospirillaceae
-%     \item The following influential taxa in the scapula model were not included
-%     in the combined rib/scapula model:\\
-%     Methylocystaceae and Tissierellaceae
-%     \end{itemize}
-%     \item The following taxa were in the "top 10" influential taxa for all
-%     three models:\\
-%     Enterobacteriaceae and Methylococcaceae
-%   \end{itemize}
+  \begin{itemize}
+    \item The following influential taxa in the scapula model were not included
+    in the combined rib/scapula model:\\
+    Tissierellaceae, Chthoniobacteraceae, Oxalobacteraceae\\
+    The first 2 were in the top 5 most influential taxa for the scapula-only
+    model, which may be another factor in explaining the oddities of model
+    performance in this case.
+    \item The following taxa were in the "top 10" influential taxa for all
+    three models:\\
+    Enterobacteriaceae, Rikenellaceae, Sediment\_4, Holophagaceae,
+    Pseudomonadaceae, Clostridiaceae
+    
+  \end{itemize}
 
-% \end{frame}
+\end{frame}
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -232,7 +263,7 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Including baseline observations (with ADD 0)}
 
-\begin{frame}{Comparison of rib, scapula, and combined models (using ADD 0)}
+\begin{frame}{Comparison of rib, scapula, and combined models (swabs, using ADD 0)}
 
   \begin{tabular}{lrrrr}
     Type & \# samples & \# taxa & RMSE & Expl.\ variation\\ \hline
@@ -241,10 +272,62 @@
     Combined & 58 & 17 & 623.2 & 80.2\%
   \end{tabular}
 
+  \vspace{0.2in}
+
+  \footnotesize{
+    \noindent Again, the combined model doesn't improve things here.  This time,
+    the rib-only model in the best fit.\\
+    }
 \end{frame}
 
 
 
+\begin{frame}{Influential taxa for swabs (using ADD 0)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=2.85in]
+        {w_swabs/bacteria/use_families/hl_combined_family_w_baseline_6panels}
+    \end{figure}
+  \end{center}
+
+\end{frame}
+
+
+
+\begin{frame}{Pred.\ vs. actual ADD for swabs (using ADD 0)}
+
+  \begin{center}
+    \begin{figure}
+      \includegraphics[height=2.1in]
+        {w_swabs/bacteria/use_families/both_ribs_scapulae/w_baseline/infl_combined_swab_w_baseline_family_scatter}
+    \end{figure}
+  \end{center}
+
+  \vspace{0.15in}
+
+  \footnotesize{ \noindent These are the top 6 most influential taxa for the
+    combined rib/scapula model.  The scatterplots for Syntrophomonadaceae,
+    Sediment\_4, and Holophagaceae show differing patterns for ribs and
+    scapula.
+    }
+
+\end{frame}
+
+
+
+\begin{frame}{Further comments (using ADD 0)}
+  
+  \begin{itemize}
+    \item The following influential taxa in the scapula model were not included
+    in the combined rib/scapula model:\\
+    Chthoniobacteraceae, Pirellulaceae, Methylophilaceae
+    \item The following taxa were in the "top 10" influential taxa for all
+    three models:\\
+    Sediment\_4, Rikenellaceae, Holophagaceae, Pseudomonadaceae
+  \end{itemize}
+
+\end{frame}
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -258,7 +341,7 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Omiting baseline observations}
 
-\begin{frame}{Comparison of rib, scapula, and combined models (omitting ADD 0)}
+\begin{frame}{Comparison of rib, scapula, and combined models (bones, omitting ADD 0)}
 
   \begin{tabular}{lrrrr}
     Type & \# samples & \# taxa & RMSE & Expl.\ variation\\ \hline
@@ -269,12 +352,24 @@
 
   \vspace{0.2in}
 
-
+  \footnotesize{
+    \noindent The scapulae model performs notably better than the other two.
+    }
 
 \end{frame}
 
 
 
+% \begin{frame}{Influential taxa for swabs (omitting ADD 0)}
+
+%   \begin{center}
+%     \begin{figure}
+%       \includegraphics[height=2.85in]
+%         {w_bones/bacteria/use_families/hl_combined_family_no_baseline_6panels}
+%     \end{figure}
+%   \end{center}
+
+% \end{frame}
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
