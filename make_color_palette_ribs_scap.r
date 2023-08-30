@@ -10,10 +10,6 @@ library("ggpubr")
 # ##################################################
 # Get top influential taxa (based on %IncMSE) for all models which used bones.
 
-# Get the top "n" (whether 8, 10, whatever) influential taxa.
-n <- 5
-
-
 
 # ########################
 # Make a list of all the files containing all the models of interest.
@@ -121,6 +117,9 @@ modelFiles <- c(
 # ########################
 # For each model, read in top n most influential taxa, based on "%IncMSE".
 
+# Get the top "n" (whether 8, 10, whatever) influential taxa.
+n <- 5
+
 # We store the list of taxa name as we go through the loop in this object:
 infltaxa <- NULL
 
@@ -142,7 +141,7 @@ for (iFile in modelFiles){
 }
 
 # Many of the influential taxa are influential in more than one analysis, so we
-# removtehe duplicates.  Also, all the family-level taxa have a prefix of "f__"
+# remove the duplicates.  Also, all the family-level taxa have a prefix of "f__"
 # attached to the family name.  We remove this prefix.
 infltaxa <- str_remove(unique(infltaxa), "f__")
 
