@@ -110,8 +110,6 @@ typeSymbols <- c("circle", "square")
 names(typeSymbols) <- c("Rib", "Scapula")
 
 
-### WORKING HERE - NEED TO MAKE SYMBOLS BIGGER.
-
 
 # ########################
 # Swabs, ribs
@@ -120,8 +118,8 @@ names(typeSymbols) <- c("Rib", "Scapula")
 Rsq <- with(swabRibT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
 # RMSE around 1:1 line, not regression line.
 RMSE <- round(sqrt(mean(swabRibT$resids^2)), 2)
-ribscatterPanel <- ggplot(swabRibT, aes(x=actual, y=predicted)) +
-  geom_point(aes(shape=type, color=type), show.legend=F) +
+swabRibScatter <- ggplot(swabRibT, aes(x=actual, y=predicted)) +
+  geom_point(aes(shape=type, color=type), size=1.75, show.legend=F) +
   scale_color_manual(values=typeColors) +
   scale_shape_manual(values=typeSymbols) +
   geom_abline(slope=1, intercept=0) +
@@ -132,78 +130,186 @@ ribscatterPanel <- ggplot(swabRibT, aes(x=actual, y=predicted)) +
            label=paste("RMSE = ", RMSE)) +
   coord_fixed(ratio=1) +
   theme_bw() +
-  theme(axis.title.x = element_text(size=10),
+  theme(plot.margin=unit(c(t=1, r=1, b=1, l=1), "pt"),
+        axis.title.x = element_text(size=10),
         axis.title.y = element_text(size=10),
         plot.title=element_text(hjust=0.5, face="bold")) +
   labs(x="Actual Accumulated Degree Days",
-       y="Predicted Accumulated Degree Days",
-       title="Swabs, ribs")
+       y="Predicted Accumulated Degree Days")
+       # title="Swabs from ribs")
+# ########################      
+
+
+# ########################
+# Swabs, scapulae
+
+# Force Rsq to be printed to 2 decmial places.
+Rsq <- with(swabScapT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
+# RMSE around 1:1 line, not regression line.
+RMSE <- round(sqrt(mean(swabScapT$resids^2)), 2)
+swabScapScatter <- ggplot(swabScapT, aes(x=actual, y=predicted)) +
+  geom_point(aes(shape=type, color=type), size=1.75, show.legend=F) +
+  scale_color_manual(values=typeColors) +
+  scale_shape_manual(values=typeSymbols) +
+  geom_abline(slope=1, intercept=0) +
+  lims(x=c(0, maxAxis), y=c(0, maxAxis)) +
+  annotate("text", x=0.02*maxAxis, y=0.95*maxAxis, hjust=0,
+           label=paste("R^2  ==", deparse(Rsq)), parse=T) +
+  annotate("text", x=0.02*maxAxis, y=0.88*maxAxis, hjust=0,
+           label=paste("RMSE = ", RMSE)) +
+  coord_fixed(ratio=1) +
+  theme_bw() +
+  theme(plot.margin=unit(c(t=1, r=1, b=1, l=1), "pt"),
+        axis.title.x = element_text(size=10),
+        axis.title.y = element_text(size=10),
+        plot.title=element_text(hjust=0.5, face="bold")) +
+  labs(x="Actual Accumulated Degree Days",
+       y="Predicted Accumulated Degree Days")
+       # title="Swabs from scapulae")
+# ########################      
+
+
+# ########################
+# Swabs, ribs and scapulae (combined)
+
+# Force Rsq to be printed to 2 decmial places.
+Rsq <- with(swabCombT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
+# RMSE around 1:1 line, not regression line.
+RMSE <- round(sqrt(mean(swabCombT$resids^2)), 2)
+swabCombScatter <- ggplot(swabCombT, aes(x=actual, y=predicted)) +
+  geom_point(aes(shape=type, color=type), size=1.75, show.legend=F) +
+  scale_color_manual(values=typeColors) +
+  scale_shape_manual(values=typeSymbols) +
+  geom_abline(slope=1, intercept=0) +
+  lims(x=c(0, maxAxis), y=c(0, maxAxis)) +
+  annotate("text", x=0.02*maxAxis, y=0.95*maxAxis, hjust=0,
+           label=paste("R^2  ==", deparse(Rsq)), parse=T) +
+  annotate("text", x=0.02*maxAxis, y=0.88*maxAxis, hjust=0,
+           label=paste("RMSE = ", RMSE)) +
+  coord_fixed(ratio=1) +
+  theme_bw() +
+  theme(plot.margin=unit(c(t=1, r=1, b=1, l=1), "pt"),
+        axis.title.x = element_text(size=10),
+        axis.title.y = element_text(size=10),
+        plot.title=element_text(hjust=0.5, face="bold")) +
+  labs(x="Actual Accumulated Degree Days",
+       y="Predicted Accumulated Degree Days")
+       # title="Swabs from ribs and scapulae")
 # ########################      
 
 
 
 # ########################
-# Swabs from ribs: Predicted vs. actual ADD
+# Bones, ribs
 
-# Make a tibble of actual and predicted values for each observation.
-predvactT <- as_tibble(data.frame(predicted=swabsRibsRF$predicted,
-  actual=swabsRibsRF$y))
-predvactT$resids <- with(predvactT, actual - predicted)
 # Force Rsq to be printed to 2 decmial places.
-Rsq <- with(predvactT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
+Rsq <- with(boneRibT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
 # RMSE around 1:1 line, not regression line.
-RMSE <- round(sqrt(mean(predvactT$resids^2)), 2)  
-swabsRibsScatter <- ggplot(predvactT, aes(x=actual, y=predicted)) +
-  geom_point() +
+RMSE <- round(sqrt(mean(boneRibT$resids^2)), 2)
+boneRibScatter <- ggplot(boneRibT, aes(x=actual, y=predicted)) +
+  geom_point(aes(shape=type, color=type), size=1.75, show.legend=F) +
+  scale_color_manual(values=typeColors) +
+  scale_shape_manual(values=typeSymbols) +
   geom_abline(slope=1, intercept=0) +
-  annotate("text", x=50, y=5000, hjust=0, label=paste("R^2  ==", deparse(Rsq)),
-    parse=T) +
-  annotate("text", x=50, y=4600, hjust=0, label=paste("RMSE = ", RMSE)) + 
+  lims(x=c(0, maxAxis), y=c(0, maxAxis)) +
+  annotate("text", x=0.02*maxAxis, y=0.95*maxAxis, hjust=0,
+           label=paste("R^2  ==", deparse(Rsq)), parse=T) +
+  annotate("text", x=0.02*maxAxis, y=0.88*maxAxis, hjust=0,
+           label=paste("RMSE = ", RMSE)) +
   coord_fixed(ratio=1) +
-  theme_bw() + 
-  lims(x=c(0, maxaxis), y=c(0, maxaxis)) +
-  theme(axis.title.x = element_text(size=10),
-    axis.title.y = element_text(size=10)) +
+  theme_bw() +
+  theme(plot.margin=unit(c(t=1, r=1, b=1, l=1), "pt"),
+        axis.title.x = element_text(size=10),
+        axis.title.y = element_text(size=10),
+        plot.title=element_text(hjust=0.5, face="bold")) +
   labs(x="Actual Accumulated Degree Days",
-    y="Predicted Accumulated Degree Days")
-
-wBonesScatterPanel <- annotate_figure(wBonesScatterPanel,
-  top=text_grob("Using bones, with baseline obs", face="bold", size=14, vjust=1))
-# ########################
+       y="Predicted Accumulated Degree Days")
+  #      title="Ribs bones")
+# ########################      
 
 
 # ########################
-# Analysis 2 (with swabs): Predicted vs. actual ADD
+# Bones, scapulae
 
-# Make a tibble of actual and predicted values for each observation.
-predvactT <- as_tibble(data.frame(predicted=wSwabsRF$predicted, actual=wSwabsRF$y))
-predvactT$resids <- with(predvactT, actual - predicted)
 # Force Rsq to be printed to 2 decmial places.
-Rsq <- with(predvactT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
+Rsq <- with(boneScapT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
 # RMSE around 1:1 line, not regression line.
-RMSE <- round(sqrt(mean(predvactT$resids^2)), 2)  
-wSwabsScatterPanel <- ggplot(predvactT, aes(x=actual, y=predicted)) +
-  geom_point() +
+RMSE <- round(sqrt(mean(boneScapT$resids^2)), 2)
+boneScapScatter <- ggplot(boneScapT, aes(x=actual, y=predicted)) +
+  geom_point(aes(shape=type, color=type), size=1.75, show.legend=F) +
+  scale_color_manual(values=typeColors) +
+  scale_shape_manual(values=typeSymbols) +
   geom_abline(slope=1, intercept=0) +
-  annotate("text", x=50, y=5000, hjust=0, label=paste("R^2  ==", deparse(Rsq)),
-    parse=T) +
-  annotate("text", x=50, y=4600, hjust=0, label=paste("RMSE = ", RMSE)) + 
+  lims(x=c(0, maxAxis), y=c(0, maxAxis)) +
+  annotate("text", x=0.02*maxAxis, y=0.95*maxAxis, hjust=0,
+           label=paste("R^2  ==", deparse(Rsq)), parse=T) +
+  annotate("text", x=0.02*maxAxis, y=0.88*maxAxis, hjust=0,
+           label=paste("RMSE = ", RMSE)) +
   coord_fixed(ratio=1) +
-  theme_bw() + 
-  lims(x=c(0, maxaxis), y=c(0, maxaxis)) +
-  theme(axis.title.x = element_text(size=10),
-    axis.title.y = element_text(size=10)) +
-  labs(x="Actual Accumulated Degree Days", y="")
+  theme_bw() +
+  theme(plot.margin=unit(c(t=1, r=1, b=1, l=1), "pt"),
+        axis.title.x = element_text(size=10),
+        axis.title.y = element_text(size=10),
+        plot.title=element_text(hjust=0.5, face="bold")) +
+  labs(x="Actual Accumulated Degree Days",
+       y="Predicted Accumulated Degree Days")
+       # title="Scapulae bones")
+# ########################      
 
-wSwabsScatterPanel <- annotate_figure(wSwabsScatterPanel,
-  top=text_grob("Using swabs, with baseline obs", face="bold", size=14, vjust=1))
+
 # ########################
+# Bones, ribs and scapulae (combined)
+
+# Force Rsq to be printed to 2 decmial places.
+Rsq <- with(boneCombT, format(round(cor(actual, predicted)^2, 2), nsmall=2))
+# RMSE around 1:1 line, not regression line.
+RMSE <- round(sqrt(mean(boneCombT$resids^2)), 2)
+boneCombScatter <- ggplot(boneCombT, aes(x=actual, y=predicted)) +
+  geom_point(aes(shape=type, color=type), size=1.75, show.legend=F) +
+  scale_color_manual(values=typeColors) +
+  scale_shape_manual(values=typeSymbols) +
+  geom_abline(slope=1, intercept=0) +
+  lims(x=c(0, maxAxis), y=c(0, maxAxis)) +
+  annotate("text", x=0.02*maxAxis, y=0.95*maxAxis, hjust=0,
+           label=paste("R^2  ==", deparse(Rsq)), parse=T) +
+  annotate("text", x=0.02*maxAxis, y=0.88*maxAxis, hjust=0,
+           label=paste("RMSE = ", RMSE)) +
+  coord_fixed(ratio=1) +
+  theme_bw() +
+  theme(plot.margin=unit(c(t=1, r=1, b=1, l=1), "pt"),
+        axis.title.x = element_text(size=10),
+        axis.title.y = element_text(size=10),
+        plot.title=element_text(hjust=0.5, face="bold")) +
+  labs(x="Actual Accumulated Degree Days",
+       y="Predicted Accumulated Degree Days")
+       # title="Ribs and scapulae, bones")
+# ########################      
+
 
 
 # ########################
-plot_grid(wBonesScatterPanel, wSwabsScatterPanel, nrow=1)
+# To see default plot margin sizes: theme_get()$plot.margin
+swabTitle <- ggdraw() + draw_label("Swabs", fontface="bold")
+boneTitle <- ggdraw() + draw_label("Bones", fontface="bold")
 
-ggsave(file="hl_scapula_bones_vs_swabs_with_baseline_predicted_vs_actual_ADD.pdf",
-  height=4, width=7.5, units="in")
+ribTitle <- ggdraw() + draw_label("Ribs", fontface="bold", angle=90)
+scapTitle <- ggdraw() + draw_label("Scapulae", fontface="bold", angle=90)
+combTitle <- ggdraw() + draw_label("Ribs & scapulae", fontface="bold", angle=90)
+
+topTitleRow <- plot_grid("", swabTitle, boneTitle,
+                         nrow=1, ncol=3, rel_widths=c(0.1, 1, 1))
+ribRow <- plot_grid(ribTitle, swabRibScatter, boneRibScatter,
+                     nrow=1, ncol=3, rel_widths=c(0.1, 1, 1))
+scapRow <- plot_grid(scapTitle, swabScapScatter, boneScapScatter,
+                     nrow=1, ncol=3, rel_widths=c(0.1, 1, 1))
+combRow <- plot_grid(combTitle, swabCombScatter, boneCombScatter,
+                     nrow=1, ncol=3, rel_widths=c(0.1, 1, 1))
+
+plot_grid(topTitleRow, ribRow, scapRow,combRow,
+          nrow=4, ncol=1, rel_heights=c(0.15, 1, 1, 1))
+
+
+ggsave(file="hl_scatter_pred_vs_act_pmsi_swab_bone_w_baseline.pdf", height=9,
+       width=6.5, units="in")
 # ########################
 # ##################################################
