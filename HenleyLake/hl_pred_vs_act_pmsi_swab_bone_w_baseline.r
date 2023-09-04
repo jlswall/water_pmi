@@ -134,8 +134,9 @@ swabRibScatter <- ggplot(swabRibT, aes(x=actual, y=predicted)) +
         axis.title.x = element_text(size=10),
         axis.title.y = element_text(size=10),
         plot.title=element_text(hjust=0.5, face="bold")) +
-  labs(x="Actual Accumulated Degree Days",
-       y="Predicted Accumulated Degree Days")
+  labs(#x="Actual Accumulated Degree Days",
+        x="",
+        y="Predicted Accumulated Degree Days")
        # title="Swabs from ribs")
 # ########################      
 
@@ -163,7 +164,8 @@ swabScapScatter <- ggplot(swabScapT, aes(x=actual, y=predicted)) +
         axis.title.x = element_text(size=10),
         axis.title.y = element_text(size=10),
         plot.title=element_text(hjust=0.5, face="bold")) +
-  labs(x="Actual Accumulated Degree Days",
+  labs(#x="Actual Accumulated Degree Days",
+       x="",
        y="Predicted Accumulated Degree Days")
        # title="Swabs from scapulae")
 # ########################      
@@ -222,8 +224,10 @@ boneRibScatter <- ggplot(boneRibT, aes(x=actual, y=predicted)) +
         axis.title.x = element_text(size=10),
         axis.title.y = element_text(size=10),
         plot.title=element_text(hjust=0.5, face="bold")) +
-  labs(x="Actual Accumulated Degree Days",
-       y="Predicted Accumulated Degree Days")
+  labs(#x="Actual Accumulated Degree Days",
+       x="",
+       y="")
+       # y="Predicted Accumulated Degree Days")
   #      title="Ribs bones")
 # ########################      
 
@@ -251,8 +255,10 @@ boneScapScatter <- ggplot(boneScapT, aes(x=actual, y=predicted)) +
         axis.title.x = element_text(size=10),
         axis.title.y = element_text(size=10),
         plot.title=element_text(hjust=0.5, face="bold")) +
-  labs(x="Actual Accumulated Degree Days",
-       y="Predicted Accumulated Degree Days")
+  labs(#x="Actual Accumulated Degree Days",
+       x="",
+       y="")
+       # y="Predicted Accumulated Degree Days")
        # title="Scapulae bones")
 # ########################      
 
@@ -281,7 +287,8 @@ boneCombScatter <- ggplot(boneCombT, aes(x=actual, y=predicted)) +
         axis.title.y = element_text(size=10),
         plot.title=element_text(hjust=0.5, face="bold")) +
   labs(x="Actual Accumulated Degree Days",
-       y="Predicted Accumulated Degree Days")
+       y="")
+       # y="Predicted Accumulated Degree Days")
        # title="Ribs and scapulae, bones")
 # ########################      
 
