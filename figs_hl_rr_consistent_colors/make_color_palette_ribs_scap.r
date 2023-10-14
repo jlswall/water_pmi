@@ -6,6 +6,10 @@ library("cowplot")
 library("ggpubr")
 
 
+#  THIS CODE HAS BEEN ALTERED SO THAT IT ONLY CONSIDERS INFLUENTIAL TAXA BASED
+#  ON MODELS WHICH USE THE BASELINE OBSERVATIONS (ADD 0).
+
+
 
 # ##################################################
 # Get top influential taxa (based on %IncMSE) for all models which used bones.
@@ -23,12 +27,12 @@ modelFiles <- c(
   "HenleyLake/w_bones/bacteria/use_families/w_ribs/w_baseline/families_ribs_rfmodel.RData",
   "RiceRivers/w_bones/bacteria/use_families/w_ribs/w_baseline/families_ribs_rfmodel.RData"
 )
-#   For ribs, Henley Lake and Rice Rivers, WITHOUT baseline observations.
-modelFiles <- c(
-  modelFiles,
-  "HenleyLake/w_bones/bacteria/use_families/w_ribs/no_baseline/families_ribs_rfmodel.RData",
-  "RiceRivers/w_bones/bacteria/use_families/w_ribs/no_baseline/families_ribs_rfmodel.RData"
-)
+# #   For ribs, Henley Lake and Rice Rivers, WITHOUT baseline observations.
+# modelFiles <- c(
+#   modelFiles,
+#   "HenleyLake/w_bones/bacteria/use_families/w_ribs/no_baseline/families_ribs_rfmodel.RData",
+#   "RiceRivers/w_bones/bacteria/use_families/w_ribs/no_baseline/families_ribs_rfmodel.RData"
+# )
 
 
 # For analyses using BONES and SCAPULAE:
@@ -38,12 +42,12 @@ modelFiles <- c(
   "HenleyLake/w_bones/bacteria/use_families/w_scapulae/w_baseline/families_scapulae_rfmodel.RData",
   "RiceRivers/w_bones/bacteria/use_families/w_scapulae/w_baseline/families_scapulae_rfmodel.RData"
 )
-#   For scapulae, Henley Lake and Rice Rivers, WITHOUT baseline observations.
-modelFiles <- c(
-  modelFiles,
-  "HenleyLake/w_bones/bacteria/use_families/w_scapulae/no_baseline/families_scapulae_rfmodel.RData",
-  "RiceRivers/w_bones/bacteria/use_families/w_scapulae/no_baseline/families_scapulae_rfmodel.RData"
-)
+# #   For scapulae, Henley Lake and Rice Rivers, WITHOUT baseline observations.
+# modelFiles <- c(
+#   modelFiles,
+#   "HenleyLake/w_bones/bacteria/use_families/w_scapulae/no_baseline/families_scapulae_rfmodel.RData",
+#   "RiceRivers/w_bones/bacteria/use_families/w_scapulae/no_baseline/families_scapulae_rfmodel.RData"
+# )
 
 
 # For analyses using BONES and COMBINED ribs and scapulae:
@@ -53,12 +57,12 @@ modelFiles <- c(
   "HenleyLake/w_bones/bacteria/use_families/both_ribs_scapulae/w_baseline/families_combined_rfmodel.RData",
   "RiceRivers/w_bones/bacteria/use_families/both_ribs_scapulae/w_baseline/families_combined_rfmodel.RData"
 )
-#   For combined r&s, Henley Lake and Rice Rivers, WITHOUT baseline observations.
-modelFiles <- c(
-  modelFiles,
-  "HenleyLake/w_bones/bacteria/use_families/both_ribs_scapulae/no_baseline/families_combined_rfmodel.RData",
-  "RiceRivers/w_bones/bacteria/use_families/both_ribs_scapulae/no_baseline/families_combined_rfmodel.RData"
-)
+# #   For combined r&s, Henley Lake and Rice Rivers, WITHOUT baseline observations.
+# modelFiles <- c(
+#   modelFiles,
+#   "HenleyLake/w_bones/bacteria/use_families/both_ribs_scapulae/no_baseline/families_combined_rfmodel.RData",
+#   "RiceRivers/w_bones/bacteria/use_families/both_ribs_scapulae/no_baseline/families_combined_rfmodel.RData"
+# )
 # ##########
 
 
@@ -73,12 +77,12 @@ modelFiles <- c(
   "HenleyLake/w_swabs/bacteria/use_families/w_ribs/w_baseline/families_ribs_rfmodel.RData",
   "RiceRivers/w_swabs/bacteria/use_families/w_ribs/w_baseline/families_ribs_rfmodel.RData"
 )
-#   For ribs, Henley Lake and Rice Rivers, WITHOUT baseline observations.
-modelFiles <- c(
-  modelFiles,
-  "HenleyLake/w_swabs/bacteria/use_families/w_ribs/no_baseline/families_ribs_rfmodel.RData",
-  "RiceRivers/w_swabs/bacteria/use_families/w_ribs/no_baseline/families_ribs_rfmodel.RData"
-)
+# #   For ribs, Henley Lake and Rice Rivers, WITHOUT baseline observations.
+# modelFiles <- c(
+#   modelFiles,
+#   "HenleyLake/w_swabs/bacteria/use_families/w_ribs/no_baseline/families_ribs_rfmodel.RData",
+#   "RiceRivers/w_swabs/bacteria/use_families/w_ribs/no_baseline/families_ribs_rfmodel.RData"
+# )
 
 
 # For analyses using SWABS and SCAPULAE:
@@ -88,12 +92,12 @@ modelFiles <- c(
   "HenleyLake/w_swabs/bacteria/use_families/w_scapulae/w_baseline/families_scapulae_rfmodel.RData",
   "RiceRivers/w_swabs/bacteria/use_families/w_scapulae/w_baseline/families_scapulae_rfmodel.RData"
 )
-#   For scapulae, Henley Lake and Rice Rivers, WITHOUT baseline observations.
-modelFiles <- c(
-  modelFiles,
-  "HenleyLake/w_swabs/bacteria/use_families/w_scapulae/no_baseline/families_scapulae_rfmodel.RData",
-  "RiceRivers/w_swabs/bacteria/use_families/w_scapulae/no_baseline/families_scapulae_rfmodel.RData"
-)
+# #   For scapulae, Henley Lake and Rice Rivers, WITHOUT baseline observations.
+# modelFiles <- c(
+#   modelFiles,
+#   "HenleyLake/w_swabs/bacteria/use_families/w_scapulae/no_baseline/families_scapulae_rfmodel.RData",
+#   "RiceRivers/w_swabs/bacteria/use_families/w_scapulae/no_baseline/families_scapulae_rfmodel.RData"
+# )
 
 
 # For analyses using SWABS and COMBINED ribs and scapulae:
@@ -103,12 +107,12 @@ modelFiles <- c(
   "HenleyLake/w_swabs/bacteria/use_families/both_ribs_scapulae/w_baseline/families_combined_rfmodel.RData",
   "RiceRivers/w_swabs/bacteria/use_families/both_ribs_scapulae/w_baseline/families_combined_rfmodel.RData"
 )
-#   For combined r&s, Henley Lake and Rice Rivers, WITHOUT baseline observations.
-modelFiles <- c(
-  modelFiles,
-  "HenleyLake/w_swabs/bacteria/use_families/both_ribs_scapulae/no_baseline/families_combined_rfmodel.RData",
-  "RiceRivers/w_swabs/bacteria/use_families/both_ribs_scapulae/no_baseline/families_combined_rfmodel.RData"
-)
+# #   For combined r&s, Henley Lake and Rice Rivers, WITHOUT baseline observations.
+# modelFiles <- c(
+#   modelFiles,
+#   "HenleyLake/w_swabs/bacteria/use_families/both_ribs_scapulae/no_baseline/families_combined_rfmodel.RData",
+#   "RiceRivers/w_swabs/bacteria/use_families/both_ribs_scapulae/no_baseline/families_combined_rfmodel.RData"
+# )
 # ##########
 # ########################
 
@@ -118,7 +122,7 @@ modelFiles <- c(
 # For each model, read in top n most influential taxa, based on "%IncMSE".
 
 # Get the top "n" (whether 8, 10, whatever) influential taxa.
-n <- 5
+n <- 6
 
 # We store the list of taxa name as we go through the loop in this object:
 infltaxa <- NULL
@@ -129,7 +133,7 @@ for (iFile in modelFiles){
   load(iFile)
 
   # The fitted model is named "rf" in each file.
-  top5 <- importance(rf) %>%
+  toptaxa <- importance(rf) %>%
     as.data.frame() %>% 
     rownames_to_column("family") %>%
     as_tibble() %>%
@@ -137,7 +141,7 @@ for (iFile in modelFiles){
     pull(family)
 
   # Append these taxa to the list for all the models which came before.
-  infltaxa <- c(infltaxa, top5)
+  infltaxa <- c(infltaxa, toptaxa)
 }
 
 # Many of the influential taxa are influential in more than one analysis, so we
@@ -145,7 +149,7 @@ for (iFile in modelFiles){
 # attached to the family name.  We remove this prefix.
 infltaxa <- str_remove(unique(infltaxa), "f__")
 
-rm(rf, top5, iFile)
+rm(rf, toptaxa, iFile)
 # ##########
 # ##################################################
 
@@ -155,8 +159,6 @@ rm(rf, top5, iFile)
 # ##################################################
 # Set up colors for each of the influential taxa.
 
-# taxaColors <- c(hue_pal()(length(infltaxa)))
-# Get full set of 26 colors from the "alphabet2" palette in pals package.
 # fullSetColors <- alphabet2()
 # Now remove some colors which could be hard to distinguish.
 # excludeColors <- c("amethyst", "honey", "iron", "jade", "pink", "quagmire", "sea")
@@ -164,9 +166,8 @@ rm(rf, top5, iFile)
 # taxaColors <- fullSetColors[1:length(infltaxa)]
 # names(taxaColors) <- infltaxa
 
-# Get full set of 36 colors from the "polychrome" palette in pals package.
-fullSetColors <- polychrome()
-taxaColors <- fullSetColors[1:length(infltaxa)]
+# Get n=length(infltaxa) colors from the "polychrome" palette in pals package.
+taxaColors <- polychrome(n=length(infltaxa))
 names(taxaColors) <- infltaxa
 
 
